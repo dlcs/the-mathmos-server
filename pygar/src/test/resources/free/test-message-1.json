@@ -1,0 +1,22 @@
+{
+  "oa" : {
+    "@id" : "http://annotation-local.digtest.co.uk:80/annotation/oa/64edd991-3f26-4be0-888c-9d6ddc6b97d3/2e8cdaec-8818-4c0a-a671-7b8937ced55e",
+    "@type" : "oa:Annotation",
+    "hasBody" : {
+      "@type" : "oa:TextualBody",
+      "value" : "I like this page!"
+    },
+    "hasTarget" : "http://www.example.com/index.html",
+    "@context" : "https://raw.githubusercontent.com/stain/oa/master/oa.jsonld"
+  },
+  "w3c" : {
+    "id" : "http://annotation-local.digtest.co.uk:80/annotation/w3c/64edd991-3f26-4be0-888c-9d6ddc6b97d3/2e8cdaec-8818-4c0a-a671-7b8937ced55e",
+    "type" : "Annotation",
+    "body" : {
+      "type" : "TextualBody",
+      "value" : "I like this page!"
+    },
+    "target" : "http://www.example.com/index.html",
+    "@context" : "http://www.w3.org/ns/anno.jsonld"
+  }
+}

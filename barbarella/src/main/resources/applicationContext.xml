@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"      
+       xmlns:p="http://www.springframework.org/schema/p" xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:util="http://www.springframework.org/schema/util"
+       xmlns:task="http://www.springframework.org/schema/task"
+       xmlns:elasticsearch="http://www.springframework.org/schema/data/elasticsearch"
+       xsi:schemaLocation="http://www.springframework.org/schema/data/elasticsearch       
+       http://www.springframework.org/schema/data/elasticsearch/spring-elasticsearch-1.0.xsd
+	   http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans-4.3.xsd
+        http://www.springframework.org/schema/mvc
+        http://www.springframework.org/schema/mvc/spring-mvc-4.3.xsd
+        http://www.springframework.org/schema/context
+        http://www.springframework.org/schema/context/spring-context-4.3.xsd
+        http://www.springframework.org/schema/util
+        http://www.springframework.org/schema/util/spring-util-4.3.xsd
+        http://www.springframework.org/schema/task
+		http://www.springframework.org/schema/task/spring-task-4.3.xsd">
+
+	<context:annotation-config/>
+	
+	<context:component-scan base-package="com.digirati.barbarella" />
+	
+	<context:property-placeholder location="classpath:aws-consumer.properties" />
+	
+	<bean name="mainBean" class="com.digirati.barbarella.mapping.IndexAWSMessages"/>
+ 
+    <elasticsearch:repositories base-package="com.digirati.barbarella.repository"/>
+    
+    <task:annotation-driven />
+    
+    <elasticsearch:transport-client id="client" cluster-nodes="localhost:9300"/>
+    <bean name="elasticsearchTemplate" class="org.springframework.data.elasticsearch.core.ElasticsearchTemplate">
+        <constructor-arg name="client" ref="client"/>
+    </bean>
+    
+    <bean id="log4jInitialization" class="org.springframework.beans.factory.config.MethodInvokingFactoryBean"
+		p:targetClass="org.springframework.util.Log4jConfigurer"
+		p:targetMethod="initLogging"
+		p:arguments-ref="log4jArgs"
+	/>
+	
+	<util:list id="log4jArgs">
+		<value>${log4j.config.location}</value>
+		<value>${log4j.refresh.interval}</value>
+	</util:list>
+</beans>

@@ -1,0 +1,96 @@
+ {"oa" : {
+    "@context" : "http://iiif.io/api/presentation/2/context.json",
+    "@id" : "http://data.llgc.org.uk/def/cynefin/annotation/20456642545664352432368723075",
+    "@type" : "oa:Annotation",
+    "resource" : {
+      "@id" : "_:b0",
+      "@type" : "oa:SemanticTag",
+      "format" : "text/html",
+      "chars" : "<?xml version=\"1.0\" encoding=\"UTF-8\"?><p xmlns:oa=\"http://www.w3.org/ns/oa#\" xmlns:dc=\"http://purl.org/dc/elements/1.1/\" xmlns:rdf=\"http://www.w3.org/1999/02/22-rdf-syntax-ns#\" xmlns:cynefin=\"http://data.llgc.org.uk/def/cynefin/vocab/\" xmlns:rdfs=\"http://www.w3.org/2000/01/rdf-schema#\" xmlns:foaf=\"http://xmlns.com/foaf/0.1/\" xmlns:gn=\"http://www.geonames.org/ontology#\"><span property=\"http://data.llgc.org.uk/def/cynefin/feature/vtls003225361/A129\"><b>Landowner: </b><span property=\"\"><span resource=\"\" property=\"\"><span property=\"\"/></span></span><br/><b>Occupier: </b><span property=\"\"><span resource=\"\" property=\"\"><span property=\"\"/></span></span><br/><b>Field Number: </b><span property=\"http://purl.org/dc/elements/1.1/identifier\">A129</span><br/><b>Field Name: </b><span property=\"\"/><br/><b>Use: </b><span property=\"http://data.llgc.org.uk/def/cynefin/vocab/hasUse\"><span property=\"http://data.llgc.org.uk/def/cynefin/vocab/landuse\"><span property=\"\">Arable &amp; Hay</span></span></span><br/><b>Size: </b><span property=\"http://data.llgc.org.uk/def/cynefin/vocab/hasSize\"><span property=\"http://data.llgc.org.uk/def/cynefin/vocab/acres\">4</span> acres, <span property=\"http://data.llgc.org.uk/def/cynefin/vocab/roods\">0</span> roods, <span property=\"http://data.llgc.org.uk/def/cynefin/vocab/perches\">6</span> perches</span><br/><b>Value: </b><span property=\"http://data.llgc.org.uk/def/cynefin/vocab/hasTitheValue\">Â£<span property=\"http://data.llgc.org.uk/def/cynefin/vocab/pounds\">0</span>.<span property=\"http://data.llgc.org.uk/def/cynefin/vocab/shillings\">18</span>s<span property=\"http://data.llgc.org.uk/def/cynefin/vocab/pence\">6</span>d</span><br/><span property=\"http://data.llgc.org.uk/def/cynefin/vocab/isDocumentedBy\" resource=\"http://data.llgc.org.uk/def/cynefin/app/vtls003225361\"/></span></p>",
+      "foaf:primaryTopic" : {
+        "@id" : "http://data.llgc.org.uk/def/cynefin/feature/vtls003225361/A129",
+        "@type" : "http://www.geonames.org/ontology#Feature",
+        "http://data.llgc.org.uk/def/cynefin/vocab/hasSize" : {
+          "@id" : "_:b3",
+          "http://data.llgc.org.uk/def/cynefin/vocab/acres" : "4",
+          "http://data.llgc.org.uk/def/cynefin/vocab/perches" : "6",
+          "http://data.llgc.org.uk/def/cynefin/vocab/roods" : "0"
+        },
+        "http://data.llgc.org.uk/def/cynefin/vocab/hasTitheValue" : {
+          "@id" : "_:b4",
+          "http://data.llgc.org.uk/def/cynefin/vocab/pence" : "6",
+          "http://data.llgc.org.uk/def/cynefin/vocab/pounds" : "0",
+          "http://data.llgc.org.uk/def/cynefin/vocab/shillings" : "18"
+        },
+        "http://data.llgc.org.uk/def/cynefin/vocab/hasUse" : {
+          "@id" : "_:b5",
+          "@type" : "http://data.llgc.org.uk/def/cynefin/vocab/landuse",
+          "label" : "Arable & Hay"
+        },
+        "http://data.llgc.org.uk/def/cynefin/vocab/isDocumentedBy" : {
+          "@id" : "http://data.llgc.org.uk/def/cynefin/app/vtls003225361"
+        },
+        "dc:identifier" : "A129"
+      }
+    },
+    "on" : {
+      "@id" : "_:b1",
+      "@type" : "oa:SpecificResource",
+      "selector" : {
+        "@id" : "_:b2",
+        "@type" : "oa:FragmentSelector",
+        "dcterms:conformsTo" : "http://www.w3.org/TR/media-frags/",
+        "value" : "xywh=2432,3687,2307,5"
+      },
+      "full" : "http://dams.llgc.org.uk/iiif/2.0/4566425/canvas/4566435"
+    },
+    "motivation" : "oa:commenting"
+  },
+ "w3c" : {
+  "@context": "http://www.w3.org/ns/anno.jsonld",
+  "id": "http://data.llgc.org.uk/def/cynefin/annotation/20456642545664352432368723075",
+  "type": "Annotation",
+  "body": {
+    "id": "_:b0",
+    "type": "oa:SemanticTag",
+    "format": "text/html",
+    "http://www.w3.org/2011/content#chars": "<?xml version=\"1.0\" encoding=\"UTF-8\"?><p xmlns:oa=\"http://www.w3.org/ns/oa#\" xmlns:dc=\"http://purl.org/dc/elements/1.1/\" xmlns:rdf=\"http://www.w3.org/1999/02/22-rdf-syntax-ns#\" xmlns:cynefin=\"http://data.llgc.org.uk/def/cynefin/vocab/\" xmlns:rdfs=\"http://www.w3.org/2000/01/rdf-schema#\" xmlns:foaf=\"http://xmlns.com/foaf/0.1/\" xmlns:gn=\"http://www.geonames.org/ontology#\"><span property=\"http://data.llgc.org.uk/def/cynefin/feature/vtls003225361/A129\"><b>Landowner: </b><span property=\"\"><span resource=\"\" property=\"\"><span property=\"\"/></span></span><br/><b>Occupier: </b><span property=\"\"><span resource=\"\" property=\"\"><span property=\"\"/></span></span><br/><b>Field Number: </b><span property=\"http://purl.org/dc/elements/1.1/identifier\">A129</span><br/><b>Field Name: </b><span property=\"\"/><br/><b>Use: </b><span property=\"http://data.llgc.org.uk/def/cynefin/vocab/hasUse\"><span property=\"http://data.llgc.org.uk/def/cynefin/vocab/landuse\"><span property=\"\">Arable &amp; Hay</span></span></span><br/><b>Size: </b><span property=\"http://data.llgc.org.uk/def/cynefin/vocab/hasSize\"><span property=\"http://data.llgc.org.uk/def/cynefin/vocab/acres\">4</span> acres, <span property=\"http://data.llgc.org.uk/def/cynefin/vocab/roods\">0</span> roods, <span property=\"http://data.llgc.org.uk/def/cynefin/vocab/perches\">6</span> perches</span><br/><b>Value: </b><span property=\"http://data.llgc.org.uk/def/cynefin/vocab/hasTitheValue\">Â£<span property=\"http://data.llgc.org.uk/def/cynefin/vocab/pounds\">0</span>.<span property=\"http://data.llgc.org.uk/def/cynefin/vocab/shillings\">18</span>s<span property=\"http://data.llgc.org.uk/def/cynefin/vocab/pence\">6</span>d</span><br/><span property=\"http://data.llgc.org.uk/def/cynefin/vocab/isDocumentedBy\" resource=\"http://data.llgc.org.uk/def/cynefin/app/vtls003225361\"/></span></p>",
+    "foaf:primaryTopic": {
+      "id": "http://data.llgc.org.uk/def/cynefin/feature/vtls003225361/A129",
+      "type": "http://www.geonames.org/ontology#Feature",
+      "http://data.llgc.org.uk/def/cynefin/vocab/hasSize": {
+        "id": "_:b3",
+        "http://data.llgc.org.uk/def/cynefin/vocab/acres": "4",
+        "http://data.llgc.org.uk/def/cynefin/vocab/perches": "6",
+        "http://data.llgc.org.uk/def/cynefin/vocab/roods": "0"
+      },
+      "http://data.llgc.org.uk/def/cynefin/vocab/hasTitheValue": {
+        "id": "_:b4",
+        "http://data.llgc.org.uk/def/cynefin/vocab/pence": "6",
+        "http://data.llgc.org.uk/def/cynefin/vocab/pounds": "0",
+        "http://data.llgc.org.uk/def/cynefin/vocab/shillings": "18"
+      },
+      "http://data.llgc.org.uk/def/cynefin/vocab/hasUse": {
+        "id": "_:b5",
+        "type": "http://data.llgc.org.uk/def/cynefin/vocab/landuse",
+        "label": "Arable & Hay"
+      },
+      "http://data.llgc.org.uk/def/cynefin/vocab/isDocumentedBy": {
+        "id": "http://data.llgc.org.uk/def/cynefin/app/vtls003225361"
+      },
+      "dc:identifier": "A129"
+    }
+  },
+  "target": {
+    "id": "_:b1",
+    "type": "SpecificResource",
+    "selector": {
+      "id": "_:b2",
+      "type": "FragmentSelector",
+      "dcterms:conformsTo": "http://www.w3.org/TR/media-frags/",
+      "value": "xywh=2432,3687,2307,5"
+    },
+    "source": "http://dams.llgc.org.uk/iiif/2.0/4566425/canvas/4566435"
+  },
+  "motivation": "commenting"
+}}

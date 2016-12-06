@@ -1,0 +1,171 @@
+{
+  "oa" : {
+    "@id" : "http://annotation-local.digtest.co.uk:80/annotation/oa/70fbd357-874c-46c2-8533-04eb33cc6445/c5c8f275-a9c4-499e-96b0-d35a0d2e302b",
+    "@type" : "oa:Annotation",
+    "dcterms:created" : {
+      "@type" : "xsd:dateTime",
+      "@value" : "2015-10-13T13:00:00Z"
+    },
+    "dcterms:creator" : {
+      "@id" : "http://example.org/user1",
+      "@type" : "foaf:Person",
+      "name" : "A. Person",
+      "foaf:nick" : "user1"
+    },
+    "dcterms:issued" : {
+      "@type" : "xsd:dateTime",
+      "@value" : "2015-10-14T15:13:28Z"
+    },
+    "http://www.w3.org/ns/activitystreams#generator" : {
+      "@id" : "http://example.org/client1",
+      "@type" : "http://www.w3.org/ns/activitystreams#Application",
+      "foaf:homepage" : {
+        "@id" : "http://example.org/homepage1"
+      },
+      "name" : "Code v2.1"
+    },
+    "hasBody" : [ {
+      "@type" : "oa:TextualBody",
+      "value" : "love",
+      "oa:hasPurpose" : {
+        "@id" : "oa:tagging"
+      }
+    }, {
+      "@type" : "oa:Choice",
+      "http://www.w3.org/ns/activitystreams#items" : {
+        "@list" : [ {
+          "@type" : "oa:TextualBody",
+          "format" : "text/plain",
+          "language" : "en",
+          "dcterms:creator" : {
+            "@id" : "http://example.org/user1"
+          },
+          "value" : "I really love this particular bit of text in this XML. No really.",
+          "oa:hasPurpose" : {
+            "@id" : "oa:describing"
+          }
+        }, {
+          "@type" : "oa:SpecificResource",
+          "oa:hasPurpose" : {
+            "@id" : "oa:describing"
+          },
+          "hasSource" : {
+            "@id" : "http://example.org/comment1",
+            "@type" : "dctypes:Sound",
+            "format" : "audio/mpeg",
+            "language" : "de",
+            "dcterms:creator" : {
+              "@id" : "http://example.org/user2",
+              "@type" : "foaf:Person"
+            }
+          }
+        } ]
+      }
+    } ],
+    "hasTarget" : {
+      "@type" : "oa:SpecificResource",
+      "hasSelector" : {
+        "@type" : "oa:FragmentSelector",
+        "value" : "xpointer(/doc/body/section[2]/para[1])",
+        "oa:refinedBy" : {
+          "@type" : "oa:TextPositionSelector",
+          "end" : 27,
+          "start" : 6
+        }
+      },
+      "hasSource" : "http://example.com/document1",
+      "hasState" : {
+        "@type" : "HttpRequestState",
+        "value" : "Accept: application/xml",
+        "oa:refinedBy" : {
+          "@type" : "oa:TimeState",
+          "oa:sourceDate" : {
+            "@type" : "xsd:dateTime",
+            "@value" : "2015-09-25T12:00:00Z"
+          }
+        }
+      },
+      "styleClass" : "mystyle"
+    },
+    "motivatedBy" : "oa:commenting",
+    "styledBy" : {
+      "@id" : "http://example.org/stylesheet1",
+      "@type" : "oa:CssStyle"
+    },
+    "@context" : "https://raw.githubusercontent.com/stain/oa/master/oa.jsonld"
+  },
+  "w3c" : {
+    "id" : "http://annotation-local.digtest.co.uk:80/annotation/w3c/70fbd357-874c-46c2-8533-04eb33cc6445/c5c8f275-a9c4-499e-96b0-d35a0d2e302b",
+    "type" : "Annotation",
+    "created" : "2015-10-13T13:00:00Z",
+    "creator" : {
+      "id" : "http://example.org/user1",
+      "type" : "Person",
+      "name" : "A. Person",
+      "nickname" : "user1"
+    },
+    "generated" : "2015-10-14T15:13:28Z",
+    "generator" : {
+      "id" : "http://example.org/client1",
+      "type" : "Software",
+      "homepage" : "http://example.org/homepage1",
+      "name" : "Code v2.1"
+    },
+    "body" : [ {
+      "type" : "TextualBody",
+      "value" : "love",
+      "purpose" : "tagging"
+    }, {
+      "type" : "Choice",
+      "items" : [ {
+        "type" : "TextualBody",
+        "format" : "text/plain",
+        "language" : "en",
+        "creator" : "http://example.org/user1",
+        "value" : "I really love this particular bit of text in this XML. No really.",
+        "purpose" : "describing"
+      }, {
+        "type" : "SpecificResource",
+        "purpose" : "describing",
+        "source" : {
+          "id" : "http://example.org/comment1",
+          "type" : "Audio",
+          "format" : "audio/mpeg",
+          "language" : "de",
+          "creator" : {
+            "id" : "http://example.org/user2",
+            "type" : "Person"
+          }
+        }
+      } ]
+    } ],
+    "target" : {
+      "type" : "SpecificResource",
+      "selector" : {
+        "type" : "FragmentSelector",
+        "value" : "xpointer(/doc/body/section[2]/para[1])",
+        "refinedBy" : {
+          "type" : "TextPositionSelector",
+          "end" : 27,
+          "start" : 6
+        }
+      },
+      "source" : "http://example.com/document1",
+      "state" : {
+        "type" : "HttpRequestState",
+        "value" : "Accept: application/xml",
+        "refinedBy" : {
+          "type" : "TimeState",
+          "sourceDate" : "2015-09-25T12:00:00Z"
+        }
+      },
+      "styleClass" : "mystyle"
+    },
+    "motivation" : "commenting",
+    "stylesheet" : {
+      "id" : "http://example.org/stylesheet1",
+      "type" : "CssStylesheet"
+    },
+    "@context" : "http://www.w3.org/ns/anno.jsonld"
+  }
+}
