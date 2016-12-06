@@ -3,7 +3,7 @@
 The Mathmos is a Web Search Service compliant with the [IIIF Content Search API](http://iiif.io/api/search/1.0/). We can index Annotations provided by the Elucidates Server using Pygar. Elucidate can put messages into an AWS SQS Queue whenever an Annotation is created, updated or deleted.  We can index Image Text provided by the Starsky Server using Barbarella.  Starsky can put messages into an AWS SQS Queue which contain the text associated with an image. 
 
 ### Pygar:
-In contrast to [barbarella](barbarella), [pygar](pygar) has its own mapping. Springdata for elasticsearch automatically creates a mapping for barbarella from the annotated entity [W3CSearchAnnotation](pygar\src\main\java\com\digirati\pygar\W3CSearchAnnotation.java).  This is not possible for [pygar](pygar), so its  mapping is:
+In contrast to [barbarella](barbarella), [pygar](pygar) has its own mapping. Springdata for elasticsearch automatically creates a mapping for barbarella from the annotated entity [W3CSearchAnnotation](/pygar/src/main/java/com/digirati/pygar/W3CSearchAnnotation.java).  This is not possible for [pygar](pygar), so its  mapping is:
 ```
 PUT text_index
 {
