@@ -1,26 +1,26 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-  <modelVersion>4.0.0</modelVersion>
-  <artifactId>pygar</artifactId>
-  <packaging>jar</packaging>
-  <name>Pygar</name>
-  
-  
-  <parent>
+	<modelVersion>4.0.0</modelVersion>
+	<artifactId>pygar</artifactId>
+	<packaging>jar</packaging>
+	<name>Pygar</name>
+
+
+	<parent>
 		<groupId>com.digirati.themathmos</groupId>
 		<artifactId>the-mathmos-parent</artifactId>
 		<version>1.0.0-SNAPSHOT</version>
 	</parent>
-  
-  <properties>
-  		<jdk.version>1.8</jdk.version>
+
+	<properties>
+		<jdk.version>1.8</jdk.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	</properties>
 
-	
+
 	<build>
 		<finalName>pygar</finalName>
-		 
+
 		<resources>
 			<resource>
 				<directory>src/main/resources</directory>
@@ -29,9 +29,9 @@
 				</excludes>
 			</resource>
 		</resources>
-		
+
 		<plugins>
-	 
+
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-assembly-plugin</artifactId>
@@ -55,7 +55,7 @@
 		</plugins>
 
 	</build>
-	
+
 	<dependencies>
 		<!-- JSON-LD Dependencies -->
 		<dependency>
@@ -69,15 +69,15 @@
 			<artifactId>jackson-databind</artifactId>
 			<version>${jackson-version}</version>
 		</dependency>
-		<!--  Gson: Java to Json conversion -->
-    	<dependency>
-      		<groupId>com.google.code.gson</groupId>
-      		<artifactId>gson</artifactId>
-      		<version>${gson-version}</version>
-      		<scope>compile</scope>
-   	 	</dependency>
-   	 	
-	    <dependency>
+		<!-- Gson: Java to Json conversion -->
+		<dependency>
+			<groupId>com.google.code.gson</groupId>
+			<artifactId>gson</artifactId>
+			<version>${gson-version}</version>
+			<scope>compile</scope>
+		</dependency>
+
+		<dependency>
 			<groupId>javax.servlet</groupId>
 			<artifactId>javax.servlet-api</artifactId>
 			<version>${javax-servlet-api-version}</version>
@@ -94,8 +94,8 @@
 			<artifactId>jstl</artifactId>
 			<version>${jstl-version}</version>
 		</dependency>
-		
-         <!-- Logging Dependencies -->
+
+		<!-- Logging Dependencies -->
 		<dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-log4j12</artifactId>
@@ -106,9 +106,9 @@
 			<artifactId>log4j</artifactId>
 			<version>${log4j-version}</version>
 		</dependency>
-		
-        <!-- Apache Commons Dependencies -->
-        <dependency>
+
+		<!-- Apache Commons Dependencies -->
+		<dependency>
 			<groupId>commons-io</groupId>
 			<artifactId>commons-io</artifactId>
 			<version>${commons-io-version}</version>
@@ -128,14 +128,14 @@
 			<artifactId>httpmime</artifactId>
 			<version>${httpmime-version}</version>
 		</dependency>
-		
+
 		<!-- Apache Commons Dependencies -->
 		<dependency>
 			<groupId>org.apache.commons</groupId>
 			<artifactId>commons-lang3</artifactId>
 			<version>${commons-lang3-version}</version>
 		</dependency>
-		
+
 		<!-- SPRING DEPENDENCIES -->
 		<dependency>
 			<groupId>org.springframework</groupId>
@@ -150,43 +150,43 @@
 		<!-- ELASTICSEARCH DEPENDENCIES -->
 		<!-- https://mvnrepository.com/artifact/org.elasticsearch/elasticsearch -->
 		<dependency>
-		    <groupId>org.elasticsearch</groupId>
-		    <artifactId>elasticsearch</artifactId>
-		   <!-- <version>5.0.0</version> not working with spring-data-elasticsearch-->
-		      <version>${elasticsearch-version}</version>
+			<groupId>org.elasticsearch</groupId>
+			<artifactId>elasticsearch</artifactId>
+			<!-- <version>5.0.0</version> not working with spring-data-elasticsearch -->
+			<version>${elasticsearch-version}</version>
 		</dependency>
 
 		<dependency>
-        <groupId>org.springframework.data</groupId>
-        <artifactId>spring-data-elasticsearch</artifactId>
-        <version>${spring-data-elasticsearch-version}</version>
-    </dependency>
-    
-    <dependency>
-    	<groupId>org.jsoup</groupId>
-    	<artifactId>jsoup</artifactId>
-    	<version>${jsoup-version}</version>
-	</dependency>
-	
-	<!-- Amazon AWS Dependencies -->
+			<groupId>org.springframework.data</groupId>
+			<artifactId>spring-data-elasticsearch</artifactId>
+			<version>${spring-data-elasticsearch-version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.jsoup</groupId>
+			<artifactId>jsoup</artifactId>
+			<version>${jsoup-version}</version>
+		</dependency>
+
+		<!-- Amazon AWS Dependencies -->
 		<dependency>
 			<groupId>com.amazonaws</groupId>
 			<artifactId>aws-java-sdk-sqs</artifactId>
 			<version>${aws-sdk-version}</version>
 		</dependency>
-<!-- Testing Dependencies -->
+		<!-- Testing Dependencies -->
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
 			<version>${junit-version}</version>
 			<scope>test</scope>
 		</dependency>
-			<dependency>
-    	<groupId>org.mockito</groupId>
-    	<artifactId>mockito-all</artifactId>
-    	<version>1.10.8</version>
-    	<scope>test</scope>
-	</dependency>
+		<dependency>
+			<groupId>org.mockito</groupId>
+			<artifactId>mockito-all</artifactId>
+			<version>1.10.8</version>
+			<scope>test</scope>
+		</dependency>
 
 	</dependencies>
 </project>
