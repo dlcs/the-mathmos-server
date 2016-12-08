@@ -1,0 +1,64 @@
+{
+  "oa" : {
+	 "@id": "https://annotation-dev.digtest.co.uk:443/annotation/oa/7f548f8cadfd52ca1ce258d222ec908c_a/5464471c-de1a-4e69-8df4-1f4979e5ad32",
+      "@type": "oa:Annotation",
+      "hasBody": [
+        {
+          "@type": "oa:TextualBody",
+          "format": "text/plain",
+          "value": "less than two hours "
+        },
+        {
+          "value": "entity:DATE",
+          "oa:hasPurpose": {
+            "@id": "oa:tagging"
+          }
+        }
+      ],
+      "hasTarget": {
+        "@type": "oa:SpecificResource",
+        "dcterms:isPartOf": "http://mirador-dev.digtest.co.uk/test_b.json",
+        "hasSelector": {
+          "@type": "oa:FragmentSelector",
+          "conformsTo": "http://www.w3.org/TR/media-frags/",
+          "value": "xywh=657,901,100,31"
+        },
+        "hasSource": "https://dlcs.io/iiif-query/4/?canvas=n2&manifest=s1&sequence=n1&s1=M-1011_R-127&n1=&n2=285"
+      },
+      "motivatedBy": [
+        "oa:tagging",
+        "oa:commenting"
+      ],
+      "@context": "https://raw.githubusercontent.com/stain/oa/master/oa.jsonld"
+   },
+   "w3c" : { 
+	  "id": "https://annotation-dev.digtest.co.uk:443/annotation/w3c/7f548f8cadfd52ca1ce258d222ec908c_a/5464471c-de1a-4e69-8df4-1f4979e5ad32",
+        "type": "Annotation",
+        "body": [
+          {
+            "type": "TextualBody",
+            "format": "text/plain",
+            "value": "less than two hours "
+          },
+          {
+            "value": "entity:DATE",
+            "purpose": "tagging"
+          }
+        ],
+        "target": {
+          "type": "SpecificResource",
+          "dcterms:isPartOf": "http://mirador-dev.digtest.co.uk/test_b.json",
+          "selector": {
+            "type": "FragmentSelector",
+            "conformsTo": "http://www.w3.org/TR/media-frags/",
+            "value": "xywh=657,901,100,31"
+          },
+          "source": "https://dlcs.io/iiif-query/4/?canvas=n2&manifest=s1&sequence=n1&s1=M-1011_R-127&n1=&n2=285"
+        },
+        "motivation": [
+          "tagging",
+          "commenting"
+        ],
+        "@context": "http://www.w3.org/ns/anno.jsonld"
+   }
+}
