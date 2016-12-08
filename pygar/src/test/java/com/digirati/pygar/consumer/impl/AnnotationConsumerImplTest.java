@@ -14,6 +14,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.log4j.Logger;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -31,9 +32,10 @@ import com.amazonaws.services.sqs.model.ReceiveMessageRequest;
 import com.amazonaws.services.sqs.model.ReceiveMessageResult;
 import com.digirati.pygar.consumer.impl.AnnotationConsumerImpl;
 
+
 public class AnnotationConsumerImplTest {
 
-    
+    private final static Logger LOG = Logger.getLogger(AnnotationConsumerImplTest.class);
     AnnotationConsumerImpl annotationConsumerImpl;
     private AmazonSQS amazonSqs;
     
@@ -53,7 +55,7 @@ public class AnnotationConsumerImplTest {
 	annotationConsumerImpl = new AnnotationConsumerImpl("accessKey", "secretKey", "EU_WEST_1", "queueUrl");
 	}catch (AmazonSQSException ase){
 	    assertNotNull(ase);
-	    System.out.println(ase);
+	    LOG.info(ase);
 	}
 	amazonSqs = mock(AmazonSQS.class);
 	ListQueuesResult listQueuesResult = mock(ListQueuesResult.class); 	

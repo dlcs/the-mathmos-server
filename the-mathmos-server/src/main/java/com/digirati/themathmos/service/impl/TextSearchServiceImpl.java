@@ -151,7 +151,7 @@ public class TextSearchServiceImpl implements TextSearchService {
 	LOG.info("PositionMap " + positionMap.toString());
 	String payload = new Gson().toJson(offsetPayloadMap);
 	
-	pagingParameters = textUtils.getAnnotationPageParameters(annotationPage, queryString, DEFAULT_PAGING_NUMBER);
+	pagingParameters = textUtils.getAnnotationPageParameters(annotationPage, queryString, DEFAULT_PAGING_NUMBER, totalHits);
 	
 	if (StringUtils.isEmpty(payload)) {
 	    return new ServiceResponse<>(Status.NOT_FOUND, null);

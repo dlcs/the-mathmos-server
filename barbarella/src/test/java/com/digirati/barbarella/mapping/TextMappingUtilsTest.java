@@ -11,12 +11,14 @@ import java.nio.file.Paths;
 
 import java.util.Map;
 
+import org.apache.log4j.Logger;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.springframework.core.io.DefaultResourceLoader;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
+
 
 import com.digirati.barbarella.TextAnnotation;
 import com.digirati.barbarella.mapping.TextFieldData;
@@ -25,7 +27,7 @@ import com.digirati.barbarella.mapping.TextMappingUtils;
 public class TextMappingUtilsTest {
     
 
-      
+    private final static Logger LOG = Logger.getLogger(TextMappingUtilsTest.class); 
     
  
     private ResourceLoader resourceLoader;
@@ -49,10 +51,10 @@ public class TextMappingUtilsTest {
     public void testDetermineJsonMappingType() throws IOException {
 	
 	
-	System.out.println("test-message-1.json");
-	System.out.println("-------------------");
+	LOG.info("test-message-1.json");
+	LOG.info("-------------------");
 	String content = getFileContents("test-message-1.json");
-	System.out.println(content);
+	LOG.info(content);
 	
 	TextFieldData data = mappingUtils.determineJsonMappingType(content);
 	Map<String, String> bodyData = data.getFieldData();
@@ -61,15 +63,15 @@ public class TextMappingUtilsTest {
 	
 	
 	content = getFileContents("test-message-2.json");
-	System.out.println("test-message-2.json");
-	System.out.println("-------------------");
-	System.out.println(content);
+	LOG.info("test-message-2.json");
+	LOG.info("-------------------");
+	LOG.info(content);
 	data = mappingUtils.determineJsonMappingType(content);
 	
 	content = getFileContents("test-message-3.json");
-	System.out.println("test-message-3.json");
-	System.out.println("-------------------");
-	System.out.println(content);
+	LOG.info("test-message-3.json");
+	LOG.info("-------------------");
+	LOG.info(content);
 	data = mappingUtils.determineJsonMappingType(content);
 	
 	
@@ -79,9 +81,9 @@ public class TextMappingUtilsTest {
 	
 	
 	content = getFileContents("test-message-null.json");
-	System.out.println("test-message-null.json");
-	System.out.println("-------------------");
-	System.out.println(content);
+	LOG.info("test-message-null.json");
+	LOG.info("-------------------");
+	LOG.info(content);
 	data = mappingUtils.determineJsonMappingType(content);
 	assertNull(data);
 	
@@ -89,10 +91,10 @@ public class TextMappingUtilsTest {
     
     @Test
     public void testAddAnnotations() throws IOException {
-	System.out.println("test-message-1.json");
-	System.out.println("-------------------");
+	LOG.info("test-message-1.json");
+	LOG.info("-------------------");
 	String content = getFileContents("test-message-1.json");
-	System.out.println(content);
+	LOG.info(content);
 	
 	TextFieldData data = mappingUtils.determineJsonMappingType(content);
 	Map<String, String> bodyData = data.getFieldData();
@@ -106,10 +108,10 @@ public class TextMappingUtilsTest {
 	
 	
 	
-	System.out.println("test-message-2.json");
-	System.out.println("-------------------");
+	LOG.info("test-message-2.json");
+	LOG.info("-------------------");
 	content = getFileContents("test-message-2.json");
-	System.out.println(content);
+	LOG.info(content);
 	
 	data = mappingUtils.determineJsonMappingType(content);
 	bodyData = data.getFieldData();
@@ -121,10 +123,10 @@ public class TextMappingUtilsTest {
 	
 	
 	
-	System.out.println("test-message-3.json");
-	System.out.println("-------------------");
+	LOG.info("test-message-3.json");
+	LOG.info("-------------------");
 	content = getFileContents("test-message-3.json");
-	System.out.println(content);
+	LOG.info(content);
 	
 	data = mappingUtils.determineJsonMappingType(content);
 	bodyData = data.getFieldData();

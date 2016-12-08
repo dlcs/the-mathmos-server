@@ -13,8 +13,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-
-
+import org.apache.log4j.Logger;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -31,6 +30,7 @@ import com.digirati.themathmos.service.impl.TextUtils;
 
 public class TextUtilsTest {
 
+    private final static Logger LOG = Logger.getLogger(TextUtilsTest.class);
     TextUtils textUtils;
     
     private ResourceLoader resourceLoader;
@@ -124,7 +124,7 @@ public class TextUtilsTest {
 	
 	positions = textUtils.sortPositionsForMultiwordPhrase(termWithOffsetsList, offsetMap, positionsList);
 	assertTrue(positions.size() == 3);
-	System.out.println(positions);
+	LOG.info(positions);
 	
 	TermWithTermOffsets three =  new TermWithTermOffsets();
 	three.setTerm("laughs");
@@ -174,7 +174,7 @@ public class TextUtilsTest {
 	
 	positions= textUtils.sortPositionsForMultiwordPhrase(termWithOffsetsList, offsetMap, positionsList);
 	assertTrue(positions.size() == 2);
-	System.out.println(positions);
+	LOG.info(positions);
     }
     
     @Test
@@ -188,7 +188,7 @@ public class TextUtilsTest {
 	
 	
 	
-	String query = "test";
+	String query = "test me out for a long";
 	
 	Map <String, List<Positions>> positionMap = new HashMap<>();
 	List<Positions> positionList = new ArrayList<>();
@@ -266,14 +266,14 @@ public class TextUtilsTest {
 	termOffsetMap1.put("14", termOffsetStart14);
 	
 	
-	String queryString = "http://www.google.com";
+	String queryString = "http://www.google.com?q=test";
 	
 	//Map<String,Object>  map1 =textUtils.createCoordinateAnnotation(query, coordinates, false, positionMap, termPositionMap ,queryString, 10, new PageParameters());
-	//System.out.println(map1.toString());
+	//LOG.info(map1.toString());
 	
 	String coordinates2 = getFileContents("test_coordinates_2.json");
-	Map<String,Object>  map =textUtils.createCoordinateAnnotationTest(query, coordinates2, false, positionMap, termPositionMap ,queryString, 10, new PageParameters());
-	System.out.println(map.toString());
+	Map<String,Object>  map =textUtils.createCoordinateAnnotation(query, coordinates2, false, positionMap, termPositionMap ,queryString, 10, new PageParameters());
+	LOG.info(map.toString());
 	
     }
     

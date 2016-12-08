@@ -3,6 +3,7 @@ package com.digirati.themathmos.service.impl;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -45,7 +46,7 @@ public class CommonUtils {
     protected List getResources(Map<String, Object> root, boolean isW3c) {
 	List resources;
 	if (isW3c) {
-	    LinkedTreeMap map = (LinkedTreeMap) root.get(FULL_HAS_ANNOTATIONS);
+	    Map map = (LinkedHashMap) root.get(FULL_HAS_ANNOTATIONS);
 	    resources = (List) map.get(W3C_RESOURCELIST);
 	} else {
 	    resources = (List) root.get(OA_RESOURCELIST);
@@ -57,7 +58,7 @@ public class CommonUtils {
 	List resources = new ArrayList();
 
 	if (isW3c) {
-	    LinkedTreeMap map = new LinkedTreeMap();
+	    Map map = new LinkedHashMap();
 	    root.put(FULL_HAS_ANNOTATIONS, map);
 	    map.put(W3C_RESOURCELIST, resources);
 	} else {
@@ -68,7 +69,7 @@ public class CommonUtils {
     protected void setHits(Map<String, Object> root, boolean isW3c) {
 	List hits = new ArrayList();
 	if (isW3c) {
-	    LinkedTreeMap map = new LinkedTreeMap();
+	    Map map = new LinkedHashMap();
 	    root.put(FULL_HAS_HITLIST, map);
 	    map.put(W3C_RESOURCELIST, hits);
 	} else {
@@ -79,7 +80,7 @@ public class CommonUtils {
     protected List getHits(Map<String, Object> root, boolean isW3c) {
 	List hits;
 	if (isW3c) {
-	    LinkedTreeMap map = (LinkedTreeMap) root.get(FULL_HAS_HITLIST);
+	    Map map = (LinkedHashMap) root.get(FULL_HAS_HITLIST);
 	    hits = (List) map.get(W3C_RESOURCELIST);
 	} else {
 	    hits = (List) root.get(OA_HITS);
@@ -102,9 +103,9 @@ public class CommonUtils {
 	}
     }
 
-    @SuppressWarnings("unchecked")
+
     protected Map<String, Object> buildAnnotationListHead(String query, boolean isW3c) {
-	Map<String, Object> root = new HashMap<>();
+	Map<String, Object> root = new LinkedHashMap<>();
 	setContextIdType(root, isW3c, query);
 	setResources(root, isW3c);
 	return root;
@@ -119,19 +120,19 @@ public class CommonUtils {
 	String previous = pagingParams.getPreviousPageNumber();
 	String startIndex = pagingParams.getStartIndex();
 
-	Map<String, Object> root = new HashMap<>();
+	Map<String, Object> root = new LinkedHashMap<>();
 
 	setContextIdType(root, isW3c, query);
 
 	if (isW3c) {
-	    LinkedTreeMap withinMap = new LinkedTreeMap();
+	    Map withinMap = new LinkedHashMap();
 	    withinMap.put("type", FULL_LAYER);
 	    withinMap.put("as:totalItems", total);
 	    withinMap.put("first", first);
 	    withinMap.put("last", last);
 	    root.put("dcterms:isPartOf", withinMap);
 	} else {
-	    LinkedTreeMap withinMap = new LinkedTreeMap();
+	    Map withinMap = new LinkedHashMap();
 	    withinMap.put(ROOT_TYPE, "sc:Layer");
 	    withinMap.put("total", total);
 	    withinMap.put("first", first);
@@ -223,31 +224,35 @@ public class CommonUtils {
 	return beforeAfter;
     }
     
-    public <T> PageParameters getAnnotationPageParameters(Page<T> annotationPage, String queryString, int defaultPagingNumber){
+    public <T> PageParameters getAnnotationPageParameters(Page<T> annotationPage, String queryString, int defaultPagingNumber, long totalHits){
    	PageParameters parameters = new PageParameters();
-   	parameters.setTotalElements(annotationPage.getTotalElements()+"");
+
+   	
+   	parameters.setTotalElements(totalHits+"");
+   	
+   	int lastPage = (int) (totalHits/defaultPagingNumber)+1;
    	parameters.setFirstPageNumber(getPagingParam(queryString, 1));
+
+   	parameters.setLastPageNumber(getPagingParam(queryString,lastPage)); 
    	
-   	int totalPages = annotationPage.getTotalPages();
-   	parameters.setLastPageNumber(getPagingParam(queryString,totalPages)); 
-   	
-   	if(annotationPage.hasNext()){
-   	    int nextPage = annotationPage.getNumber()+2;
-   	    parameters.setNextPageNumber(getPagingParam(queryString,nextPage)); 
+   	int nextPage = (annotationPage.getNumber()/defaultPagingNumber)+2;
+   	if(lastPage >= nextPage){
+   	    parameters.setNextPageNumber(getPagingParam(queryString,nextPage));  
    	}
-   	if(annotationPage.hasPrevious()){
-   	    int previousPage = annotationPage.getNumber();
+   	
+   	if(annotationPage.hasPrevious() ){
+   	    int previousPage = annotationPage.getNumber() /defaultPagingNumber ;
    	    parameters.setPreviousPageNumber(getPagingParam(queryString,previousPage)); 
    	}
-   	parameters.setStartIndex(annotationPage.getNumber() * defaultPagingNumber + "");
+   	parameters.setStartIndex(annotationPage.getNumber()+ "");
    	return parameters;
        }
        
        
-       public String getPagingParam(String queryString, int replacementParamValue){
-      	if(!queryString.contains("page=")){
-      	    return queryString+"&page="+replacementParamValue;
-      	}
-      	return queryString.replaceAll("page=[^&]+","page="+replacementParamValue);
-          }
+    public String getPagingParam(String queryString, int replacementParamValue) {
+	if (!queryString.contains("page=")) {
+	    return queryString + "&page=" + replacementParamValue;
+	}
+	return queryString.replaceAll("page=[^&]+", "page=" + replacementParamValue);
+    }
 }

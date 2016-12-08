@@ -1,18 +1,18 @@
 package com.digirati.themathmos.service.impl;
 
 import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
+
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-
+import org.apache.log4j.Logger;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.springframework.core.io.ResourceLoader;
+
 
 import com.digirati.themathmos.model.annotation.page.PageParameters;
 import com.digirati.themathmos.model.annotation.w3c.SuggestOption;
@@ -23,7 +23,7 @@ import com.google.gson.internal.LinkedTreeMap;
 public class AnnotationUtilsTest {
     
     private AnnotationUtils annotationUtils;
-
+    private final static Logger LOG = Logger.getLogger(AnnotationUtilsTest.class);
 
     @BeforeClass
     public static void setUpBeforeClass() throws Exception {
@@ -61,7 +61,7 @@ public class AnnotationUtilsTest {
 	long totalHits = 11;
 	Map<String,Object> json = annotationUtils.createAnnotationPage(query, annoList, isW3c, pageParams, totalHits);
 	
-	System.out.println(json);
+	LOG.info(json);
 	
 	assertTrue("http://iiif.io/api/presentation/2#AnnotationList".equals(json.get("@type")));
 	assertTrue("http://www.w3.org/ns/anno.jsonld".equals(json.get("@context")));
@@ -77,7 +77,7 @@ public class AnnotationUtilsTest {
 	assertFalse("http://www.w3.org/ns/anno.jsonld".equals(json.get("@context")));
 	assertTrue("sc:AnnotationList".equals(json.get("@type")));
 	assertTrue("2".equals(json.get("next")));
-	System.out.println(json);
+	LOG.info(json);
     }
     
     @Test
@@ -94,8 +94,8 @@ public class AnnotationUtilsTest {
 	String date = "";
 	String user = "";
 	Map<String,Object> json = annotationUtils.createAutocompleteList(options, isW3c, queryString, motivation, date, user);
-	System.out.println();
-	System.out.println(json);
+	LOG.info(" ");
+	LOG.info(json);
 	@SuppressWarnings("unchecked")
 	List <String>ignoredList = (ArrayList<String>)json.get("ignored");
 	assertNull(ignoredList);
@@ -109,8 +109,8 @@ public class AnnotationUtilsTest {
 	motivation = "commenting";
 	queryString = "http://www.example.com/autocomplete?q=test&motivation=commenting";
 	json = annotationUtils.createAutocompleteList(options, isW3c, queryString, motivation, date, user);
-	System.out.println();
-	System.out.println(json);
+	LOG.info(" ");
+	LOG.info(json);
 	ignoredList = (ArrayList<String>)json.get("ignored");
 	assertTrue(ignoredList.contains("motivation"));
 	id = (String)json.get("@id");
@@ -127,8 +127,8 @@ public class AnnotationUtilsTest {
 	ignoredList = (ArrayList<String>)json.get("ignored");
 	assertTrue(ignoredList.contains("motivation"));
 	assertTrue(ignoredList.contains("date"));
-	System.out.println();
-	System.out.println(json);
+	LOG.info(" ");
+	LOG.info(json);
 	id = (String)json.get("@id");
 	assertEquals(id,"http://www.example.com/autocomplete?q=test");
 	context  = (String)json.get("@context");
@@ -137,8 +137,8 @@ public class AnnotationUtilsTest {
 	//test oa
 	isW3c = false;
 	json = annotationUtils.createAutocompleteList(options, isW3c, queryString, motivation, date, user);
-	System.out.println();
-	System.out.println(json);
+	LOG.info(" ");
+	LOG.info(json);
 	id = (String)json.get("@id");
 	assertEquals(id,"http://www.example.com/autocomplete?q=test");
 	
@@ -153,8 +153,8 @@ public class AnnotationUtilsTest {
 	user = "frank";
 	queryString = "http://www.example.com/autocomplete?motivation=commenting tagging&date=12/04/1970&q=test&user=frank";
 	json = annotationUtils.createAutocompleteList(options, isW3c, queryString, motivation, date, user);
-	System.out.println();
-	System.out.println(json);
+	LOG.info(" ");
+	LOG.info(json);
 	id = (String)json.get("@id");
 	assertEquals(id,"http://www.example.com/autocomplete?q=test");
 	context  = (String)json.get("@context");
@@ -169,21 +169,21 @@ public class AnnotationUtilsTest {
     public void testConvertSpecialCharacters() {
 	String input = "http://www.emaple.com/ferd/lgg/";
 	String output = annotationUtils.convertSpecialCharacters(input);
-	System.out.println(input);
-	System.out.println(output);
+	LOG.info(input);
+	LOG.info(output);
 	assertEquals(output, "(\"http://www.emaple.com/ferd/lgg/\")");
 	
 	input = "trt:ttttt";
 	output = annotationUtils.convertSpecialCharacters(input);
-	System.out.println(input);
-	System.out.println(output);
+	LOG.info(input);
+	LOG.info(output);
 	
 	assertEquals(output, "trt\\:ttttt");
 	
 	input = "http://www.emaple.com/ferd/lgg/ trt:ttttt";
 	output = annotationUtils.convertSpecialCharacters(input);
-	System.out.println(input);
-	System.out.println(output);
+	LOG.info(input);
+	LOG.info(output);
 	assertEquals(output, "(\"http://www.emaple.com/ferd/lgg/\") trt\\:ttttt");
     }
     

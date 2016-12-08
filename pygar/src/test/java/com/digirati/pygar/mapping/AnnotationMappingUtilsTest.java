@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.log4j.Logger;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -23,10 +24,11 @@ import com.digirati.pygar.W3CSearchAnnotation;
 import com.digirati.pygar.mapping.AnnotationMappingUtils;
 import com.digirati.pygar.mapping.BodyTargetFieldData;
 
+
 public class AnnotationMappingUtilsTest {
     
 
-      
+    private final static Logger LOG = Logger.getLogger(AnnotationMappingUtilsTest.class); 
     
  
     private ResourceLoader resourceLoader;
@@ -98,10 +100,10 @@ public class AnnotationMappingUtilsTest {
     public void testDetermineJsonMappingType() throws IOException {
 	
 	
-	System.out.println("test-message-1.json");
-	System.out.println("-------------------");
+	LOG.info("test-message-1.json");
+	LOG.info("-------------------");
 	String content = getFileContents("test-message-1.json");
-	System.out.println(content);
+	LOG.info(content);
 	
 	BodyTargetFieldData data = mappingUtils.determineJsonMappingType(content);
 	Map<String, List<String>> bodyData = data.getFieldData();
@@ -110,18 +112,18 @@ public class AnnotationMappingUtilsTest {
 	assertEquals(targetData.get("target").get(0), "http://www.example.com/index.html");
 	
 	content = getFileContents("test-message-2.json");
-	System.out.println("test-message-2.json");
-	System.out.println("-------------------");
-	System.out.println(content);
+	LOG.info("test-message-2.json");
+	LOG.info("-------------------");
+	LOG.info(content);
 	data = mappingUtils.determineJsonMappingType(content);
 	
 	content = getFileContents("test-message-3.json");
-	System.out.println("test-message-3.json");
-	System.out.println("-------------------");
-	System.out.println(content);
+	LOG.info("test-message-3.json");
+	LOG.info("-------------------");
+	LOG.info(content);
 	data = mappingUtils.determineJsonMappingType(content);
 	targetData = data.getTargetFieldData();
-	System.out.println(targetData);
+	LOG.info(targetData);
 	
 	assertNotNull(targetData.get("xywh").get(0));
 	
@@ -131,9 +133,9 @@ public class AnnotationMappingUtilsTest {
 	
 	
 	content = getFileContents("test-message-null.json");
-	System.out.println("test-message-null.json");
-	System.out.println("-------------------");
-	System.out.println(content);
+	LOG.info("test-message-null.json");
+	LOG.info("-------------------");
+	LOG.info(content);
 	data = mappingUtils.determineJsonMappingType(content);
 	assertNull(data);
 	
@@ -141,10 +143,10 @@ public class AnnotationMappingUtilsTest {
     
     @Test
     public void testAddAnnotations() throws IOException {
-	System.out.println("test-message-1.json");
-	System.out.println("-------------------");
+	LOG.info("test-message-1.json");
+	LOG.info("-------------------");
 	String content = getFileContents("test-message-1.json");
-	System.out.println(content);
+	LOG.info(content);
 	
 	BodyTargetFieldData data = mappingUtils.determineJsonMappingType(content);
 	Map<String, List<String>> bodyData = data.getFieldData();
@@ -158,10 +160,10 @@ public class AnnotationMappingUtilsTest {
 	
 	
 	
-	System.out.println("test-message-2.json");
-	System.out.println("-------------------");
+	LOG.info("test-message-2.json");
+	LOG.info("-------------------");
 	content = getFileContents("test-message-2.json");
-	System.out.println(content);
+	LOG.info(content);
 	
 	data = mappingUtils.determineJsonMappingType(content);
 	bodyData = data.getFieldData();
@@ -173,10 +175,10 @@ public class AnnotationMappingUtilsTest {
 	
 	assertNotEquals(annotation.getTarget().get(0), "http://www.example.com/index.html");
 	
-	System.out.println("test-message-3.json");
-	System.out.println("-------------------");
+	LOG.info("test-message-3.json");
+	LOG.info("-------------------");
 	content = getFileContents("test-message-3.json");
-	System.out.println(content);
+	LOG.info(content);
 	
 	data = mappingUtils.determineJsonMappingType(content);
 	bodyData = data.getFieldData();
@@ -188,10 +190,10 @@ public class AnnotationMappingUtilsTest {
 	
 	assertNotEquals(annotation.getTarget().get(0), "http://www.example.com/index.html");
 	
-	System.out.println("test-message-4.json");
-	System.out.println("-------------------");
+	LOG.info("test-message-4.json");
+	LOG.info("-------------------");
 	content = getFileContents("test-message-4.json");
-	System.out.println(content);
+	LOG.info(content);
 	
 	data = mappingUtils.determineJsonMappingType(content);
 	bodyData = data.getFieldData();

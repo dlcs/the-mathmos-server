@@ -3,9 +3,8 @@ package com.digirati.themathmos.service.impl;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
-import org.elasticsearch.action.ActionFuture;
+import org.apache.log4j.Logger;
 import org.elasticsearch.action.ListenableActionFuture;
-import org.elasticsearch.action.search.SearchAction;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.Client;
@@ -16,6 +15,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.springframework.data.elasticsearch.core.ElasticsearchTemplate;
 
+
 import com.digirati.themathmos.service.impl.AnnotationSearchServiceImpl;
 import com.digirati.themathmos.service.impl.AnnotationUtils;
 import com.google.common.collect.Iterators;
@@ -23,7 +23,7 @@ import com.google.common.collect.Iterators;
 
 public class AnnotationSearchServiceImplTest {
 
-    
+    private final static Logger LOG = Logger.getLogger(AnnotationSearchServiceImplTest.class);
     AnnotationSearchServiceImpl annotationSearchServiceImpl;
     
     private ElasticsearchTemplate template;
@@ -96,7 +96,7 @@ public class AnnotationSearchServiceImplTest {
 	when(client.prepareSearch("w3cannotation")).thenReturn(builder);
 
 	String[] results = annotationSearchServiceImpl.getAnnotationsPage(query, motivation, date, user, queryString, isW3c, page);
-	System.out.println(results[0]);
+	LOG.info(results[0]);
 	
 	//motivation = "commenting";
 	//results = annotationSearchServiceImpl.getAnnotationsPage(query, motivation, date, user, queryString, isW3c, page);

@@ -73,18 +73,20 @@ public class AnnotationSearchServiceImpl {
 	pagingParameters = null;
 	
 	int pagingSize = DEFAULT_PAGING_NUMBER;
-	int pageNumber = DEFAULT_STARTING_PAGING_NUMBER;
+	int from = DEFAULT_STARTING_PAGING_NUMBER;
 	
 	//TODO validate that pagenumber is int and is in expected range.
 	if(!StringUtils.isEmpty(page)){
 	    Integer pagingInteger =  Integer.parseInt(page);
-	    pageNumber = pagingInteger.intValue() - 1;
+	    
+	    from = (pagingInteger.intValue()-1) * pagingSize;
+	    
 	}
 
 	Page<W3CSearchAnnotation> annotationPage = null;
 	
 	QueryBuilder builder = buildAllThings(query,motivation,date, user);
-	annotationPage = formQuery(builder,pageNumber,pagingSize);
+	annotationPage = formQuery(builder,from,pagingSize);
 	
 	if(null == annotationPage){
 	    return new String[0];
@@ -103,7 +105,7 @@ public class AnnotationSearchServiceImpl {
 	    annoSearchArray[count] = jsonLd;
 	    count++;
 	}
-	pagingParameters = annotationUtils.getAnnotationPageParameters(annotationPage, queryString, DEFAULT_PAGING_NUMBER);
+	pagingParameters = annotationUtils.getAnnotationPageParameters(annotationPage, queryString, DEFAULT_PAGING_NUMBER, totalHits);
 	return annoSearchArray;	
 	
     }
