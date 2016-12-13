@@ -47,7 +47,17 @@ Each dependency and the Mathmos Server itself can be built using Maven:
 mvn clean package install -U
   
 ```
-The building of both [pygar](pygar) and [barbarella](barbarella) will create zip files.  These contains a config folder containing the applicationContext.xml, aws-consumer.properties and log4j.xml files. A lib folder with the snapshot of the pygar/barbarella jar and all jar dependencies. Also included is a run-indexer.sh which is a .bash script to run pygar/barbarella.
+The building of both [pygar](pygar) and [barbarella](barbarella) will create zip files.  These contains a config folder containing the applicationContext.xml and log4j.xml files. A lib folder with the snapshot of the pygar/barbarella jar and all jar dependencies. Also included is a run-indexer.sh which is a .bash script to run pygar/barbarella.
+
+### Configuration
+Configuration of [pygar](pygar) and [barbarella](barbarella)  is achieved through the  [pygar](the-mathmos-config/pygar-aws-consumer.properties)/[barbarella-aws-consumer.properties](the-mathmos-config/pygar-aws-consumer.properties) files. These file can be placed in any location and provided to the JVM as a parameter:
+```
+-Dpygar-aws-consumer.properties=file:/path/to/file.properties
+```
+```
+-Dbarbarella-aws-consumer.properties=file:/path/to/file.properties
+```
+
 
 ## Built With
 
@@ -66,6 +76,3 @@ We use [SemVer](http://semver.org/) for versioning. For the versions available, 
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE.md](LICENSE) file for details
-
-
-> Written with [StackEdit](https://stackedit.io/).
