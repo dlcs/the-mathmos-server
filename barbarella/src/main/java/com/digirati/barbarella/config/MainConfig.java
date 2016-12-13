@@ -22,7 +22,7 @@ import org.springframework.util.MethodInvoker;
 @Configuration
 @EnableScheduling
 @SuppressWarnings("deprecation")
-@PropertySource(MainConfig.CONSUMER_PROPERTIES_FILE)
+@PropertySource("${barbarella-aws-consumer.properties}")
 @ComponentScan(basePackages = {MainConfig.SERVICE_PACKAGE})
 @EnableElasticsearchRepositories(basePackages = MainConfig.REPOSITORY_PACKAGE)
 
@@ -30,12 +30,10 @@ public class MainConfig {
     
     private static final Logger LOG = Logger.getLogger(MainConfig.class);
 
-    public static final String CONSUMER_PROPERTIES_FILE = "classpath:aws-consumer.properties";
-
     
-    public static final String SERVICE_PACKAGE = "uk.co.digirati.text";
+    public static final String SERVICE_PACKAGE = "com.digirati.barbarella";
     
-    public static final String REPOSITORY_PACKAGE = "uk.co.digirati.text.search.repository";
+    public static final String REPOSITORY_PACKAGE = "com.digirati.barbarella.repository";
     
 
     @Autowired
