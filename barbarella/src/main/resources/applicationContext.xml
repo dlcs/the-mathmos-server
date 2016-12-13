@@ -21,7 +21,7 @@
 	
 	<context:component-scan base-package="com.digirati.barbarella" />
 	
-	<context:property-placeholder location="classpath:aws-consumer.properties" />
+	<context:property-placeholder location="${barbarella-aws-consumer.properties}" />
 	
 	<bean name="mainBean" class="com.digirati.barbarella.mapping.IndexAWSMessages"/>
  
