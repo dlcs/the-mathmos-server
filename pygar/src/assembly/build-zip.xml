@@ -12,11 +12,7 @@
 			<outputDirectory />
 		</fileSet>
 	</fileSets>
-	<files>
-		<file>
-			<source>src/main/resources/aws-consumer.properties</source>
-			<outputDirectory>config/</outputDirectory>
-		</file>
+	<files>		
 		<file>
 			<source>src/main/resources/applicationContext.xml</source>
 			<outputDirectory>config/</outputDirectory>
