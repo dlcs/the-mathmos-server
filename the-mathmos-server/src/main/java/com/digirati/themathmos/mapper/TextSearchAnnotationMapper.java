@@ -93,8 +93,8 @@ public class TextSearchAnnotationMapper extends DefaultResultMapper {
 		if (setter != null) {
 		    try {
 			setter.invoke(result, id);
-		    } catch (Throwable t) {
-			LOG.error("Throwable in setPersistentEntityId ", t);
+		    } catch (Exception t) {
+			LOG.error("Exception in setPersistentEntityId trying to invoke setter", t);
 		    }
 		}
 	    } catch (NoSuchMethodException e) {
