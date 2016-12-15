@@ -44,14 +44,14 @@ public class OATextSearchController {
         this.annotationAutocompleteService = annotationAutocompleteService;
     }
 
-    private static final String TEXT_SEARCH_REQUEST_PATH = "/oa/text/search";   
+    private static final String OA_TEXT_SEARCH_REQUEST_PATH = "/oa/text/search";   
     
     
-    private static final String OA_AUTOCOMPLETE_REQUEST_PATH = "/oa/text/autocomplete";
+    private static final String OA_TEXT_AUTOCOMPLETE_REQUEST_PATH = "/oa/text/autocomplete";
     
     @CrossOrigin
-    @RequestMapping(value = TEXT_SEARCH_REQUEST_PATH, method = RequestMethod.GET)
-    public ResponseEntity<Map<String, Object>> searchTextGet(
+    @RequestMapping(value = OA_TEXT_SEARCH_REQUEST_PATH, method = RequestMethod.GET)
+    public ResponseEntity<Map<String, Object>> searchTextOAGet(
 	    @RequestParam(value = AnnotationSearchConstants.PARAM_FIELD_QUERY, required = true) String query, 	
 	    @RequestParam(value = AnnotationSearchConstants.PARAM_FIELD_PAGE, required = false) String page,
 	    HttpServletRequest request) {
@@ -79,8 +79,8 @@ public class OATextSearchController {
     }
     
     
-    @RequestMapping(value = OA_AUTOCOMPLETE_REQUEST_PATH, method = RequestMethod.GET)
-    public ResponseEntity<Map<String, Object>> autocompleteGet(
+    @RequestMapping(value = OA_TEXT_AUTOCOMPLETE_REQUEST_PATH, method = RequestMethod.GET)
+    public ResponseEntity<Map<String, Object>> autocompleteTextOAGet(
 	    @RequestParam(value = AnnotationSearchConstants.PARAM_FIELD_QUERY, required = true) String query, 
 	    @RequestParam(value = PARAM_MIN, required = false) String min, 
 	    HttpServletRequest request) {

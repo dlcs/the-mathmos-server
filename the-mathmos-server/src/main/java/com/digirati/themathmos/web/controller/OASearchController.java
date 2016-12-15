@@ -40,8 +40,7 @@ public class OASearchController {
     
     @Autowired
     public OASearchController(OAAnnotationSearchService oaAnnotationSearchService,AnnotationAutocompleteService annotationAutocompleteService,
-	    TextSearchService textSearchService
-	   ,OASearchService searchService
+	    TextSearchService textSearchService,OASearchService searchService
 	    ) {
 	
         this.oaAnnotationSearchService = oaAnnotationSearchService;
@@ -55,15 +54,15 @@ public class OASearchController {
     public static final String PARAM_MIN = "min";
     
     
-    private static final String OA_SEARCH_REQUEST_PATH = "/search/oa";   
+    private static final String OA_MIXED_SEARCH_REQUEST_PATH = "/search/oa";   
     
-    private static final String OA_AUTOCOMPLETE_REQUEST_PATH = "/autocomplete/oa";
+    private static final String OA_MIXED_AUTOCOMPLETE_REQUEST_PATH = "/autocomplete/oa";
     
   
     
     @CrossOrigin
-    @RequestMapping(value = OA_SEARCH_REQUEST_PATH, method = RequestMethod.GET)
-    public ResponseEntity<Map<String, Object>> searchOAGet(
+    @RequestMapping(value = OA_MIXED_SEARCH_REQUEST_PATH, method = RequestMethod.GET)
+    public ResponseEntity<Map<String, Object>> searchOAMixedGet(
 	    @RequestParam(value = AnnotationSearchConstants.PARAM_FIELD_QUERY, required = false) String query, 
 	    @RequestParam(value = AnnotationSearchConstants.PARAM_FIELD_MOTIVATION, required = false) String motivation,
 	    @RequestParam(value = AnnotationSearchConstants.PARAM_FIELD_DATE, required = false) String date, 
@@ -83,9 +82,9 @@ public class OASearchController {
 	if(StringUtils.isEmpty(motivation) && StringUtils.isEmpty(date) && StringUtils.isEmpty(user)){
 	    serviceResponse = oaSearchService.getAnnotationPage(query, queryString, page);	    
 	}else{
-	    if(motivation.equals("painting")){
+	    if(AnnotationSearchConstants.PAINTING_MOTIVATION.equals(motivation)){
 		serviceResponse = textSearchService.getTextPositions(query, queryString, false, page, false);
-	    }else if(motivation.indexOf("painting") < 0){		
+	    }else if(motivation.indexOf(AnnotationSearchConstants.PAINTING_MOTIVATION) < 0){		
 		serviceResponse = oaAnnotationSearchService.getAnnotationPage(query, motivation, date, user, queryString, page); 
 	    }else{
 		serviceResponse = oaSearchService.getAnnotationPage(query, queryString, page);
@@ -108,8 +107,8 @@ public class OASearchController {
     
     
 
-    @RequestMapping(value = OA_AUTOCOMPLETE_REQUEST_PATH, method = RequestMethod.GET)
-    public ResponseEntity<Map<String, Object>> autocompleteGet(
+    @RequestMapping(value = OA_MIXED_AUTOCOMPLETE_REQUEST_PATH, method = RequestMethod.GET)
+    public ResponseEntity<Map<String, Object>> autocompleteOAMixedGet(
 	    @RequestParam(value = AnnotationSearchConstants.PARAM_FIELD_QUERY, required = true) String query, 
 	    @RequestParam(value = AnnotationSearchConstants.PARAM_FIELD_MOTIVATION, required = false) String motivation,
 	    @RequestParam(value = AnnotationSearchConstants.PARAM_FIELD_DATE, required = false) String date, 
@@ -123,14 +122,14 @@ public class OASearchController {
 	}
 	
 	
-	ServiceResponse<Map<String, Object>> serviceResponse = null;
+	ServiceResponse<Map<String, Object>> serviceResponse;
 	
 	if(StringUtils.isEmpty(motivation) && StringUtils.isEmpty(date) && StringUtils.isEmpty(user)){
 	    serviceResponse = annotationAutocompleteService.getMixedTerms(query, min, queryString, false);	    
 	}else{
-	    if(motivation.equals("painting")){
+	    if(AnnotationSearchConstants.PAINTING_MOTIVATION.equals(motivation)){
 		serviceResponse = annotationAutocompleteService.getTerms(query, min, queryString, false);
-	    }else if(motivation.indexOf("painting") < 0){		
+	    }else if(motivation.indexOf(AnnotationSearchConstants.PAINTING_MOTIVATION) < 0){		
 		serviceResponse = annotationAutocompleteService.getTerms(query, motivation, date, user, min, queryString, false);
 	    }else{
 		serviceResponse = annotationAutocompleteService.getMixedTerms(query, min, queryString, false);

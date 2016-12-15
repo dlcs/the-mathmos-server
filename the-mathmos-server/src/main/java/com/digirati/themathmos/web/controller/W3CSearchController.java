@@ -54,14 +54,14 @@ public class W3CSearchController {
     public static final String PARAM_MIN = "min";
     
     
-    private static final String W3C_SEARCH_REQUEST_PATH = "/search/w3c";   
+    private static final String W3C_MIXED_SEARCH_REQUEST_PATH = "/search/w3c";   
     
-    private static final String W3C_AUTOCOMPLETE_REQUEST_PATH = "/autocomplete/w3c";
+    private static final String W3C_MIXED_AUTOCOMPLETE_REQUEST_PATH = "/autocomplete/w3c";
     
   
     
     @CrossOrigin
-    @RequestMapping(value = W3C_SEARCH_REQUEST_PATH, method = RequestMethod.GET)
+    @RequestMapping(value = W3C_MIXED_SEARCH_REQUEST_PATH, method = RequestMethod.GET)
     public ResponseEntity<Map<String, Object>> searchOAGet(
 	    @RequestParam(value = AnnotationSearchConstants.PARAM_FIELD_QUERY, required = false) String query, 
 	    @RequestParam(value = AnnotationSearchConstants.PARAM_FIELD_MOTIVATION, required = false) String motivation,
@@ -81,9 +81,9 @@ public class W3CSearchController {
 	if(StringUtils.isEmpty(motivation) && StringUtils.isEmpty(date) && StringUtils.isEmpty(user)){
 	    serviceResponse = w3cSearchService.getAnnotationPage(query, queryString, page);	    
 	}else{
-	    if(motivation.equals("painting")){
+	    if(AnnotationSearchConstants.PAINTING_MOTIVATION.equals(motivation)){
 		serviceResponse = textSearchService.getTextPositions(query, queryString, true, page, false);
-	    }else if(motivation.indexOf("painting") < 0){		
+	    }else if(motivation.indexOf(AnnotationSearchConstants.PAINTING_MOTIVATION) < 0){		
 		serviceResponse = w3cAnnotationSearchService.getAnnotationPage(query, motivation, date, user, queryString, page); 
 	    }else{
 		serviceResponse = w3cSearchService.getAnnotationPage(query, queryString, page);
@@ -106,8 +106,8 @@ public class W3CSearchController {
     
     
 
-    @RequestMapping(value = W3C_AUTOCOMPLETE_REQUEST_PATH, method = RequestMethod.GET)
-    public ResponseEntity<Map<String, Object>> autocompleteGet(
+    @RequestMapping(value = W3C_MIXED_AUTOCOMPLETE_REQUEST_PATH, method = RequestMethod.GET)
+    public ResponseEntity<Map<String, Object>> autocompleteW3CMixedGet(
 	    @RequestParam(value = AnnotationSearchConstants.PARAM_FIELD_QUERY, required = true) String query, 
 	    @RequestParam(value = AnnotationSearchConstants.PARAM_FIELD_MOTIVATION, required = false) String motivation,
 	    @RequestParam(value = AnnotationSearchConstants.PARAM_FIELD_DATE, required = false) String date, 
@@ -120,17 +120,14 @@ public class W3CSearchController {
 	    queryString += "?"+ request.getQueryString();
 	}
 	
-	//ServiceResponse<Map<String, Object>> serviceResponse = annotationAutocompleteService.getTerms(query, motivation, date, user, min, queryString, true);
-	
-
-	ServiceResponse<Map<String, Object>> serviceResponse = null;
+	ServiceResponse<Map<String, Object>> serviceResponse;
 	
 	if(StringUtils.isEmpty(motivation) && StringUtils.isEmpty(date) && StringUtils.isEmpty(user)){
 	    serviceResponse = annotationAutocompleteService.getMixedTerms(query, min, queryString, true);	    
 	}else{
-	    if(motivation.equals("painting")){
+	    if(AnnotationSearchConstants.PAINTING_MOTIVATION.equals(motivation)){
 		serviceResponse = annotationAutocompleteService.getTerms(query, min, queryString, true);
-	    }else if(motivation.indexOf("painting") < 0){		
+	    }else if(motivation.indexOf(AnnotationSearchConstants.PAINTING_MOTIVATION) < 0){		
 		serviceResponse = annotationAutocompleteService.getTerms(query, motivation, date, user, min, queryString, true);
 	    }else{
 		serviceResponse = annotationAutocompleteService.getMixedTerms(query, min, queryString, true);
