@@ -372,6 +372,7 @@ public class TextUtils extends CommonUtils {
      *    } 
      *  ]
      *}
+     *}
      *</pre>
      * @param termWithOffsetsMap {@code Map} containing image ids as keys and a List of their {@code TermWithTermOffsets} as values.
      * @param width {@code String} The width to scale the coordinates from Starsky.
