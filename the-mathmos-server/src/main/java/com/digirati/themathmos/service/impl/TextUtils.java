@@ -52,14 +52,7 @@ public class TextUtils extends CommonUtils {
     
     
     
-    /**
-     * Method to create the offset payload to hand off to Starsky
-     * @param termWithOffsetsMap
-     * @param width
-     * @param height
-     * @param offsetPositionMap
-     * @return
-     */
+ 
     public Map<String, Object> createOffsetPayload(Map<String, List<TermWithTermOffsets>> termWithOffsetsMap,
 	    String width, String height, Map<String, Map<String, String>> offsetPositionMap) {
 
@@ -195,7 +188,7 @@ public class TextUtils extends CommonUtils {
      * @param totalHits - {@code long} The total number of elasticsearch hits (note this may change if we have hits that go over 2 lines.
      * @param pageParams - {@code PageParameters} An object that holds the page parameters for our annotation
      * @param isMixedSearch - {@code boolean} true if we are searching both text and annotations 
-     * @return {@code Map} a Map of 
+     * @return {@code Map} a Map representing the json for an text-derived annotation. 
      */
     public Map<String, Object> createCoordinateAnnotation(String query, String coordinatePayload,
 	    boolean isW3c, Map<String, List<Positions>> positionMap,
@@ -514,7 +507,7 @@ public class TextUtils extends CommonUtils {
      * @param termWithOffsetsList {@code List} of {@code TermWithTermOffsets} containing only the matched terms and a {@code List} of all their positions and offsets. 
      * @param offsetPositionMap {@code Map} of the start and end positions of our matched query.
      * @param positionsList {@code List} of the start and end positions of each matched query.
-     * @return
+     * @return {@code List} of the positions for a multiword phrase.
      */
     public List<Object> sortPositionsForMultiwordPhrase( List<TermWithTermOffsets> termWithOffsetsList,
 	    Map <String,String> offsetPositionMap ,
