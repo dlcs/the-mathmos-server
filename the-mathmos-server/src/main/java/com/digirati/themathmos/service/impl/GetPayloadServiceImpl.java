@@ -32,7 +32,7 @@ public class GetPayloadServiceImpl implements GetPayloadService{
     
     @Override
     public String getJsonPayload(String url, String payload){
-	BufferedReader br = null;
+	
         try {
             HttpPost request = new HttpPost(url);
           
@@ -46,9 +46,8 @@ public class GetPayloadServiceImpl implements GetPayloadService{
                 throw new CoordinatePayloadException("Failed : HTTP error code : "
                         + response.getStatusLine().getStatusCode());
             }
-
-            br = new BufferedReader(new InputStreamReader(
-                    (response.getEntity().getContent())));
+            InputStreamReader isr = new InputStreamReader(response.getEntity().getContent());
+            BufferedReader br = new BufferedReader(isr);
             StringBuilder sb = new StringBuilder();
 
             String line;
@@ -56,20 +55,17 @@ public class GetPayloadServiceImpl implements GetPayloadService{
             while ((line = br.readLine()) != null) {
                 sb.append(line);
             }
+            
+            isr.close();
             LOG.info("JsonPayload from getJsonPayload is " + sb.toString());
             return sb.toString();
           
+            
            
             // handle response here...
         }catch (Exception ex) {
             LOG.error("Exception getting post for " + url, ex);
-        } finally{
-            try {
-		br.close();
-	    } catch (IOException e) {
-		 LOG.error("Exception closing buffered reader " , e);
-	    } 
-        }
+        } 
         return "";
     }
 

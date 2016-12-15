@@ -94,7 +94,7 @@ public class TextSearchAnnotationMapper extends DefaultResultMapper {
 		    try {
 			setter.invoke(result, id);
 		    } catch (Throwable t) {
-			t.printStackTrace();
+			LOG.error("Throwable in setPersistentEntityId ", t);
 		    }
 		}
 	    } catch (NoSuchMethodException e) {
