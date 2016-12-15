@@ -544,7 +544,7 @@ public class TextUtils extends CommonUtils {
      * @param imageId - {@code String} of the image Id
      * @param query - The query term(s) {@code String} e.g. ?q=turnips in the ground
      * @param isW3c - {@code boolean} true if we want W3C Annotations returned
-     * @param xywh - {@code String} to create the target consisting of the image Id with coordinates attached e.g.  <imageId>#xywh=12,34,34,567
+     * @param xywh - {@code String} to create the target consisting of the image Id with coordinates attached e.g.  imageId#xywh=12,34,34,567
      * @param annoUrl - {@code String} a manufactured identifier for linking a hit to this resource.
      * @return - {@code Map} containing the resource.
      */
