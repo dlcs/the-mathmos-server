@@ -69,6 +69,11 @@ public class W3CSearchServiceImp extends AnnotationSearchServiceImpl implements 
 
 	    annoMap = annotationUtils.createAnnotationPage(queryString, annotationList, true, pagingParameters, this.getTotalHits(), true);
 	}
+	
+	if((null == textAnnoMap || textAnnoMap.getObj().isEmpty()) && (null == annoMap || annoMap.isEmpty())){
+	    return new ServiceResponse<>(Status.NOT_FOUND, null);  
+	}
+	
 	Map<String, Object> root =null;
 	if(isPageable){
 	    root = annotationUtils.buildAnnotationPageHead(queryString, true, textPagingParamters);
@@ -105,14 +110,8 @@ public class W3CSearchServiceImp extends AnnotationSearchServiceImpl implements 
 	    }
 	}
 	
-	textAnnoMap =  new ServiceResponse<>(Status.OK, root);
-	
-	
-	if(null != textAnnoMap && !textAnnoMap.getObj().isEmpty()){
-	    return textAnnoMap;
-	}else{
-	    return new ServiceResponse<>(Status.NOT_FOUND, null); 
-	}
+	return  new ServiceResponse<>(Status.OK, root);
+
     }
    
 

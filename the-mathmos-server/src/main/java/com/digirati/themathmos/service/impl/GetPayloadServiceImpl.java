@@ -1,6 +1,7 @@
 package com.digirati.themathmos.service.impl;
 
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStreamReader;
 
 import org.apache.http.HttpResponse;
@@ -11,6 +12,7 @@ import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.log4j.Logger;
 import org.springframework.stereotype.Service;
 
+import com.digirati.themathmos.exception.CoordinatePayloadException;
 import com.digirati.themathmos.service.GetPayloadService;
 
 @Service(GetPayloadServiceImpl.SERVICE_NAME)
@@ -30,7 +32,7 @@ public class GetPayloadServiceImpl implements GetPayloadService{
     
     @Override
     public String getJsonPayload(String url, String payload){
-    
+	BufferedReader br = null;
         try {
             HttpPost request = new HttpPost(url);
           
@@ -41,11 +43,11 @@ public class GetPayloadServiceImpl implements GetPayloadService{
             HttpResponse response = httpClient.execute(request);
     
             if (response.getStatusLine().getStatusCode() != 200) {
-                throw new RuntimeException("Failed : HTTP error code : "
+                throw new CoordinatePayloadException("Failed : HTTP error code : "
                         + response.getStatusLine().getStatusCode());
             }
 
-            BufferedReader br = new BufferedReader(new InputStreamReader(
+            br = new BufferedReader(new InputStreamReader(
                     (response.getEntity().getContent())));
             StringBuilder sb = new StringBuilder();
 
@@ -61,7 +63,13 @@ public class GetPayloadServiceImpl implements GetPayloadService{
             // handle response here...
         }catch (Exception ex) {
             LOG.error("Exception getting post for " + url, ex);
-        } 
+        } finally{
+            try {
+		br.close();
+	    } catch (IOException e) {
+		 LOG.error("Exception closing buffered reader " , e);
+	    } 
+        }
         return "";
     }
 

@@ -9,6 +9,7 @@ import java.util.Collection;
 import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.log4j.Logger;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHitField;
@@ -18,6 +19,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.elasticsearch.annotations.Document;
 import org.springframework.data.elasticsearch.core.DefaultResultMapper;
 
+import com.digirati.themathmos.service.impl.AnnotationUtils;
 import com.fasterxml.jackson.core.JsonEncoding;
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonGenerator;
@@ -27,6 +29,9 @@ public class TextSearchAnnotationMapper extends DefaultResultMapper {
     // If we are in the TextSearchServiceImpl formQuery method and not using
     // searchRequestBuilder.setFetchSource(false);
     // then remove all of below.
+    
+    private final static Logger LOG = Logger.getLogger(TextSearchAnnotationMapper.class);
+    
 
     @Override
     public <T> Page<T> mapResults(SearchResponse response, Class<T> clazz, Pageable pageable) {
@@ -73,6 +78,7 @@ public class TextSearchAnnotationMapper extends DefaultResultMapper {
 	    generator.flush();
 	    return new String(stream.toByteArray(), Charset.forName("UTF-8"));
 	} catch (IOException e) {
+	    LOG.error("IOException in buildJSONFromFields ", e);
 	    return null;
 	}
     }
@@ -92,11 +98,9 @@ public class TextSearchAnnotationMapper extends DefaultResultMapper {
 		    }
 		}
 	    } catch (NoSuchMethodException e) {
-		// TODO Auto-generated catch block
-		e.printStackTrace();
+		LOG.error("NoSuchMethodException in setPersistentEntityId ", e);
 	    } catch (SecurityException e) {
-		// TODO Auto-generated catch block
-		e.printStackTrace();
+		LOG.error("SecurityException in setPersistentEntityId ", e);
 	    }
 
 	}

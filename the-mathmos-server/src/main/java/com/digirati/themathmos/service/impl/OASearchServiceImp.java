@@ -67,7 +67,10 @@ public class OASearchServiceImp extends AnnotationSearchServiceImpl implements O
 
 	    annoMap = annotationUtils.createAnnotationPage(queryString, annotationList, false, pagingParameters, this.getTotalHits(), true);
 	}
-	Map<String, Object> root =null;
+	if((null == textAnnoMap || textAnnoMap.getObj().isEmpty()) && (null == annoMap || annoMap.isEmpty())){
+	    return new ServiceResponse<>(Status.NOT_FOUND, null);  
+	}
+	Map<String, Object> root = null;
 	if(isPageable){
 	    root = annotationUtils.buildAnnotationPageHead(queryString, false, textPagingParamters);
 	}else{
@@ -92,15 +95,8 @@ public class OASearchServiceImp extends AnnotationSearchServiceImpl implements O
 	    }
 	}
 	
-	textAnnoMap =  new ServiceResponse<>(Status.OK, root);
-	
-	
-	if(null != textAnnoMap && !textAnnoMap.getObj().isEmpty()){
-	    return textAnnoMap;
-	}else{
-	    return new ServiceResponse<>(Status.NOT_FOUND, null); 
-	}
-    }
-   
+	return new ServiceResponse<>(Status.OK, root);
 
+    }
+  
 }

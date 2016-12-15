@@ -255,7 +255,7 @@ public class TextUtils extends CommonUtils {
 			String xywh =  null;
 			String termCount = null;
 			Map hitIdMap = new HashMap();
-			double queryCount = 0;	
+			int queryCount = 0;	
 			String[] beforeAfter = null;
 			for(Object phraseArray:innerObjectList){
 			    
