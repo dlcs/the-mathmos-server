@@ -37,9 +37,12 @@ public class AnnotationAutocompleteServiceImpl implements AnnotationAutocomplete
     private ElasticsearchTemplate template;
     private AnnotationUtils annotationUtils;
     
+    private Client client;
+    
     @Autowired
     public AnnotationAutocompleteServiceImpl(ElasticsearchTemplate template, AnnotationUtils annotationUtils){
 	this.template = template;
+	this.client = template.getClient();
 	this.annotationUtils = annotationUtils;
     }
 
@@ -47,8 +50,8 @@ public class AnnotationAutocompleteServiceImpl implements AnnotationAutocomplete
     @Override
     public ServiceResponse<Map<String, Object>> getTerms(String query, String motivation, String date, String user, String min, String queryString, boolean isW3c) {
 	
-	Client client = template.getClient();
-	List <SuggestOption> options = findSuggestionsFor(client,query, "w3cannotation") ;
+
+	List <SuggestOption> options = findSuggestionsFor(query, "w3cannotation") ;
 	
 	if(options.isEmpty()){
 	    return new ServiceResponse<Map<String, Object>>(Status.NOT_FOUND, null);
@@ -57,11 +60,41 @@ public class AnnotationAutocompleteServiceImpl implements AnnotationAutocomplete
 	    Map<String, Object> annoTermList =  annotationUtils.createAutocompleteList(options, isW3c, queryString, motivation, date,user);
 	    return new ServiceResponse<Map<String, Object>>(Status.OK, annoTermList);
 	}
-
     }
     
+    @Override
+    public ServiceResponse<Map<String, Object>> getTerms(String query,String min, String queryString, boolean isW3c) {
+	
+
+	List <SuggestOption> options = findSuggestionsFor(query, "text_index") ;
+	
+	if(options.isEmpty()){
+	    return new ServiceResponse<Map<String, Object>>(Status.NOT_FOUND, null);
+	}else{
+	    
+	    Map<String, Object> annoTermList =  annotationUtils.createAutocompleteList(options, isW3c, queryString, null, null,null);
+	    return new ServiceResponse<Map<String, Object>>(Status.OK, annoTermList);
+	}
+    }
+    
+    @Override
+    public ServiceResponse<Map<String, Object>> getMixedTerms(String query, String min, String queryString, boolean isW3c){
+	
+	List <SuggestOption> textOptions = findSuggestionsFor(query, "text_index") ;
+	List <SuggestOption> annoOptions = findSuggestionsFor(query, "w3cannotation") ;
+	
+	textOptions.addAll(annoOptions);
+	
+	if(textOptions.isEmpty()){
+	    return new ServiceResponse<Map<String, Object>>(Status.NOT_FOUND, null);
+	}else{
+	    
+	    Map<String, Object> annoTermList =  annotationUtils.createAutocompleteList(textOptions, isW3c, queryString, null, null,null);
+	    return new ServiceResponse<Map<String, Object>>(Status.OK, annoTermList);
+	}	
+    }
    
-    public List <SuggestOption>  findSuggestionsFor(Client client,String suggestRequest, String index) {
+    public List <SuggestOption>  findSuggestionsFor(String suggestRequest, String index) {
 	CompletionSuggestionBuilder  completionSuggestionBuilder = new CompletionSuggestionBuilder("annotation_suggest");
 	
 	completionSuggestionBuilder.text(suggestRequest);

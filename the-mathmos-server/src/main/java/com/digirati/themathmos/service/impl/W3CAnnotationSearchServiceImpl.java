@@ -49,7 +49,7 @@ public class W3CAnnotationSearchServiceImpl extends AnnotationSearchServiceImpl 
 
 	List<W3CAnnotation> annotationList = annotationUtils.getW3CAnnotations(annoSearchArray);
 		
-	Map<String, Object> annoMap = annotationUtils.createAnnotationPage(queryString, annotationList, true, pagingParameters, this.getTotalHits());
+	Map<String, Object> annoMap = annotationUtils.createAnnotationPage(queryString, annotationList, true, pagingParameters, this.getTotalHits(), false);
 	   	
 	if(null != annoMap && !annoMap.isEmpty()){
 

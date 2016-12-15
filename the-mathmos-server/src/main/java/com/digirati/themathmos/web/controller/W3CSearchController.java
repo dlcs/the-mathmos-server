@@ -20,24 +20,33 @@ import com.digirati.themathmos.exception.SearchQueryException;
 import com.digirati.themathmos.model.ServiceResponse;
 import com.digirati.themathmos.model.ServiceResponse.Status;
 import com.digirati.themathmos.service.AnnotationAutocompleteService;
-import com.digirati.themathmos.service.OAAnnotationSearchService;
+import com.digirati.themathmos.service.TextSearchService;
+import com.digirati.themathmos.service.W3CAnnotationSearchService;
+import com.digirati.themathmos.service.W3CSearchService;
 
 
 
 
-@RestController(OAAnnotationSearchController.CONTROLLER_NAME)
-public class OAAnnotationSearchController {
+@RestController(W3CSearchController.CONTROLLER_NAME)
+public class W3CSearchController {
     
     
-    public static final String CONTROLLER_NAME = "oaAnnotationSearchController";
+    public static final String CONTROLLER_NAME = "w3cSearchController";
     
-    private OAAnnotationSearchService oaAnnotationSearchService;
+    private W3CAnnotationSearchService w3cAnnotationSearchService;
+    private TextSearchService textSearchService;
+    private W3CSearchService w3cSearchService;
     private AnnotationAutocompleteService annotationAutocompleteService;
     
     @Autowired
-    public OAAnnotationSearchController(OAAnnotationSearchService oaAnnotationSearchService,AnnotationAutocompleteService annotationAutocompleteService ) {
-        this.oaAnnotationSearchService = oaAnnotationSearchService;
+    public W3CSearchController(W3CAnnotationSearchService w3cAnnotationSearchService,AnnotationAutocompleteService annotationAutocompleteService,
+	    TextSearchService textSearchService,W3CSearchService searchService
+	    ) {
+	
+        this.w3cAnnotationSearchService = w3cAnnotationSearchService;
         this.annotationAutocompleteService = annotationAutocompleteService;
+        this.textSearchService = textSearchService;
+        this.w3cSearchService = searchService;
     }
     
     
@@ -45,14 +54,14 @@ public class OAAnnotationSearchController {
     public static final String PARAM_MIN = "min";
     
     
-    private static final String OA_SEARCH_REQUEST_PATH = "/oa/search";   
+    private static final String W3C_SEARCH_REQUEST_PATH = "/search/w3c";   
     
-    private static final String OA_AUTOCOMPLETE_REQUEST_PATH = "/oa/autocomplete";
+    private static final String W3C_AUTOCOMPLETE_REQUEST_PATH = "/autocomplete/w3c";
     
   
     
     @CrossOrigin
-    @RequestMapping(value = OA_SEARCH_REQUEST_PATH, method = RequestMethod.GET)
+    @RequestMapping(value = W3C_SEARCH_REQUEST_PATH, method = RequestMethod.GET)
     public ResponseEntity<Map<String, Object>> searchOAGet(
 	    @RequestParam(value = AnnotationSearchConstants.PARAM_FIELD_QUERY, required = false) String query, 
 	    @RequestParam(value = AnnotationSearchConstants.PARAM_FIELD_MOTIVATION, required = false) String motivation,
@@ -66,9 +75,21 @@ public class OAAnnotationSearchController {
 	}
 	
 	if(StringUtils.isEmpty(query) && StringUtils.isEmpty(motivation) && StringUtils.isEmpty(date) && StringUtils.isEmpty(user)){
-	    throw new SearchQueryException("Please enter either a query, moitvation, date or user to search ");
+	    throw new SearchQueryException("Please enter either a query, moitvation, date or user to search ");	    
 	}
-	ServiceResponse<Map<String, Object>> serviceResponse = oaAnnotationSearchService.getAnnotationPage(query, motivation, date, user, queryString, page);
+	ServiceResponse<Map<String, Object>> serviceResponse = null;
+	if(StringUtils.isEmpty(motivation) && StringUtils.isEmpty(date) && StringUtils.isEmpty(user)){
+	    serviceResponse = w3cSearchService.getAnnotationPage(query, queryString, page);	    
+	}else{
+	    if(motivation.equals("painting")){
+		serviceResponse = textSearchService.getTextPositions(query, queryString, true, page, false);
+	    }else if(motivation.indexOf("painting") < 0){		
+		serviceResponse = w3cAnnotationSearchService.getAnnotationPage(query, motivation, date, user, queryString, page); 
+	    }else{
+		serviceResponse = w3cSearchService.getAnnotationPage(query, queryString, page);
+	    }
+	}
+	
 
 	Status serviceResponseStatus = serviceResponse.getStatus();
 
@@ -85,7 +106,7 @@ public class OAAnnotationSearchController {
     
     
 
-    @RequestMapping(value = OA_AUTOCOMPLETE_REQUEST_PATH, method = RequestMethod.GET)
+    @RequestMapping(value = W3C_AUTOCOMPLETE_REQUEST_PATH, method = RequestMethod.GET)
     public ResponseEntity<Map<String, Object>> autocompleteGet(
 	    @RequestParam(value = AnnotationSearchConstants.PARAM_FIELD_QUERY, required = true) String query, 
 	    @RequestParam(value = AnnotationSearchConstants.PARAM_FIELD_MOTIVATION, required = false) String motivation,
@@ -99,9 +120,23 @@ public class OAAnnotationSearchController {
 	    queryString += "?"+ request.getQueryString();
 	}
 	
-	ServiceResponse<Map<String, Object>> serviceResponse = annotationAutocompleteService.getTerms(query, motivation, date, user, min, queryString, false);
+	//ServiceResponse<Map<String, Object>> serviceResponse = annotationAutocompleteService.getTerms(query, motivation, date, user, min, queryString, true);
 	
 
+	ServiceResponse<Map<String, Object>> serviceResponse = null;
+	
+	if(StringUtils.isEmpty(motivation) && StringUtils.isEmpty(date) && StringUtils.isEmpty(user)){
+	    serviceResponse = annotationAutocompleteService.getMixedTerms(query, min, queryString, true);	    
+	}else{
+	    if(motivation.equals("painting")){
+		serviceResponse = annotationAutocompleteService.getTerms(query, min, queryString, true);
+	    }else if(motivation.indexOf("painting") < 0){		
+		serviceResponse = annotationAutocompleteService.getTerms(query, motivation, date, user, min, queryString, true);
+	    }else{
+		serviceResponse = annotationAutocompleteService.getMixedTerms(query, min, queryString, true);
+	    }
+	}
+	
 	Status serviceResponseStatus = serviceResponse.getStatus();
 
 	if (serviceResponseStatus.equals(Status.OK)) {

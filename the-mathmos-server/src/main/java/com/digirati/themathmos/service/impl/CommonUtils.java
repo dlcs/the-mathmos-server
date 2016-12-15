@@ -2,7 +2,6 @@ package com.digirati.themathmos.service.impl;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -13,7 +12,7 @@ import org.springframework.data.domain.Page;
 
 import com.digirati.themathmos.model.TermOffsetStart;
 import com.digirati.themathmos.model.annotation.page.PageParameters;
-import com.google.gson.internal.LinkedTreeMap;
+
 
 public class CommonUtils {
 
@@ -58,7 +57,7 @@ public class CommonUtils {
 	List resources = new ArrayList();
 
 	if (isW3c) {
-	    Map map = new LinkedHashMap();
+	    Map <String, List>map = new LinkedHashMap<>();
 	    root.put(FULL_HAS_ANNOTATIONS, map);
 	    map.put(W3C_RESOURCELIST, resources);
 	} else {
@@ -69,7 +68,7 @@ public class CommonUtils {
     protected void setHits(Map<String, Object> root, boolean isW3c) {
 	List hits = new ArrayList();
 	if (isW3c) {
-	    Map map = new LinkedHashMap();
+	    Map map = new LinkedHashMap<>();
 	    root.put(FULL_HAS_HITLIST, map);
 	    map.put(W3C_RESOURCELIST, hits);
 	} else {
@@ -196,9 +195,17 @@ public class CommonUtils {
 
     
     
-    
+    /**
+     * Method to get the before and after text surrounding the query term(s).
+     * @param start <code>int</code> the start of the term relative to the entire text
+     * @param end <code>int</code>  the end of the term relative to the entire text
+     * @param surroundingText <code>int</code> how may terms to get before and after the query
+     * @param sourcePositionMap <code>Map</code> containing <code>String</code> term positions as keys and <code>TermOffsetStart</code> as values. This gets our terms for the before and after text.
+     * @return <code>String[]</code> beforeAfter[0] is the before text and beforeAfter[1] is the after text.
+     */
     public String[] getHighlights(int start, int end, int surroundingText,
 	    Map<String, TermOffsetStart> sourcePositionMap) {
+	
 	String[] beforeAfter = new String[2];
 
 	String before = "";
@@ -206,9 +213,9 @@ public class CommonUtils {
 	    if (sourcePositionMap.containsKey(s + "")) {
 		before += sourcePositionMap.get(s + "").getTerm() + " ";
 	    }
-	}
-	
+	}	
 	beforeAfter[0] = before;
+	
 	String after = "";
 	for (int e = end + 1; e < (end + surroundingText); e++) {
 	    if (sourcePositionMap.containsKey(e + "")) {
@@ -219,10 +226,13 @@ public class CommonUtils {
 	if (after.length() > 0) {
 	    after = " "+after.substring(0, after.length() - 1);
 	}
+	
 	beforeAfter[1] = after;
 
 	return beforeAfter;
     }
+    
+    
     
     public <T> PageParameters getAnnotationPageParameters(Page<T> annotationPage, String queryString, int defaultPagingNumber, long totalHits){
    	PageParameters parameters = new PageParameters();

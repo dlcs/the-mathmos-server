@@ -13,6 +13,7 @@ import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.index.query.BoolQueryBuilder;
+import org.elasticsearch.index.query.MultiMatchQueryBuilder.Type;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,6 +23,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.elasticsearch.core.ElasticsearchTemplate;
 import org.springframework.stereotype.Service;
 
+import com.digirati.themathmos.AnnotationSearchConstants;
 import com.digirati.themathmos.exception.SearchQueryException;
 import com.digirati.themathmos.mapper.W3CSearchAnnotationMapper;
 import com.digirati.themathmos.model.W3CSearchAnnotation;
@@ -40,7 +42,7 @@ public class AnnotationSearchServiceImpl {
 
     protected AnnotationUtils annotationUtils;
     
-    protected static final int DEFAULT_PAGING_NUMBER = 10;
+    protected static final int DEFAULT_PAGING_NUMBER = AnnotationSearchConstants.DEFAULT_PAGING_NUMBER;;
     private static final int DEFAULT_STARTING_PAGING_NUMBER = 0;
         
     private long totalHits = 0;  
@@ -214,10 +216,14 @@ public class AnnotationSearchServiceImpl {
 	
 	BoolQueryBuilder must = QueryBuilders.boolQuery();
 	
+	
 	if(null != query){
 	    String tidyQuery = annotationUtils.convertSpecialCharacters(query);
+	    
+	    must = must.must(QueryBuilders.multiMatchQuery(tidyQuery, "body","target","bodyURI", "targetURI").type(Type.PHRASE));
 
-	    must = must.must(QueryBuilders.queryStringQuery(tidyQuery).field("body").field("target").field("bodyURI").field("targetURI"));
+	   // must = must.must(QueryBuilders.queryStringQuery(tidyQuery).field("body").field("target").field("bodyURI").field("targetURI"));
+	    
 	}
 		
 	if(null != motivations){

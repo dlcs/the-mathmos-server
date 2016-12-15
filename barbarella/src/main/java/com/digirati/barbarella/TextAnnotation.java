@@ -1,7 +1,9 @@
 package com.digirati.barbarella;
 
 import org.springframework.data.annotation.Id;
+import org.springframework.data.elasticsearch.annotations.CompletionField;
 import org.springframework.data.elasticsearch.annotations.Document;
+import org.springframework.data.elasticsearch.core.completion.Completion;
 
 
 
@@ -14,6 +16,9 @@ public class TextAnnotation {
     	private String id;
     	
 	private String text;
+	
+	@CompletionField (payloads = false)
+    	private Completion suggest;
     	
 
 	public String getId() {
@@ -32,7 +37,17 @@ public class TextAnnotation {
 	public void setText(String text) {
 	    this.text = text;
 	}
-		   	
+	
+	
+	public Completion getSuggest() {
+	    return suggest;
+	}
+
+	public void setSuggest(Completion suggest) {
+	    this.suggest = suggest;
+	}
+	
+	
     	@Override
 	public String toString() {
 		return "Text [(" + getId() + ")]";

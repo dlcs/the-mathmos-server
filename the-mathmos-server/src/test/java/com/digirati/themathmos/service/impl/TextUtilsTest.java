@@ -124,7 +124,7 @@ public class TextUtilsTest {
 	
 	positions = textUtils.sortPositionsForMultiwordPhrase(termWithOffsetsList, offsetMap, positionsList);
 	assertTrue(positions.size() == 3);
-	LOG.info(positions);
+	LOG.info("positions " + positions);
 	
 	TermWithTermOffsets three =  new TermWithTermOffsets();
 	three.setTerm("laughs");
@@ -167,14 +167,11 @@ public class TextUtilsTest {
 	
 	textUtils.workThoughOffsets(termWithOffsetsList);
 	
-	
-	
-	
 	positionsList = new ArrayList<>();
 	
 	positions= textUtils.sortPositionsForMultiwordPhrase(termWithOffsetsList, offsetMap, positionsList);
 	assertTrue(positions.size() == 2);
-	LOG.info(positions);
+	LOG.info("positions " + positions);
     }
     
     @Test
@@ -272,7 +269,7 @@ public class TextUtilsTest {
 	//LOG.info(map1.toString());
 	
 	String coordinates2 = getFileContents("test_coordinates_2.json");
-	Map<String,Object>  map =textUtils.createCoordinateAnnotation(query, coordinates2, false, positionMap, termPositionMap ,queryString, 10, new PageParameters());
+	Map<String,Object>  map =textUtils.createCoordinateAnnotation(query, coordinates2, false, positionMap, termPositionMap ,queryString, 10, new PageParameters(), false);
 	LOG.info(map.toString());
 	
     }

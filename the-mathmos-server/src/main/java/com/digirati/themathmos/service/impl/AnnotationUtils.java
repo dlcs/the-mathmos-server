@@ -6,6 +6,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -47,29 +48,37 @@ public class AnnotationUtils extends CommonUtils{
     
    
 
-    public Map<String,Object> createAnnotationPage(String query, List<W3CAnnotation> annoList, boolean isW3c,PageParameters pageParams, long totalHits){
-	    
-	if(null == annoList || annoList.isEmpty()){
+    public Map<String, Object> createAnnotationPage(String query, List<W3CAnnotation> annoList, boolean isW3c,
+	    PageParameters pageParams, long totalHits, boolean isMixedSearch) {
+
+	if (null == annoList || annoList.isEmpty()) {
 	    return null;
 	}
-	
-	    Map<String, Object> root = null;
-	    if(AnnotationSearchServiceImpl.DEFAULT_PAGING_NUMBER <= totalHits){
-		root = this.buildAnnotationPageHead(query, isW3c, pageParams);
-	    }else{
-		root = this.buildAnnotationListHead(query, isW3c);
-	    }
-	   
-	    List resources  = this.getResources(root, isW3c);
-	  
-	    
-	    //forEach result in the search get the annotation from the database and populate resource element.
-	    for(W3CAnnotation w3CAnnotation:annoList){
-		resources.add(w3CAnnotation.getJsonMap());
-	    }
 
-	    return root;
+	Map<String, Object> root = null;
 	
+	if(isMixedSearch){
+	    root = new LinkedHashMap<>();
+	    this.setResources(root, isW3c);	    
+	}else{
+	    if (AnnotationSearchServiceImpl.DEFAULT_PAGING_NUMBER <= totalHits) {
+		root = this.buildAnnotationPageHead(query, isW3c, pageParams);
+	    } else {
+		root = this.buildAnnotationListHead(query, isW3c);
+	    } 
+	}
+	
+
+	List resources = this.getResources(root, isW3c);
+
+	// forEach result in the search get the annotation from the database and
+	// populate resource element.
+	for (W3CAnnotation w3CAnnotation : annoList) {
+	    resources.add(w3CAnnotation.getJsonMap());
+	}
+
+	return root;
+
     }
     
   

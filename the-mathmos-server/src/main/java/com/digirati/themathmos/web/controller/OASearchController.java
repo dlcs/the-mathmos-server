@@ -21,23 +21,33 @@ import com.digirati.themathmos.model.ServiceResponse;
 import com.digirati.themathmos.model.ServiceResponse.Status;
 import com.digirati.themathmos.service.AnnotationAutocompleteService;
 import com.digirati.themathmos.service.OAAnnotationSearchService;
+import com.digirati.themathmos.service.OASearchService;
+import com.digirati.themathmos.service.TextSearchService;
 
 
 
 
-@RestController(OAAnnotationSearchController.CONTROLLER_NAME)
-public class OAAnnotationSearchController {
+@RestController(OASearchController.CONTROLLER_NAME)
+public class OASearchController {
     
     
-    public static final String CONTROLLER_NAME = "oaAnnotationSearchController";
+    public static final String CONTROLLER_NAME = "oaSearchController";
     
     private OAAnnotationSearchService oaAnnotationSearchService;
+    private TextSearchService textSearchService;
+    private OASearchService oaSearchService;
     private AnnotationAutocompleteService annotationAutocompleteService;
     
     @Autowired
-    public OAAnnotationSearchController(OAAnnotationSearchService oaAnnotationSearchService,AnnotationAutocompleteService annotationAutocompleteService ) {
+    public OASearchController(OAAnnotationSearchService oaAnnotationSearchService,AnnotationAutocompleteService annotationAutocompleteService,
+	    TextSearchService textSearchService
+	   ,OASearchService searchService
+	    ) {
+	
         this.oaAnnotationSearchService = oaAnnotationSearchService;
         this.annotationAutocompleteService = annotationAutocompleteService;
+        this.textSearchService = textSearchService;
+        this.oaSearchService = searchService;
     }
     
     
@@ -45,9 +55,9 @@ public class OAAnnotationSearchController {
     public static final String PARAM_MIN = "min";
     
     
-    private static final String OA_SEARCH_REQUEST_PATH = "/oa/search";   
+    private static final String OA_SEARCH_REQUEST_PATH = "/search/oa";   
     
-    private static final String OA_AUTOCOMPLETE_REQUEST_PATH = "/oa/autocomplete";
+    private static final String OA_AUTOCOMPLETE_REQUEST_PATH = "/autocomplete/oa";
     
   
     
@@ -66,9 +76,22 @@ public class OAAnnotationSearchController {
 	}
 	
 	if(StringUtils.isEmpty(query) && StringUtils.isEmpty(motivation) && StringUtils.isEmpty(date) && StringUtils.isEmpty(user)){
-	    throw new SearchQueryException("Please enter either a query, moitvation, date or user to search ");
+	    throw new SearchQueryException("Please enter either a query, moitvation, date or user to search ");	    
 	}
-	ServiceResponse<Map<String, Object>> serviceResponse = oaAnnotationSearchService.getAnnotationPage(query, motivation, date, user, queryString, page);
+	ServiceResponse<Map<String, Object>> serviceResponse = null;
+	
+	if(StringUtils.isEmpty(motivation) && StringUtils.isEmpty(date) && StringUtils.isEmpty(user)){
+	    serviceResponse = oaSearchService.getAnnotationPage(query, queryString, page);	    
+	}else{
+	    if(motivation.equals("painting")){
+		serviceResponse = textSearchService.getTextPositions(query, queryString, false, page, false);
+	    }else if(motivation.indexOf("painting") < 0){		
+		serviceResponse = oaAnnotationSearchService.getAnnotationPage(query, motivation, date, user, queryString, page); 
+	    }else{
+		serviceResponse = oaSearchService.getAnnotationPage(query, queryString, page);
+	    }
+	}
+	
 
 	Status serviceResponseStatus = serviceResponse.getStatus();
 
@@ -99,9 +122,22 @@ public class OAAnnotationSearchController {
 	    queryString += "?"+ request.getQueryString();
 	}
 	
-	ServiceResponse<Map<String, Object>> serviceResponse = annotationAutocompleteService.getTerms(query, motivation, date, user, min, queryString, false);
 	
-
+	ServiceResponse<Map<String, Object>> serviceResponse = null;
+	
+	if(StringUtils.isEmpty(motivation) && StringUtils.isEmpty(date) && StringUtils.isEmpty(user)){
+	    serviceResponse = annotationAutocompleteService.getMixedTerms(query, min, queryString, false);	    
+	}else{
+	    if(motivation.equals("painting")){
+		serviceResponse = annotationAutocompleteService.getTerms(query, min, queryString, false);
+	    }else if(motivation.indexOf("painting") < 0){		
+		serviceResponse = annotationAutocompleteService.getTerms(query, motivation, date, user, min, queryString, false);
+	    }else{
+		serviceResponse = annotationAutocompleteService.getMixedTerms(query, min, queryString, false);
+	    }
+	}
+	
+	
 	Status serviceResponseStatus = serviceResponse.getStatus();
 
 	if (serviceResponseStatus.equals(Status.OK)) {

@@ -36,6 +36,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.digirati.themathmos.AnnotationSearchConstants;
 import com.digirati.themathmos.mapper.TextSearchAnnotationMapper;
 import com.digirati.themathmos.model.Positions;
 import com.digirati.themathmos.model.ServiceResponse;
@@ -43,7 +44,6 @@ import com.digirati.themathmos.model.TermOffsetStart;
 import com.digirati.themathmos.model.TermOffsetsWithPosition;
 import com.digirati.themathmos.model.TermWithTermOffsets;
 import com.digirati.themathmos.model.TextAnnotation;
-import com.digirati.themathmos.model.W3CSearchAnnotation;
 import com.digirati.themathmos.model.ServiceResponse.Status;
 import com.digirati.themathmos.model.annotation.page.PageParameters;
 import com.digirati.themathmos.service.GetPayloadService;
@@ -58,8 +58,7 @@ public class TextSearchServiceImpl implements TextSearchService {
 
     public static final String SERVICE_NAME = "TextSearchServiceImpl";
 
-    // protected static final int DEFAULT_PAGING_NUMBER = 10;
-    protected static final int DEFAULT_PAGING_NUMBER = 3;
+    protected static final int DEFAULT_TEXT_PAGING_NUMBER = AnnotationSearchConstants.DEFAULT_PAGING_NUMBER;
     private static final int DEFAULT_STARTING_PAGING_NUMBER = 0;
 
     private TextUtils textUtils;
@@ -86,96 +85,87 @@ public class TextSearchServiceImpl implements TextSearchService {
 	this.coordinateService = coordinateService;
     }
     
+    @Override
     public PageParameters getPageParameters(){
 	return pagingParameters;
     }
     
-
+    @Override
     public long getTotalHits() {
 	return totalHits;
     }
 
+
     @Override
     @Transactional(readOnly = true, isolation = Isolation.SERIALIZABLE)
-    public ServiceResponse<Map<String, Object>> getTextPositions(String query, String queryString, boolean isW3c, String page) {
+    public ServiceResponse<Map<String, Object>> getTextPositions(String query, String queryString, boolean isW3c,
+	    String page, boolean isMixedSearch) {
 
 	totalHits = 0;
 	QueryBuilder queryBuilder = buildQuery(query);
-	
-	int pagingSize = DEFAULT_PAGING_NUMBER;
-	int pageNumber = DEFAULT_STARTING_PAGING_NUMBER;
-	
-	//TODO validate that pagenumber is int and is in expected range.
-	if(!StringUtils.isEmpty(page)){
-	    Integer pagingInteger =  Integer.parseInt(page);
-	    pageNumber = pagingInteger.intValue() - 1;
+
+	int pagingSize = DEFAULT_TEXT_PAGING_NUMBER;
+	int from = DEFAULT_STARTING_PAGING_NUMBER;
+
+	// TODO validate that pagenumber is int and is in expected range.
+	if (!StringUtils.isEmpty(page)) {
+	    Integer pagingInteger = Integer.parseInt(page);
+	    from = (pagingInteger.intValue() - 1) * pagingSize;
 	}
-	
-	//Map <String, Text[]>hitsMapper = new HashMap<>();
-	
+
+	// Map <String, Text[]>hitsMapper = new HashMap<>();
+
 	List<String> queryTerms = textUtils.getListFromSpaceSeparatedTerms(query);
-	boolean isOneWordSearch = queryTerms.size() == 1 ? true:false;
-	Page<TextAnnotation> annotationPage = formQuery(queryBuilder, pageNumber, pagingSize, 
-		//hitsMapper, 
+	boolean isOneWordSearch = queryTerms.size() == 1 ? true : false;
+	Page<TextAnnotation> annotationPage = formQuery(queryBuilder, from, pagingSize,
+		// hitsMapper,
 		isOneWordSearch);
 
-	int totalPages = annotationPage.getTotalPages();
-	
 	LOG.info(annotationPage.getTotalPages());
 
 	Map<String, List<TermWithTermOffsets>> termWithOffsetsMap = new HashMap<>();
 	Map<String, Map<String, TermOffsetStart>> termPositionsMap = new HashMap<>();
-	Map<String,Map <String,String>> offsetPositionMap = new HashMap<>();
-	
-	extractTermOffsetsFromPage(termWithOffsetsMap, annotationPage,  query, termPositionsMap, offsetPositionMap);
-	
-	/*
-	if(totalPages > 1){
-	    for (int x = 2; x < totalPages + 1; x++){
-		
-		int from = DEFAULT_PAGING_NUMBER *(x-1);
-		annotationPage = formQuery(queryBuilder,from, DEFAULT_PAGING_NUMBER, 
-			//hitsMapper, 
-			isOneWordSearch);
-		
-		LOG.info(annotationPage.getTotalPages());
-		extractTermOffsetsFromPage(termWithOffsetsMap, annotationPage,  query, termPositionsMap, offsetPositionMap);
-	    }
-	}*/
-	
-	
+	Map<String, Map<String, String>> offsetPositionMap = new HashMap<>();
+
+	extractTermOffsetsFromPage(termWithOffsetsMap, annotationPage, query, termPositionsMap, offsetPositionMap);
+
 	LOG.info(termWithOffsetsMap.toString());
-	Map <String, Object> offsetPayloadMap = textUtils.createOffsetPayload(query,termWithOffsetsMap, "1024", "768", offsetPositionMap);
-	
-	Map <String, List<Positions>> positionMap = textUtils.getPositionsMap();
-	LOG.info("PositionMap " + positionMap.toString());
+	Map<String, Object> offsetPayloadMap = textUtils.createOffsetPayload(termWithOffsetsMap, "1024", "768",
+		offsetPositionMap);
+
 	String payload = new Gson().toJson(offsetPayloadMap);
-	
-	pagingParameters = textUtils.getAnnotationPageParameters(annotationPage, queryString, DEFAULT_PAGING_NUMBER, totalHits);
-	
+
+	pagingParameters = textUtils.getAnnotationPageParameters(annotationPage, queryString,
+		DEFAULT_TEXT_PAGING_NUMBER, totalHits);
+
 	if (StringUtils.isEmpty(payload)) {
 	    return new ServiceResponse<>(Status.NOT_FOUND, null);
-	}else{
+	} else {
 	    // now call another service to get the actual coordinates
 	    String coordinatePayload = coordinateService.getJsonPayload(coordinateServerUrl, payload);
-	    
-	    Map<String, Object> textMap = textUtils.createCoordinateAnnotation(query,coordinatePayload,
-		   // hitsMapper, 
-		    isW3c, positionMap, termPositionsMap, queryString, this.getTotalHits(), pagingParameters);
-	    
-	    
+
+	    Map<String, List<Positions>> positionMap = textUtils.getPositionsMap();
+	    LOG.info("PositionMap " + positionMap.toString());
+
+	    Map<String, Object> textMap = textUtils.createCoordinateAnnotation(query, coordinatePayload,
+		    // hitsMapper,
+		    isW3c, positionMap, termPositionsMap, queryString, this.getTotalHits(), pagingParameters,
+		    isMixedSearch);
+
 	    if (null != textMap && !textMap.isEmpty()) {
-		   return new ServiceResponse<>(Status.OK, textMap);
+		return new ServiceResponse<>(Status.OK, textMap);
 	    } else {
-		    return new ServiceResponse<>(Status.NOT_FOUND, null);
+		return new ServiceResponse<>(Status.NOT_FOUND, null);
 	    }
 	}
-		
     }
-
     
     
-    
+    /**
+     * Method to get all the _id fields returned in our search and pass these to getMultiTermVectors to get a {@code MultiTermVectorsResponse}.
+     * @param page {@code Page} whose content is a {@code List} of {@code TextAnnotation} objects, from which we get the ids.
+     * @return {@code MultiTermVectorsResponse} containing all the term vectors in the matched text.
+     */
     private MultiTermVectorsResponse getMultiTermVectorResponse(Page<TextAnnotation> page) {
 
 	List<TextAnnotation> textPage = page.getContent();
@@ -184,12 +174,12 @@ public class TextSearchServiceImpl implements TextSearchService {
 	int count = 0;
 	for (TextAnnotation textResult : textPage) {
 	    String id = textResult.getId();
-	    LOG.info("id of textAnotation is " + id);
+	    LOG.info("getMultiTermVectorResponse id of textAnotation is " + id);
 	    if(null != id){
 		idArray[count] = id;
 		count++;
 	    }else{
-		LOG.error("no id associated with this text");
+		LOG.error("Error in getMultiTermVectorResponse, no id associated with this text");
 	    }
 	}
 
@@ -200,20 +190,25 @@ public class TextSearchServiceImpl implements TextSearchService {
 
     
     
-    
-    private Page<TextAnnotation> formQuery(QueryBuilder queryBuilder, int pageNumber, int pagingSize, 
+    /**
+     * Method to query elasticsearch. We don't fetch the source. 
+     * @param queryBuilder {@code QueryBuilder} containing the query
+     * @param from {@code int} - where we want our page to start from
+     * @param pagingSize {@code int} - maximum  hits we want in any page
+     * @param isOneWordSearch - not required..
+     * @return {@code Page} - of {@code TextAnnotation} objects.
+     */
+    private Page<TextAnnotation> formQuery(QueryBuilder queryBuilder, int from, int pagingSize, 
 	    //Map <String, Text[]>hitsMapper, 
 	    boolean isOneWordSearch) {
-	LOG.info("Page stats are pageNumber:" +pageNumber + " pagingSize:" +  pagingSize);
-	Pageable pageable = new PageRequest(pageNumber, pagingSize);
+	LOG.info("Page stats are from:" +from + " pagingSize:" +  pagingSize);
+	Pageable pageable = new PageRequest(from, pagingSize);
 
 	TextSearchAnnotationMapper resultsMapper = new TextSearchAnnotationMapper();
 
-	SearchRequestBuilder searchRequestBuilder = client.prepareSearch(INDEX_FIELD_NAME);
-	searchRequestBuilder.setQuery(queryBuilder);
-	searchRequestBuilder.setFrom(pageNumber).setSize(pagingSize);
+	SearchRequestBuilder searchRequestBuilder = client.prepareSearch(INDEX_FIELD_NAME).setQuery(queryBuilder).setFrom(from).setSize(pagingSize).setFetchSource(false);
+	
 	//searchRequestBuilder.addHighlightedField(TEXT_FIELD_NAME, 150, 1000);
-	searchRequestBuilder.setFetchSource(false);
 	//only use fvh highlighting if we are searching > 1 word in a phrase.
 	//if(!isOneWordSearch){
 	//    searchRequestBuilder.setHighlighterType("fvh");
@@ -234,11 +229,30 @@ public class TextSearchServiceImpl implements TextSearchService {
 	return resultsMapper.mapResults(response, TextAnnotation.class, pageable);
     }
 
+    
+    /**
+     * Method to build a matchPhraseQuery {@code QueryBuilder}
+     * @param query - The {@code String} query e.g. turnips
+     * @return {@code QueryBuilder}
+     */
     private QueryBuilder buildQuery(String query) {
 	QueryBuilder queryBuilder = QueryBuilders.matchPhraseQuery(TEXT_FIELD_NAME, query);
 	return queryBuilder;
     }
 
+    
+    
+    
+    
+    /**
+     * Method to create a {@code MultiTermVectorsRequest} by building up a series of {@code TermVectorsRequest} and adding them to a {@code MultiTermVectorsRequest}. 
+     * Send this request to elasticsearch and return either null or a {@code MultiTermVectorsResponse}
+     * @param index - The {@code String} index we are querying.
+     * @param type - The {@code String} type we are querying.
+     * @param ids - The {@code String[]} of text ids we wish to get termvectors for
+     * @param field - The {@code String} name of the field we wish to get termvectors for e.g. the text field.
+     * @return the {@code MultiTermVectorsResponse} or null if we have an empty{@code MultiTermVectorsRequest}
+     */
     private MultiTermVectorsResponse getMultiTermVectors(String index, String type, String[] ids, String field) {
 	MultiTermVectorsRequest multiTermVectorsRequest = new MultiTermVectorsRequest();
 
@@ -252,7 +266,6 @@ public class TextSearchServiceImpl implements TextSearchService {
 
 	if(!multiTermVectorsRequest.isEmpty()){
 	    MultiTermVectorsResponse response = client.multiTermVectors(multiTermVectorsRequest).actionGet();
-	    LOG.info(response.toString());
 	    return response;
 	}
 	return null;
@@ -265,7 +278,14 @@ public class TextSearchServiceImpl implements TextSearchService {
     }
 
     
-    private void findOffsetsForQuery(String query, XContentBuilder builder, TermWithTermOffsets termWithOffsets){
+    
+    /**
+     * Find the offsets for each query term
+     * @param query - The {@code String} query e.g. turnips
+     * @param builder - The {@code XContentBuilder} representing the json of the {@code MultiTermVectorsResponse}. 
+     * @param termWithOffsets - Populated with the key = the lowercase query term and value a {@code List} of {@code TermOffsetsWithPosition} which are the position, and start and end offsets
+     */
+    private void findOffsetsForQuery(String query, XContentBuilder builder, TermWithTermOffsets termWithOffsets) {
 	try {
 	    Map<String, Object> javaRootBodyMapObject = new Gson().fromJson(builder.string(), Map.class);
 
@@ -294,6 +314,15 @@ public class TextSearchServiceImpl implements TextSearchService {
 	}
     }
     
+    
+    
+    
+    /**
+     * Method to populate a Map whose key is the position in the text and whose value is the {@code TermOffsetStart}. This contains a term and its start offset. e.g. key = 13, value = {"turnips", 34}
+     * This is done for the entire text. 
+     * @param builder {@code XContentBuilder} representing the json from the {@code MultiTermVectorsResponse}
+     * @return {@code Map} <String, TermOffsetStart>
+     */
     private Map<String, TermOffsetStart> findPositions(XContentBuilder builder) {
 
 	Map<String, TermOffsetStart> positionMap = new HashMap<>();
@@ -301,9 +330,8 @@ public class TextSearchServiceImpl implements TextSearchService {
 	    Map<String, Object> javaRootBodyMapObject = new Gson().fromJson(builder.string(), Map.class);
 
 	    Map termVectors = (Map) javaRootBodyMapObject.get("term_vectors");
-	    LinkedTreeMap text = (LinkedTreeMap) termVectors.get(TEXT_FIELD_NAME);
+	    LinkedTreeMap text = (LinkedTreeMap) termVectors.get(TEXT_FIELD_NAME);	    
 	    LinkedTreeMap terms = (LinkedTreeMap) text.get("terms");
-
 	    Set<String> querySet = (Set) terms.keySet();
 
 	    for (String term : querySet) {
@@ -312,24 +340,31 @@ public class TextSearchServiceImpl implements TextSearchService {
 		ArrayList tokens = (ArrayList) queryTerm.get("tokens");
 		for (Object token : tokens) {
 		    LinkedTreeMap tokenObject = (LinkedTreeMap) token;
-
-		    TermOffsetStart termStart = new TermOffsetStart();
-
+		    TermOffsetStart termStart = new TermOffsetStart(term, removeDotZero((Double) tokenObject.get("start_offset")));
 		    positionMap.put(removeDotZero((Double) tokenObject.get("position")) + "", termStart);
-
-		    termStart.setTerm(term);
-		    termStart.setStart(removeDotZero((Double) tokenObject.get("start_offset")));
 		}
 	    }
 
 	} catch (Exception e) {
-	    LOG.error("Error getting json from builderString" + e);
+	    LOG.error("findPositions - Error getting json from builderString" + e);
 	}
 	LOG.info(positionMap.toString());
 
 	return positionMap;
     }
     
+    
+    
+    
+    
+    /**
+     * Method to get the termvectors for each text item.
+     * @param termWithOffsetsMap. Populated in this method with the 
+     * @param page = {@code Page} containing the results of our {code
+     * @param query - The {@code String} query e.g. turnips
+     * @param termPositionsMap {@code Map} containing key = position of a term in text with value = {@code TermOffsetStart}
+     * @param offsetPositionMap {@code Map} containing key = start offset of a term in text with value = {@code String} position.
+     */
     private void extractTermOffsetsFromPage(Map<String, List<TermWithTermOffsets>> termWithOffsetsMap,
 	    Page<TextAnnotation> page, String query, Map<String, Map<String, TermOffsetStart>> termPositionsMap, Map<String,Map <String,String>> offsetPositionMap) {
 
@@ -341,10 +376,8 @@ public class TextSearchServiceImpl implements TextSearchService {
 	    
 	    for (MultiTermVectorsItemResponse itemReponse : itemResponseArray) {
 
-		String id = itemReponse.getId();
-		LOG.info("itemResponse id is " + id);
-		
-		
+		String imageId = itemReponse.getId();
+		LOG.info("itemResponse id is " + imageId);
 
 		XContentBuilder builder;
 		try {
@@ -357,37 +390,37 @@ public class TextSearchServiceImpl implements TextSearchService {
 		    Map <String,String> startMap = new HashMap<>();
 		    for(String key: positions.keySet()){
 			TermOffsetStart termOffsetStart = positions.get(key);
-			int start  = termOffsetStart.getStart();
-			startMap.put(start+"", key);
+
+			startMap.put(termOffsetStart.getStart()+"", key);
 		    }
-		    offsetPositionMap.put(id, startMap);
-		    termPositionsMap.put(id, positions);
+		    offsetPositionMap.put(imageId, startMap);
+		    termPositionsMap.put(imageId, positions);
 
 		    // get offsets for all query terms
 		    List<String> queryTerms = textUtils.getListFromSpaceSeparatedTerms(query);
 		    for (String queryTerm : queryTerms) {
 			TermWithTermOffsets termWithOffsets = new TermWithTermOffsets();
 			findOffsetsForQuery(queryTerm, builder, termWithOffsets);
-			if (termWithOffsetsMap.containsKey(id)) {
-			    List<TermWithTermOffsets> termList = termWithOffsetsMap.get(id);
+			if (termWithOffsetsMap.containsKey(imageId)) {
+			    List<TermWithTermOffsets> termList = termWithOffsetsMap.get(imageId);
 			    termList.add(termWithOffsets);
 
 			} else {
 			    List<TermWithTermOffsets> termList = new ArrayList<>();
 			    termList.add(termWithOffsets);
-			    termWithOffsetsMap.put(id, termList);
+			    termWithOffsetsMap.put(imageId, termList);
 			}
 		    }
-		    LOG.info(id + " " + builder.string());
+		    LOG.info(imageId + " " + builder.string());
 		} catch (IOException e) {
 		    LOG.error("Error with XContentFactory.jsonBuilder().startObject()" + e);
 		}
-
 	    }
-
 	}
-
     }
+    
+    
+    
     
     public void examineHitsForHighlights(SearchResponse response,Map <String, Text[]>hitsMapper ){
 	

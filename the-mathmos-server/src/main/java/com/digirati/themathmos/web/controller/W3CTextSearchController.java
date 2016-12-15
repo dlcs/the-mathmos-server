@@ -19,6 +19,7 @@ import com.digirati.themathmos.exception.SearchException;
 import com.digirati.themathmos.exception.SearchQueryException;
 import com.digirati.themathmos.model.ServiceResponse;
 import com.digirati.themathmos.model.ServiceResponse.Status;
+import com.digirati.themathmos.service.AnnotationAutocompleteService;
 import com.digirati.themathmos.service.TextSearchService;
 
 
@@ -31,16 +32,20 @@ public class W3CTextSearchController {
     public static final String CONTROLLER_NAME = "w3CTextSearchController";
     
     private TextSearchService textSearchService;
- 
+    private AnnotationAutocompleteService annotationAutocompleteService;
     
     @Autowired
-    public W3CTextSearchController(TextSearchService textSearchService ) {
+    public W3CTextSearchController(TextSearchService textSearchService, AnnotationAutocompleteService annotationAutocompleteService) {
         this.textSearchService = textSearchService;
-
+        this.annotationAutocompleteService = annotationAutocompleteService;
     }
+    
+    //autocomplete parameter defaults to 1 if not specified
+    public static final String PARAM_MIN = "min";
 
     private static final String TEXT_SEARCH_REQUEST_PATH = "/w3c/text/search";   
     
+    private static final String W3C_AUTOCOMPLETE_REQUEST_PATH = "/w3c/text/autocomplete";
     
     @CrossOrigin
     @RequestMapping(value = TEXT_SEARCH_REQUEST_PATH, method = RequestMethod.GET)
@@ -56,7 +61,7 @@ public class W3CTextSearchController {
 	if(StringUtils.isEmpty(query)){
 	    throw new SearchQueryException("Please enter a query to search");
 	}
-	ServiceResponse<Map<String, Object>> serviceResponse = textSearchService.getTextPositions(query, queryString, true, page);
+	ServiceResponse<Map<String, Object>> serviceResponse = textSearchService.getTextPositions(query, queryString, true, page, false);
 
 	Status serviceResponseStatus = serviceResponse.getStatus();
 
@@ -72,7 +77,31 @@ public class W3CTextSearchController {
     }
     
     
+    @RequestMapping(value = W3C_AUTOCOMPLETE_REQUEST_PATH, method = RequestMethod.GET)
+    public ResponseEntity<Map<String, Object>> autocompleteGet(
+	    @RequestParam(value = AnnotationSearchConstants.PARAM_FIELD_QUERY, required = true) String query,  
+	    @RequestParam(value = PARAM_MIN, required = false) String min, 
+	    HttpServletRequest request) {
+	
+	String queryString = request.getRequestURL().toString();
+	if(null != request.getQueryString()){
+	    queryString += "?"+ request.getQueryString();
+	}
+	ServiceResponse<Map<String, Object>> serviceResponse = annotationAutocompleteService.getTerms(query, min, queryString, true);
+	
+	Status serviceResponseStatus = serviceResponse.getStatus();
 
+	if (serviceResponseStatus.equals(Status.OK)) {
+	     return ResponseEntity.ok(serviceResponse.getObj());
+	}
+
+	if (serviceResponseStatus.equals(Status.NOT_FOUND)) {
+	    	return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+	}
+	
+	throw new SearchException(String.format("Unexpected service response status [%s]", serviceResponseStatus));
+
+    }
     
   
 

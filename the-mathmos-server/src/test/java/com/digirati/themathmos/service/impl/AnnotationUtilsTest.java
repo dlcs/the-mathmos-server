@@ -59,7 +59,7 @@ public class AnnotationUtilsTest {
 	pageParams.setStartIndex("0");
 	
 	long totalHits = 11;
-	Map<String,Object> json = annotationUtils.createAnnotationPage(query, annoList, isW3c, pageParams, totalHits);
+	Map<String,Object> json = annotationUtils.createAnnotationPage(query, annoList, isW3c, pageParams, totalHits, false);
 	
 	LOG.info(json);
 	
@@ -73,7 +73,7 @@ public class AnnotationUtilsTest {
 	
 	//test w3c change
 	isW3c = false;
-	json = annotationUtils.createAnnotationPage(query, annoList, isW3c, pageParams, totalHits);
+	json = annotationUtils.createAnnotationPage(query, annoList, isW3c, pageParams, totalHits, false);
 	assertFalse("http://www.w3.org/ns/anno.jsonld".equals(json.get("@context")));
 	assertTrue("sc:AnnotationList".equals(json.get("@type")));
 	assertTrue("2".equals(json.get("next")));
