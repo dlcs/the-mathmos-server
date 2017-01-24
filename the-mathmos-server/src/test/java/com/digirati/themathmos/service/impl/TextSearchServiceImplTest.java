@@ -153,7 +153,7 @@ public class TextSearchServiceImplTest {
 	
 	
 	
-	textSearchServiceImpl.getTextPositions(query, queryString, isW3c, page, isMixedSearch);
+	//textSearchServiceImpl.getTextPositions(query, queryString, isW3c, page, isMixedSearch);
     }
 
     static String readFile(String path, Charset encoding) throws IOException {
