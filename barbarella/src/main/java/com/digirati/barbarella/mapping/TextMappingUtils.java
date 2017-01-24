@@ -47,20 +47,18 @@ public class TextMappingUtils {
 	    }
 	
 	    Set <String>keySet = javaRootBodyMapObject.keySet();
-	    String first = null;
+	    String id = null;
 	    if(1 != keySet.size()){
 		return null;
 	    }else{
 		Iterator <String>iter = keySet.iterator();
 
-		first = (String)iter.next();
-		
+		id = (String)iter.next();		
 	    }
-	    String id = first;
 	 
 	    fieldData.put(ID, id);
 	    
-	    String body = (String)javaRootBodyMapObject.get(first);
+	    String body = (String)javaRootBodyMapObject.get(id);
 	    if(null == body){
 		return null;
 	    }
@@ -77,6 +75,9 @@ public class TextMappingUtils {
 	    return null;
 	} catch (IOException e) {
 	    LOG.error("IOException in determineJsonMappingType: " , e);
+	    return null;
+    	} catch (Exception e) {
+	    LOG.error("Exception in determineJsonMappingType: " , e);
 	    return null;
 	}
 	 
@@ -104,9 +105,11 @@ public class TextMappingUtils {
    	
    	
    	String body = fieldList.get(BODY);
-   	if(null !=  body){
-  
+   	if(null !=  body){ 
    	    text.setText(body);
+   	    String[] bodyArray = new String[]{body};
+   	    text = builder.suggest(bodyArray).build();
+   	    LOG.info(text.toString());
    	}
 
    	return text;

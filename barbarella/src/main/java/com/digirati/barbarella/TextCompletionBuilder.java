@@ -4,6 +4,8 @@ package com.digirati.barbarella;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.regex.Pattern;
+
+import org.apache.log4j.Logger;
 import org.jsoup.Jsoup;
 import org.springframework.data.elasticsearch.core.completion.Completion;
 import org.springframework.data.elasticsearch.core.query.IndexQuery;
@@ -12,6 +14,7 @@ import org.springframework.data.elasticsearch.core.query.IndexQuery;
 
 public class TextCompletionBuilder {
 
+        private static final Logger LOG = Logger.getLogger(TextCompletionBuilder.class);
     	private TextAnnotation result;
 
 	public TextCompletionBuilder(String id) {
@@ -32,13 +35,15 @@ public class TextCompletionBuilder {
 
 	public TextCompletionBuilder suggest(String[] input, String output, Object payload, Integer weight) {
 	    
-	        String [] inputWords = analyseInput(input);
+	    	String [] inputWords = analyseInput(input);
 		Completion suggest = new Completion(inputWords);
 		suggest.setOutput(output);
 
-		suggest.setPayload(payload);		
+		suggest.setPayload(payload);
+		
 		suggest.setWeight(weight);
 
+		result.setSuggest(suggest);
 		return this;
 	}
 
@@ -60,13 +65,13 @@ public class TextCompletionBuilder {
 		
 		term = parseHtml(term);
 		String lowerTerm = term.toLowerCase();
-		inputAnalysisSet.add(lowerTerm);
 		String[] words = lowerTerm.split("\\s+");
 		
 		for(String word:words){		
 		    inputAnalysisSet.add(word);
 		}
 	    }
+	    LOG.info(inputAnalysisSet.toString());
 	    
 	    return  inputAnalysisSet.toArray(new String[inputAnalysisSet.size()]);
 	}

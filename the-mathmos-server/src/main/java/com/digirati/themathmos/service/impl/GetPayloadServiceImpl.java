@@ -1,7 +1,6 @@
 package com.digirati.themathmos.service.impl;
 
 import java.io.BufferedReader;
-import java.io.IOException;
 import java.io.InputStreamReader;
 
 import org.apache.http.HttpResponse;
@@ -36,7 +35,7 @@ public class GetPayloadServiceImpl implements GetPayloadService{
         try {
             HttpPost request = new HttpPost(url);
           
-            StringEntity params =new StringEntity(payload);
+            StringEntity params = new StringEntity(payload);
             LOG.info(payload);
             request.addHeader("content-type", "application/json; charset=utf-8");
             request.setEntity(params);

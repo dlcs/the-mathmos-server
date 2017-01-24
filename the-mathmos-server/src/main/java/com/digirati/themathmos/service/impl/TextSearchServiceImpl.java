@@ -206,7 +206,11 @@ public class TextSearchServiceImpl implements TextSearchService {
 
 	TextSearchAnnotationMapper resultsMapper = new TextSearchAnnotationMapper();
 
-	SearchRequestBuilder searchRequestBuilder = client.prepareSearch(INDEX_FIELD_NAME).setQuery(queryBuilder).setFrom(from).setSize(pagingSize).setFetchSource(false);
+	SearchRequestBuilder searchRequestBuilder = client.prepareSearch(INDEX_FIELD_NAME);
+	searchRequestBuilder.setQuery(queryBuilder);
+	searchRequestBuilder.setFrom(from);
+	searchRequestBuilder.setSize(pagingSize);
+	searchRequestBuilder.setFetchSource(false);
 	
 	//searchRequestBuilder.addHighlightedField(TEXT_FIELD_NAME, 150, 1000);
 	//only use fvh highlighting if we are searching > 1 word in a phrase.
@@ -328,7 +332,7 @@ public class TextSearchServiceImpl implements TextSearchService {
 	Map<String, TermOffsetStart> positionMap = new HashMap<>();
 	try {
 	    Map<String, Object> javaRootBodyMapObject = new Gson().fromJson(builder.string(), Map.class);
-
+	    LOG.info(javaRootBodyMapObject.toString());
 	    Map termVectors = (Map) javaRootBodyMapObject.get("term_vectors");
 	    LinkedTreeMap text = (LinkedTreeMap) termVectors.get(TEXT_FIELD_NAME);	    
 	    LinkedTreeMap terms = (LinkedTreeMap) text.get("terms");
@@ -346,9 +350,9 @@ public class TextSearchServiceImpl implements TextSearchService {
 	    }
 
 	} catch (Exception e) {
-	    LOG.error("findPositions - Error getting json from builderString" + e);
+	    LOG.error("findPositions - Error getting json from builderString " + e);
 	}
-	LOG.info(positionMap.toString());
+	LOG.info("positionMap is "+ positionMap.toString());
 
 	return positionMap;
     }
@@ -422,7 +426,7 @@ public class TextSearchServiceImpl implements TextSearchService {
     
     
     
-    public void examineHitsForHighlights(SearchResponse response,Map <String, Text[]>hitsMapper ){
+    /*public void examineHitsForHighlights(SearchResponse response,Map <String, Text[]>hitsMapper ){
 	
          for (SearchHit searchHit : response.getHits()) {
              if (response.getHits().getHits().length <= 0) {
@@ -438,7 +442,7 @@ public class TextSearchServiceImpl implements TextSearchService {
              hitsMapper.put(searchHit.getId(), fragments);
 
          }  
-    }
+    }*/
     
    
 

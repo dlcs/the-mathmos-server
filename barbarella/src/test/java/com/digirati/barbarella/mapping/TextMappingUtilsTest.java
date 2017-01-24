@@ -140,6 +140,27 @@ public class TextMappingUtilsTest {
 	 
     }
     
+    
+    @Test
+    public void testExceptions() throws IOException   {
+	
+	LOG.info("test-message-1.json");
+	LOG.info("-------------------");
+	String content = getFileContents("test-message-null.json");
+	LOG.info(content);
+	
+	TextFieldData data = mappingUtils.determineJsonMappingType(content);
+	
+	assertNull(data);
+
+	
+	data = mappingUtils.determineJsonMappingType(null);
+	
+	assertNull(data);
+	
+    }
+    
+    
    
     
 

@@ -105,9 +105,11 @@ public class AnnotationUtils extends CommonUtils{
 		String optionText = option.getText();
 		optionRoot.put("match",optionText );
 
-		
 		optionRoot.put("url",getSearchQueryFromAutocompleteQuery(queryString, optionText) );
-		resources.add(optionRoot);
+		
+		if(!resources.contains(optionRoot)){
+		    resources.add(optionRoot);  
+		}
 	    }
 
 	    LOG.info("resources are " + JsonUtils.toString(root));
@@ -127,7 +129,7 @@ public class AnnotationUtils extends CommonUtils{
     private String getSearchQueryFromAutocompleteQuery(String query, String optionText){
 	
 	String searchQuery = query;
-	searchQuery = query.replace("/autocomplete?","/search?");
+	searchQuery = query.replace("autocomplete","search");
 	
 	String tidyQuery = removeParametersAutocompleteQuery(searchQuery,AUTOCOMPLETE_IGNORE_PARAMETERS);
 	String encodedOptionText = optionText;

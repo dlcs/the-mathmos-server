@@ -1,0 +1,59 @@
+{
+  "docs": [
+    {
+      "_index": "text_index",
+      "_type": "text",
+      "_id": "4",
+      "_version": 1,
+      "found": true,
+      "took": 11,
+      "term_vectors": {
+        "text": {
+          "field_statistics": {
+            "sum_doc_freq": 8,
+            "doc_count": 3,
+            "sum_ttf": 11
+          },
+          "terms": {
+            "brown": {
+              "doc_freq": 3,
+              "ttf": 4,
+              "term_freq": 1,
+              "tokens": [
+                {
+                  "position": 2,
+                  "start_offset": 8,
+                  "end_offset": 13
+                }
+              ]
+            },
+            "fox": {
+              "doc_freq": 3,
+              "ttf": 4,
+              "term_freq": 1,
+              "tokens": [
+                {
+                  "position": 0,
+                  "start_offset": 0,
+                  "end_offset": 3
+                }
+              ]
+            },
+            "the": {
+              "doc_freq": 2,
+              "ttf": 3,
+              "term_freq": 1,
+              "tokens": [
+                {
+                  "position": 1,
+                  "start_offset": 4,
+                  "end_offset": 7
+                }
+              ]
+            }
+          }
+        }
+      }
+    }
+  ]
+}

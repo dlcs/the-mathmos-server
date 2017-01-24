@@ -8,10 +8,6 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 
 
-
-
-
-
 @Configuration
 public class IndexAWSMessages {
     

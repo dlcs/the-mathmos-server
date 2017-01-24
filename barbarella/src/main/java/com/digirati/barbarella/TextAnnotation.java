@@ -50,7 +50,7 @@ public class TextAnnotation {
 	
     	@Override
 	public String toString() {
-		return "Text [(" + getId() + ")]";
+		return "Text [(" + getId() + "),(" + getText() + "),(" + getSuggest().getInput() + ")]";
 		
 	}
 	
