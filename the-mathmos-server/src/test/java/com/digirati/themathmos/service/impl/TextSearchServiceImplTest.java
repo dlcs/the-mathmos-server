@@ -17,35 +17,67 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.log4j.Logger;
+import org.apache.lucene.analysis.standard.StandardAnalyzer;
+import org.apache.lucene.codecs.simpletext.SimpleTextCompoundFormat;
+import org.apache.lucene.document.Document;
+import org.apache.lucene.document.Field;
+import org.apache.lucene.document.FieldType;
+import org.apache.lucene.document.StringField;
+import org.apache.lucene.document.TextField;
+import org.apache.lucene.index.DirectoryReader;
+import org.apache.lucene.index.Fields;
+import org.apache.lucene.index.IndexWriter;
+import org.apache.lucene.index.IndexWriterConfig;
+import org.apache.lucene.index.IndexWriterConfig.OpenMode;
+import org.apache.lucene.index.Term;
+import org.apache.lucene.search.IndexSearcher;
+import org.apache.lucene.search.ScoreDoc;
+import org.apache.lucene.search.TermQuery;
+import org.apache.lucene.search.TopDocs;
+import org.apache.lucene.store.Directory;
+import org.apache.lucene.store.SimpleFSDirectory;
+import org.apache.lucene.util.LuceneTestCase;
 import org.elasticsearch.action.ActionFuture;
 import org.elasticsearch.action.ListenableActionFuture;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.termvectors.MultiTermVectorsItemResponse;
 import org.elasticsearch.action.termvectors.MultiTermVectorsResponse;
+import org.elasticsearch.action.termvectors.TermVectorsRequest.Flag;
 import org.elasticsearch.action.termvectors.TermVectorsResponse;
 import org.elasticsearch.client.Client;
+import org.elasticsearch.common.io.stream.InputStreamStreamInput;
+import org.elasticsearch.common.io.stream.StreamInput;
 import org.elasticsearch.common.xcontent.XContent;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.common.xcontent.XContentFactory;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
+
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.springframework.core.io.DefaultResourceLoader;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.data.elasticsearch.core.ElasticsearchTemplate;
 
+import com.digirati.themathmos.model.ServiceResponse;
+import com.digirati.themathmos.model.ServiceResponse.Status;
 import com.digirati.themathmos.service.GetPayloadService;
 import com.google.common.collect.Iterators;
 import com.google.gson.Gson;
 
+@RunWith(com.carrotsearch.randomizedtesting.RandomizedRunner.class)
 public class TextSearchServiceImplTest {
+    
+    private final static Logger LOG = Logger.getLogger(TextSearchServiceImplTest.class);
     
     TextSearchServiceImpl textSearchServiceImpl;
     private ElasticsearchTemplate template;
@@ -105,7 +137,7 @@ public class TextSearchServiceImplTest {
 	SearchHit[] hits = new SearchHit[1];
 	SearchHit hit = mock(SearchHit.class);
 	hits[0] = hit;
-	when(hit.getId()).thenReturn("1");
+	when(hit.getId()).thenReturn("3");
 	when(searchHits.iterator()).thenReturn(Iterators.forArray(hits));
 	
 	when(hit.getSourceAsString()).thenReturn(null);
@@ -126,34 +158,39 @@ public class TextSearchServiceImplTest {
 	
 	when(client.prepareSearch(anyString())).thenReturn(builder);
 	
-	MultiTermVectorsResponse mtvResponse = mock(MultiTermVectorsResponse.class);
+	
+
+	
+	TermVectorsResponse tvResponse = new TermVectorsResponse("1","2","3");
+	tvResponse.setExists(true);
+	writeStandardTermVector(tvResponse);
+	MultiTermVectorsItemResponse mtviResponse = new MultiTermVectorsItemResponse(tvResponse, null);
+	
+
+	
 	ActionFuture<MultiTermVectorsResponse> mtvAction = mock(ListenableActionFuture.class);
-	when(mtvAction.actionGet()).thenReturn(mtvResponse);
+	
 	when(client.multiTermVectors(anyObject())).thenReturn(mtvAction);
 	
-	MultiTermVectorsItemResponse mtviResponse = mock(MultiTermVectorsItemResponse.class); 
+	
+	
 	MultiTermVectorsItemResponse[] itemResponseArray = new MultiTermVectorsItemResponse[]{mtviResponse};
-	when(mtviResponse.getId()).thenReturn("1");
-	TermVectorsResponse tvResponse = mock(TermVectorsResponse.class);
-	when(mtviResponse.getResponse()).thenReturn(tvResponse);
 	
-	XContentBuilder xContentBuilder = XContentFactory.jsonBuilder().startObject();
-	String termVectors = getFileContents("termvector.json");
-	XContent content = XContentFactory.xContent(termVectors.getBytes());
-	xContentBuilder = XContentBuilder.builder(content);
-	when(tvResponse.toXContent(anyObject(),anyObject())).thenReturn(xContentBuilder);
-
-
-	when(mtvResponse.getResponses()).thenReturn(itemResponseArray);
+	MultiTermVectorsResponse mtvr = new MultiTermVectorsResponse(itemResponseArray);
+	when(mtvAction.actionGet()).thenReturn(mtvr);
 	
-	//String coordinates = getFileContents("termvector.json");
+	String coordinates = getFileContents("coordinates.json");
 	
-	//when(coordinateService.getJsonPayload(anyString(), anyString())).thenReturn(coordinates);
+	when(coordinateService.getJsonPayload(anyString(), anyString())).thenReturn(coordinates);
+	
+	ServiceResponse<Map<String, Object>> serviceResponse = textSearchServiceImpl.getTextPositions(query, queryString, isW3c, page, isMixedSearch);
+	assertEquals(serviceResponse.getStatus(), Status.OK);
 	
 	
+	when(coordinateService.getJsonPayload(anyString(), anyString())).thenReturn(null);
+	serviceResponse = textSearchServiceImpl.getTextPositions(query, queryString, isW3c, page, isMixedSearch);
+	assertEquals(serviceResponse.getStatus(), Status.NOT_FOUND);
 	
-	
-	//textSearchServiceImpl.getTextPositions(query, queryString, isW3c, page, isMixedSearch);
     }
 
     static String readFile(String path, Charset encoding) throws IOException {
@@ -189,5 +226,39 @@ public class TextSearchServiceImplTest {
    	
    	return offsetPositionMap;
        }
+    
+    private void writeStandardTermVector(TermVectorsResponse outResponse) throws IOException {
+
+        Directory dir = LuceneTestCase.newDirectory();
+        IndexWriterConfig conf = new IndexWriterConfig(new StandardAnalyzer());
+
+        conf.setOpenMode(OpenMode.CREATE);
+        IndexWriter writer = new IndexWriter(dir, conf);
+        FieldType type = new FieldType(TextField.TYPE_STORED);
+        type.setStoreTermVectorOffsets(true);
+        type.setStoreTermVectorPayloads(false);
+        type.setStoreTermVectorPositions(true);
+        type.setStoreTermVectors(true);
+        type.freeze();
+        Document d = new Document();
+        d.add(new Field("id", "abc", StringField.TYPE_STORED));
+        d.add(new Field("text", "the1 quick brown fox jumps over  the1 lazy dog comment", type));
+        d.add(new Field("desc", "the1 quick brown fox jumps over  the1 lazy dog comment", type));
+
+        writer.updateDocument(new Term("id", "abc"), d);
+        writer.commit();
+        writer.close();
+        DirectoryReader dr = DirectoryReader.open(dir);
+        IndexSearcher s = new IndexSearcher(dr);
+        TopDocs search = s.search(new TermQuery(new Term("id", "abc")), 1);
+        ScoreDoc[] scoreDocs = search.scoreDocs;
+        int doc = scoreDocs[0].doc;
+        Fields termVectors = dr.getTermVectors(doc);
+        EnumSet<Flag> flags = EnumSet.of(Flag.Positions, Flag.Offsets);
+        outResponse.setFields(termVectors, null, flags, termVectors);
+        dr.close();
+        dir.close();
+
+    }
 
 }

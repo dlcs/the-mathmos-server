@@ -121,7 +121,7 @@ public class TextSearchServiceImpl implements TextSearchService {
 		// hitsMapper,
 		isOneWordSearch);
 
-	LOG.info(annotationPage.getTotalPages());
+	LOG.info("total pages "+annotationPage.getTotalPages());
 
 	Map<String, List<TermWithTermOffsets>> termWithOffsetsMap = new HashMap<>();
 	Map<String, Map<String, TermOffsetStart>> termPositionsMap = new HashMap<>();
@@ -129,12 +129,13 @@ public class TextSearchServiceImpl implements TextSearchService {
 
 	extractTermOffsetsFromPage(termWithOffsetsMap, annotationPage, query, termPositionsMap, offsetPositionMap);
 
-	LOG.info(termWithOffsetsMap.toString());
+	LOG.info("termWithOffsetsMap "+ termWithOffsetsMap.toString());
+	LOG.info("termPositionsMap "+ termPositionsMap.toString());
 	Map<String, Object> offsetPayloadMap = textUtils.createOffsetPayload(termWithOffsetsMap, "1024", "768",
 		offsetPositionMap);
 
 	String payload = new Gson().toJson(offsetPayloadMap);
-
+	LOG.info("payload "+ payload);
 	pagingParameters = textUtils.getAnnotationPageParameters(annotationPage, queryString,
 		DEFAULT_TEXT_PAGING_NUMBER, totalHits);
 
@@ -217,12 +218,9 @@ public class TextSearchServiceImpl implements TextSearchService {
 	//if(!isOneWordSearch){
 	//    searchRequestBuilder.setHighlighterType("fvh");
 	//}
-	
-	
+		
 	LOG.info("doSearch query " + searchRequestBuilder.toString());
 	SearchResponse response = searchRequestBuilder.execute().actionGet();
-	
-	//examineHitsForHighlights(response,hitsMapper);
 	
 	totalHits = response.getHits().totalHits();
 	
@@ -244,9 +242,6 @@ public class TextSearchServiceImpl implements TextSearchService {
 	return queryBuilder;
     }
 
-    
-    
-    
     
     /**
      * Method to create a {@code MultiTermVectorsRequest} by building up a series of {@code TermVectorsRequest} and adding them to a {@code MultiTermVectorsRequest}. 
@@ -379,7 +374,7 @@ public class TextSearchServiceImpl implements TextSearchService {
 	    
 	    
 	    for (MultiTermVectorsItemResponse itemReponse : itemResponseArray) {
-
+		
 		String imageId = itemReponse.getId();
 		LOG.info("itemResponse id is " + imageId);
 
@@ -388,7 +383,7 @@ public class TextSearchServiceImpl implements TextSearchService {
 		    builder = XContentFactory.jsonBuilder().startObject();
 		    itemReponse.getResponse().toXContent(builder, ToXContent.EMPTY_PARAMS);
 		    builder.endObject();
-		    
+		    LOG.info(builder.string());
 		    
 		    Map<String, TermOffsetStart> positions = findPositions(builder);
 		    Map <String,String> startMap = new HashMap<>();

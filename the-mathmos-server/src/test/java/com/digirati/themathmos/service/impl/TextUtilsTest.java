@@ -45,13 +45,11 @@ public class TextUtilsTest {
 	resourceLoader = new DefaultResourceLoader();
 	textUtils = new TextUtils();
     }
-    
-    
-    
-    
+     
 
     @Test
     public void testSortPositionsForMultiwordPhrase() {
+	
 	String query = "fox brown";
 	List positions = new ArrayList();
 	List<TermWithTermOffsets> termWithOffsetsList = new ArrayList<>();
@@ -176,15 +174,11 @@ public class TextUtilsTest {
     
     @Test
     public void testCoordinates() throws IOException{
-	String coordinates = getFileContents("test_coordinates_1.json");
-	
-	
+			
 	String id1 = "https://dlcs.io/iiif-img/2/1/6b33280a-d28f-4773-be0d-05bd364c745e";		
 	String id2 = "https://dlcs.io/iiif-img/50/1/000214ef-74f3-4ec2-9a5f-3b79f50fc500";
 	String id3 = "https://dlcs.io/iiif-img/50/1/000214ef-74f3-4ec2-9a5f-3b79f50fc505";
-	
-	
-	
+
 	String query = "test me out for a long";
 	
 	Map <String, List<Positions>> positionMap = new HashMap<>();
@@ -212,14 +206,10 @@ public class TextUtilsTest {
 
 	positionMap.put(id2, positionList2);
 	
-	
 	List<Positions> positionList3 = new ArrayList<>();
 	Positions pos31 = new Positions(10, 10);
 	positionList3.add(pos31);
 	positionMap.put(id3, positionList3);
-	
-	
-	
 	
 	Map<String, Map<String, TermOffsetStart>> termPositionMap = new HashMap<>();
 	
@@ -261,13 +251,9 @@ public class TextUtilsTest {
 	termOffsetMap1.put("12", termOffsetStart12);
 	termOffsetMap1.put("13", termOffsetStart13);
 	termOffsetMap1.put("14", termOffsetStart14);
-	
-	
+		
 	String queryString = "http://www.google.com?q=test";
-	
-	//Map<String,Object>  map1 =textUtils.createCoordinateAnnotation(query, coordinates, false, positionMap, termPositionMap ,queryString, 10, new PageParameters());
-	//LOG.info(map1.toString());
-	
+
 	String coordinates2 = getFileContents("test_coordinates_2.json");
 	Map<String,Object>  map =textUtils.createCoordinateAnnotation(query, coordinates2, false, positionMap, termPositionMap ,queryString, 10, new PageParameters(), false);
 	LOG.info(map.toString());

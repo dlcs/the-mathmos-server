@@ -34,9 +34,7 @@ public class TextMappingUtils {
 	
 	Map<String,String> fieldData = new HashMap<>();
 	
-
-
-	 try {
+	try {
 	    javaRootBodyMapObject = new Gson().fromJson(rawJson, Map.class);
 	    if(null == rawJson ){
 		return null;
@@ -47,24 +45,24 @@ public class TextMappingUtils {
 	    }
 	
 	    Set <String>keySet = javaRootBodyMapObject.keySet();
-	    String id = null;
+	    
 	    if(1 != keySet.size()){
 		return null;
 	    }else{
 		Iterator <String>iter = keySet.iterator();
 
-		id = (String)iter.next();		
+		String id = iter.next();
+		 
+		fieldData.put(ID, id);
+		    
+		String body = (String)javaRootBodyMapObject.get(id); 
+		if(null == body){
+		    return null;
+		}
+		    
+		fieldData.put(BODY, body);
 	    }
-	 
-	    fieldData.put(ID, id);
-	    
-	    String body = (String)javaRootBodyMapObject.get(id);
-	    if(null == body){
-		return null;
-	    }
-	    
-	    fieldData.put(BODY, body);
-	    
+	  
 	  if(LOG.isDebugEnabled()){
 		createJsonforMapping(fieldData, BODY);
 	  }
