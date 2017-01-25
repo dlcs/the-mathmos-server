@@ -241,7 +241,7 @@ public class AnnotationUtils extends CommonUtils{
 	    for (String replacement : inputList) {
 		
 		String start = replacement.toLowerCase().substring(0, replacement.indexOf(":"));
-		String tidyQuery = null;
+		String tidyQuery;
 		if(ArrayUtils.contains(SCHEMES, start)){
 		    tidyQuery = "(\"" +replacement + "\")";
 		}else{

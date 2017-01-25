@@ -19,16 +19,16 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.elasticsearch.annotations.Document;
 import org.springframework.data.elasticsearch.core.DefaultResultMapper;
 
-import com.digirati.themathmos.service.impl.AnnotationUtils;
 import com.fasterxml.jackson.core.JsonEncoding;
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonGenerator;
 
+/** If we are in the TextSearchServiceImpl formQuery method and not using
+ * searchRequestBuilder.setFetchSource(false);
+ * then remove all of below.
+ */
 public class TextSearchAnnotationMapper extends DefaultResultMapper {
 
-    // If we are in the TextSearchServiceImpl formQuery method and not using
-    // searchRequestBuilder.setFetchSource(false);
-    // then remove all of below.
     
     private final static Logger LOG = Logger.getLogger(TextSearchAnnotationMapper.class);
     
@@ -36,10 +36,10 @@ public class TextSearchAnnotationMapper extends DefaultResultMapper {
     @Override
     public <T> Page<T> mapResults(SearchResponse response, Class<T> clazz, Pageable pageable) {
 	long totalHits = response.getHits().totalHits();
-	List<T> results = new ArrayList<T>();
+	List<T> results = new ArrayList<>();
 	for (SearchHit hit : response.getHits()) {
 	    if (hit != null) {
-		T result = null;
+		T result;
 		if (StringUtils.isNotBlank(hit.sourceAsString())) {
 		    result = mapEntity(hit.sourceAsString(), clazz);
 		} else {
@@ -50,7 +50,7 @@ public class TextSearchAnnotationMapper extends DefaultResultMapper {
 		results.add(result);
 	    }
 	}
-	return new PageImpl<T>(results, pageable, totalHits);
+	return new PageImpl<>(results, pageable, totalHits);
     }
 
     private <T> T mapEntity(Collection<SearchHitField> values, Class<T> clazz) {
@@ -83,8 +83,10 @@ public class TextSearchAnnotationMapper extends DefaultResultMapper {
 	}
     }
 
-    // vastly changed method from the one in defaultResultMapper. Mappingcontext
-    // was always null do we were never getting the _id field contents when we has no _source in the results
+    /*
+     * vastly changed method from the one in defaultResultMapper. Mappingcontext
+     *was always null do we were never getting the _id field contents when we has no _source in the results
+     */
     private <T> void setPersistentEntityId(T result, String id, Class<T> clazz) {
 	if (clazz.isAnnotationPresent(Document.class)) {
 	    Method setter;
