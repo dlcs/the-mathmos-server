@@ -133,24 +133,13 @@ public class AnnotationSearchServiceImpl {
    	return resultsMapper.mapResults(response, W3CSearchAnnotation.class, pageable);
        }
 
-    
-    private String getPagingParam(String queryString, int replacementParamValue){
-	if(!queryString.contains("page=")){
-	    return queryString+"&page="+replacementParamValue;
-	}
-	return queryString.replaceAll("page=[^&]+","page="+replacementParamValue);
-    }
-    
-    
-   
-   
    private QueryBuilder buildDateRangeQuery(String field,String from, String to){
        QueryBuilder dateRange = QueryBuilders.rangeQuery(field).from(from).to(to).includeLower(true).includeUpper(true);
        return dateRange;
    }
    
    private List<QueryBuilder> buildDateRangeQuery(String field, String allRanges) {
-	List<QueryBuilder> queryBuilders = new ArrayList<QueryBuilder>();
+	List<QueryBuilder> queryBuilders = new ArrayList<>();
 	List<String> dates = annotationUtils.getListFromSpaceSeparatedTerms(allRanges);
 	QueryBuilder buildDateRangeQuery;
 	for (String dateString : dates) {
@@ -188,7 +177,7 @@ public class AnnotationSearchServiceImpl {
     }
 	
     private QueryBuilder buildAllThings(String query,String motivations, String allDateRanges, String users) {
-	List <QueryBuilder> queryList  = new ArrayList<QueryBuilder>();
+	List <QueryBuilder> queryList  = new ArrayList<>();
 	
 	BoolQueryBuilder must = QueryBuilders.boolQuery();	
 	

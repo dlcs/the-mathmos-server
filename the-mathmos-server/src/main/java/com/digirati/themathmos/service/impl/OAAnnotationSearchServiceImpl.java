@@ -43,7 +43,7 @@ public class OAAnnotationSearchServiceImpl extends AnnotationSearchServiceImpl i
 	
 	String[] annoSearchArray  = this.getAnnotationsPage(query, motivation, date, user, queryString, false, page);
 	if(annoSearchArray.length == 0){
-	    return new ServiceResponse<Map<String, Object>>(Status.NOT_FOUND, null); 
+	    return new ServiceResponse<>(Status.NOT_FOUND, null); 
 	}
 	
 	PageParameters pagingParameters = this.getPageParameters();

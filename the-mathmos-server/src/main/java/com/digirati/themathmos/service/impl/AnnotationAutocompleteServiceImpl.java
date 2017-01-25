@@ -53,11 +53,11 @@ public class AnnotationAutocompleteServiceImpl implements AnnotationAutocomplete
 	List <SuggestOption> options = findSuggestionsFor(query, "w3cannotation") ;
 	
 	if(options.isEmpty()){
-	    return new ServiceResponse<Map<String, Object>>(Status.NOT_FOUND, null);
+	    return new ServiceResponse<>(Status.NOT_FOUND, null);
 	}else{
 	    
 	    Map<String, Object> annoTermList =  annotationUtils.createAutocompleteList(options, isW3c, queryString, motivation, date,user);
-	    return new ServiceResponse<Map<String, Object>>(Status.OK, annoTermList);
+	    return new ServiceResponse<>(Status.OK, annoTermList);
 	}
     }
     
@@ -68,11 +68,11 @@ public class AnnotationAutocompleteServiceImpl implements AnnotationAutocomplete
 	List <SuggestOption> options = findSuggestionsFor(query, "text_index") ;
 	
 	if(options.isEmpty()){
-	    return new ServiceResponse<Map<String, Object>>(Status.NOT_FOUND, null);
+	    return new ServiceResponse<>(Status.NOT_FOUND, null);
 	}else{
 	    
 	    Map<String, Object> annoTermList =  annotationUtils.createAutocompleteList(options, isW3c, queryString, null, null,null);
-	    return new ServiceResponse<Map<String, Object>>(Status.OK, annoTermList);
+	    return new ServiceResponse<>(Status.OK, annoTermList);
 	}
     }
     
@@ -85,11 +85,11 @@ public class AnnotationAutocompleteServiceImpl implements AnnotationAutocomplete
 	textOptions.addAll(annoOptions);
 	
 	if(textOptions.isEmpty()){
-	    return new ServiceResponse<Map<String, Object>>(Status.NOT_FOUND, null);
+	    return new ServiceResponse<>(Status.NOT_FOUND, null);
 	}else{
 	    
 	    Map<String, Object> annoTermList =  annotationUtils.createAutocompleteList(textOptions, isW3c, queryString, null, null,null);
-	    return new ServiceResponse<Map<String, Object>>(Status.OK, annoTermList);
+	    return new ServiceResponse<>(Status.OK, annoTermList);
 	}	
     }
    
@@ -110,7 +110,7 @@ public class AnnotationAutocompleteServiceImpl implements AnnotationAutocomplete
         Iterator<? extends Suggest.Suggestion.Entry.Option> iterator =
                 suggestResponse.getSuggest().getSuggestion("annotation_suggest").iterator().next().getOptions().iterator();
 
-        List <SuggestOption> options = new ArrayList<SuggestOption>();
+        List <SuggestOption> options = new ArrayList<>();
         
         while (iterator.hasNext()) {
             Suggest.Suggestion.Entry.Option next = iterator.next();

@@ -87,7 +87,7 @@ public class TextUtils extends CommonUtils {
 	    return null;
 	}
 
-	Map<String, Object> root = null;
+	Map<String, Object> root;
 	// TODO logic for paging in here..
 	
 	if(TextSearchServiceImpl.DEFAULT_TEXT_PAGING_NUMBER <= totalHits){
@@ -107,7 +107,7 @@ public class TextUtils extends CommonUtils {
 	    String id = (String) image.get("image_uri");
 
 	    Map <String, String>annoURLMap = new HashMap<>();
-	    //LOG.info(id);
+	
 	    List<Positions> positionList = positionMap.get(id);
 	    Map<String, TermOffsetStart> sourcePositionMap = termPositionMap.get(id);
 	    Object xywhObject = image.get("xywh");
@@ -131,7 +131,7 @@ public class TextUtils extends CommonUtils {
 
 	    if (positionList.size() == 1) {
 		Map<String, Object> hitMap = new HashMap<>();
-		List<String> annotationsList = new ArrayList<String>();
+		List<String> annotationsList = new ArrayList<>();
 		
 		String annoUrl = annoURLMap.get(xywhObject.toString());
 		annotationsList.add(annoUrl);
@@ -157,7 +157,7 @@ public class TextUtils extends CommonUtils {
 			String[] beforeAfter = this.getHighlights(start, end, BEFORE_AFTER_WORDS, sourcePositionMap);
 
 			Map<String, Object> hitMap = new HashMap<>();
-			List<String> annotationsList = new ArrayList<String>();
+			List<String> annotationsList = new ArrayList<>();
 			
 			annotationsList.add(annoURLMap.get(xywhObjectFromList.toString()));
 			setHits(isW3c, hitMap, annotationsList, query, beforeAfter);
@@ -206,7 +206,7 @@ public class TextUtils extends CommonUtils {
 	String[] queryArray = query.split(" ");
 	int  queryArrayLength = queryArray.length;
 
-	Map<String, Object> root = null;
+	Map<String, Object> root;
 	
 	if(isMixedSearch){
 	    root = new LinkedHashMap<>();
@@ -253,8 +253,8 @@ public class TextUtils extends CommonUtils {
 
 			Map<String,String> xywhMap = new HashMap<>();
 			String xywh =  null;
-			String termCount = null;
-			Map hitIdMap = new HashMap();
+			String termCount;
+
 			int queryCount = 0;	
 			String[] beforeAfter = null;
 			for(Object phraseArray:innerObjectList){
@@ -268,7 +268,7 @@ public class TextUtils extends CommonUtils {
 			    beforeAfter = this.getHighlights(start, end, BEFORE_AFTER_WORDS, sourcePositionMap);
 
 			    String queryForResource = "";
-			    //LOG.info("termCount " + termCount);
+
 			    int countInt = Integer.parseInt(termCount);
 			    if(queryArrayLength > countInt){
 				if(queryCount == 0){
@@ -301,7 +301,7 @@ public class TextUtils extends CommonUtils {
 			LOG.info("xywhMap " + xywhMap);
 			Map<String, Object> hitMap = new LinkedHashMap<>();
 			if(xywhMap.size() == 1){
-			    List<String> annotationsList = new ArrayList<String>();
+			    List<String> annotationsList = new ArrayList<>();
 			    annotationsList.add(annoURLMap.get(xywh.toString()));
 			    
 			    setHits(isW3c, hitMap, annotationsList, query, beforeAfter);
@@ -310,7 +310,7 @@ public class TextUtils extends CommonUtils {
 			    List <String>list = new ArrayList<>(xywhMap.keySet());
 			    Collections.sort(list, Collections.reverseOrder());
 			    Set <String>resultSet = new LinkedHashSet<>(list);
-			    List<String> annotationsList = new ArrayList<String>();
+			    List<String> annotationsList = new ArrayList<>();
 			    for(String xywhKey:resultSet){
 				String partQuery = xywhMap.get(xywhKey);
 				annotationsList.add(annoURLMap.get(xywhKey));
@@ -333,7 +333,7 @@ public class TextUtils extends CommonUtils {
 	    String total = pageParams.getTotalElements();
 	    int size = resources.size() - TextSearchServiceImpl.DEFAULT_TEXT_PAGING_NUMBER;
 	    int totalInt = Integer.parseInt(total);
-	    pageParams.setTotalElements(size + totalInt+"");
+	    pageParams.setTotalElements(Integer.toString(size + totalInt));
 	}
 	return root;
 
@@ -384,16 +384,16 @@ public class TextUtils extends CommonUtils {
     public List<Map<String, Object>> createImages(Map<String, List<TermWithTermOffsets>> termWithOffsetsMap,
 	    String width, String height, Map<String, Map<String, String>> offsetPositionMap) {
 
-	List<Map<String, Object>> realRoot = new ArrayList<Map<String, Object>>();
+	List<Map<String, Object>> realRoot = new ArrayList<>();
 
-	Map<String, List<Positions>> positionsMap = new HashMap<>();
+	Map<String, List<Positions>> imagePositionsMap = new HashMap<>();
 
 	Set<String> keySet = termWithOffsetsMap.keySet();
 	for (String imageId : keySet) {
 	    Map<String, Object> root = new HashMap<>();
 	    List<TermWithTermOffsets> termWithOffsetsList = termWithOffsetsMap.get(imageId);
 
-	    List<Object> positions = new ArrayList<Object>();
+	    List<Object> positions = new ArrayList<>();
 
 	    Map<String, String> startMap = offsetPositionMap.get(imageId);
 
@@ -411,7 +411,7 @@ public class TextUtils extends CommonUtils {
 		positions = sortPositionsForMultiwordPhrase(termWithOffsetsList, startMap, positionsList);
 
 	    }
-	    positionsMap.put(imageId, positionsList);
+	    imagePositionsMap.put(imageId, positionsList);
 
 	    root.put("imageURI", imageId);
 	    root.put("positions", positions);
@@ -421,7 +421,7 @@ public class TextUtils extends CommonUtils {
 	    realRoot.add(root);
 	}
 
-	setPositionsMap(positionsMap);
+	setPositionsMap(imagePositionsMap);
 
 	return realRoot;
     }
@@ -517,7 +517,7 @@ public class TextUtils extends CommonUtils {
 	 List<String>  stringSets = workThoughOffsets(termWithOffsetsList);
 	 
 	 List <String>templist = null;
-	 List<Object> position = new ArrayList<Object>();
+	 List<Object> position = new ArrayList<>();
 	 for(String item:stringSets){
 	     templist = new ArrayList<String>();
 	     String[] stringArray = item.split("[|]");
