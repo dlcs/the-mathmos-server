@@ -77,7 +77,7 @@ public class W3CSearchController {
 	if(StringUtils.isEmpty(query) && StringUtils.isEmpty(motivation) && StringUtils.isEmpty(date) && StringUtils.isEmpty(user)){
 	    throw new SearchQueryException("Please enter either a query, moitvation, date or user to search ");	    
 	}
-	ServiceResponse<Map<String, Object>> serviceResponse = null;
+	ServiceResponse<Map<String, Object>> serviceResponse;
 	if(StringUtils.isEmpty(motivation) && StringUtils.isEmpty(date) && StringUtils.isEmpty(user)){
 	    serviceResponse = w3cSearchService.getAnnotationPage(query, queryString, page);	    
 	}else{

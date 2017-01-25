@@ -18,14 +18,11 @@ import org.elasticsearch.action.termvectors.MultiTermVectorsResponse;
 import org.elasticsearch.action.termvectors.TermVectorsRequest;
 
 import org.elasticsearch.client.Client;
-import org.elasticsearch.common.text.Text;
 import org.elasticsearch.common.xcontent.ToXContent;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.common.xcontent.XContentFactory;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
-import org.elasticsearch.search.SearchHit;
-import org.elasticsearch.search.highlight.HighlightField;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
@@ -113,13 +110,9 @@ public class TextSearchServiceImpl implements TextSearchService {
 	    from = (pagingInteger.intValue() - 1) * pagingSize;
 	}
 
-	// Map <String, Text[]>hitsMapper = new HashMap<>();
-
 	List<String> queryTerms = textUtils.getListFromSpaceSeparatedTerms(query);
-	boolean isOneWordSearch = queryTerms.size() == 1 ? true : false;
-	Page<TextAnnotation> annotationPage = formQuery(queryBuilder, from, pagingSize,
-		// hitsMapper,
-		isOneWordSearch);
+
+	Page<TextAnnotation> annotationPage = formQuery(queryBuilder, from, pagingSize);
 
 	LOG.info("total pages "+annotationPage.getTotalPages());
 
@@ -199,9 +192,7 @@ public class TextSearchServiceImpl implements TextSearchService {
      * @param isOneWordSearch - not required..
      * @return {@code Page} - of {@code TextAnnotation} objects.
      */
-    private Page<TextAnnotation> formQuery(QueryBuilder queryBuilder, int from, int pagingSize, 
-	    //Map <String, Text[]>hitsMapper, 
-	    boolean isOneWordSearch) {
+    private Page<TextAnnotation> formQuery(QueryBuilder queryBuilder, int from, int pagingSize) {
 	LOG.info("Page stats are from:" +from + " pagingSize:" +  pagingSize);
 	Pageable pageable = new PageRequest(from, pagingSize);
 
@@ -212,12 +203,6 @@ public class TextSearchServiceImpl implements TextSearchService {
 	searchRequestBuilder.setFrom(from);
 	searchRequestBuilder.setSize(pagingSize);
 	searchRequestBuilder.setFetchSource(false);
-	
-	//searchRequestBuilder.addHighlightedField(TEXT_FIELD_NAME, 150, 1000);
-	//only use fvh highlighting if we are searching > 1 word in a phrase.
-	//if(!isOneWordSearch){
-	//    searchRequestBuilder.setHighlighterType("fvh");
-	//}
 		
 	LOG.info("doSearch query " + searchRequestBuilder.toString());
 	SearchResponse response = searchRequestBuilder.execute().actionGet();

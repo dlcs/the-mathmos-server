@@ -516,10 +516,10 @@ public class TextUtils extends CommonUtils {
 
 	 List<String>  stringSets = workThoughOffsets(termWithOffsetsList);
 	 
-	 List <String>templist = null;
+	 List <String>templist;
 	 List<Object> position = new ArrayList<>();
 	 for(String item:stringSets){
-	     templist = new ArrayList<String>();
+	     templist = new ArrayList<>();
 	     String[] stringArray = item.split("[|]");
 	     for(String numberInArray:stringArray){
 		 templist.add(numberInArray); 

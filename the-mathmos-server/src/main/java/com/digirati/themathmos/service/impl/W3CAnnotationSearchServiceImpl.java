@@ -42,7 +42,7 @@ public class W3CAnnotationSearchServiceImpl extends AnnotationSearchServiceImpl 
 	
 	String[] annoSearchArray  = this.getAnnotationsPage(query, motivation, date, user, queryString, true, page);
 	if(annoSearchArray.length == 0){
-	    return new ServiceResponse<Map<String, Object>>(Status.NOT_FOUND, null); 
+	    return new ServiceResponse<>(Status.NOT_FOUND, null); 
 	}
 
 	PageParameters pagingParameters = this.getPageParameters();

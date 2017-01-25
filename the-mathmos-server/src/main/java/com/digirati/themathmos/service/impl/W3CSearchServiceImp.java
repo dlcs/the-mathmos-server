@@ -59,7 +59,7 @@ public class W3CSearchServiceImp extends AnnotationSearchServiceImpl implements 
 	}
 	
 	PageParameters textPagingParamters = textSearchService.getPageParameters();
-	textPagingParamters.setTotalElements(totalAnnotationHits+totalTextHits+"");
+	textPagingParamters.setTotalElements(Long.toString(totalAnnotationHits+totalTextHits));
 	
 	PageParameters pagingParameters = this.getPageParameters();
 	
@@ -74,7 +74,7 @@ public class W3CSearchServiceImp extends AnnotationSearchServiceImpl implements 
 	    return new ServiceResponse<>(Status.NOT_FOUND, null);  
 	}
 	
-	Map<String, Object> root =null;
+	Map<String, Object> root;
 	if(isPageable){
 	    root = annotationUtils.buildAnnotationPageHead(queryString, true, textPagingParamters);
 	}else{
