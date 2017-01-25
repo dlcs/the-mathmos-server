@@ -85,10 +85,10 @@ public class AnnotationSearchServiceImpl {
 	    
 	}
 
-	Page<W3CSearchAnnotation> annotationPage = null;
-	
 	QueryBuilder builder = buildAllThings(query,motivation,date, user);
-	annotationPage = formQuery(builder,from,pagingSize);
+	
+	Page<W3CSearchAnnotation> annotationPage = formQuery(builder,from,pagingSize);
+	
 	
 	if(null == annotationPage){
 	    return new String[0];
@@ -190,16 +190,12 @@ public class AnnotationSearchServiceImpl {
     private QueryBuilder buildAllThings(String query,String motivations, String allDateRanges, String users) {
 	List <QueryBuilder> queryList  = new ArrayList<QueryBuilder>();
 	
-	BoolQueryBuilder must = QueryBuilders.boolQuery();
-	
+	BoolQueryBuilder must = QueryBuilders.boolQuery();	
 	
 	if(null != query){
 	    String tidyQuery = annotationUtils.convertSpecialCharacters(query);
 	    
-	    must = must.must(QueryBuilders.multiMatchQuery(tidyQuery, "body","target","bodyURI", "targetURI").type(Type.PHRASE));
-
-	   // must = must.must(QueryBuilders.queryStringQuery(tidyQuery).field("body").field("target").field("bodyURI").field("targetURI"));
-	    
+	    must = must.must(QueryBuilders.multiMatchQuery(tidyQuery, "body","target","bodyURI", "targetURI").type(Type.PHRASE)); 
 	}
 		
 	if(null != motivations){
@@ -211,9 +207,9 @@ public class AnnotationSearchServiceImpl {
 		    throw new SearchQueryException(
     			"You have a motivation that is a non-<motivation>, there can only be one motivation in this instance."); 
 		}else{		  
-		    motivations = motivations.replaceAll("non-", "");
+		    String tidyMotivations = motivations.replaceAll("non-", "");
 		    queryList.add(QueryBuilders.existsQuery("motivations"));		    
-		    must = must.mustNot(QueryBuilders.queryStringQuery(motivations).field("motivations"));
+		    must = must.mustNot(QueryBuilders.queryStringQuery(tidyMotivations).field("motivations"));
    
 		}
 	    }else{

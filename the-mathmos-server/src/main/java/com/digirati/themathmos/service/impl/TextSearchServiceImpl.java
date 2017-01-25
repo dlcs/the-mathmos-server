@@ -273,10 +273,11 @@ public class TextSearchServiceImpl implements TextSearchService {
 
     private int removeDotZero(Double input) {
 	return input.intValue();
-
     }
 
-    
+    private String removeDotZeroString(Double input) {
+	return Integer.toString(input.intValue());
+    }
     
     /**
      * Find the offsets for each query term
@@ -340,7 +341,7 @@ public class TextSearchServiceImpl implements TextSearchService {
 		for (Object token : tokens) {
 		    LinkedTreeMap tokenObject = (LinkedTreeMap) token;
 		    TermOffsetStart termStart = new TermOffsetStart(term, removeDotZero((Double) tokenObject.get("start_offset")));
-		    positionMap.put(removeDotZero((Double) tokenObject.get("position")) + "", termStart);
+		    positionMap.put(removeDotZeroString((Double) tokenObject.get("position")), termStart);
 		}
 	    }
 
@@ -390,7 +391,7 @@ public class TextSearchServiceImpl implements TextSearchService {
 		    for(String key: positions.keySet()){
 			TermOffsetStart termOffsetStart = positions.get(key);
 
-			startMap.put(termOffsetStart.getStart()+"", key);
+			startMap.put(Integer.toString(termOffsetStart.getStart()), key);
 		    }
 		    offsetPositionMap.put(imageId, startMap);
 		    termPositionsMap.put(imageId, positions);
@@ -417,28 +418,6 @@ public class TextSearchServiceImpl implements TextSearchService {
 	    }
 	}
     }
-    
-    
-    
-    
-    /*public void examineHitsForHighlights(SearchResponse response,Map <String, Text[]>hitsMapper ){
-	
-         for (SearchHit searchHit : response.getHits()) {
-             if (response.getHits().getHits().length <= 0) {
-                 break;
-             }
-                     
-             HighlightField hightlightField = searchHit.getHighlightFields().get(TEXT_FIELD_NAME);
-            
-             Text[] fragments = hightlightField.getFragments();
-            // for(Text fragment:fragments){
-        	// getBeforeAndAfterFromText(fragment);
-            // }
-             hitsMapper.put(searchHit.getId(), fragments);
-
-         }  
-    }*/
-    
-   
+      
 
 }
