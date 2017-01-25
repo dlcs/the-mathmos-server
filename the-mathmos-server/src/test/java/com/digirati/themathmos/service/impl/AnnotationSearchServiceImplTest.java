@@ -40,6 +40,7 @@ public class AnnotationSearchServiceImplTest {
 	annotationUtils = new AnnotationUtils();
 	template = mock(ElasticsearchTemplate.class);
 	client = mock(Client.class);
+	when(template.getClient()).thenReturn(client);
 	annotationSearchServiceImpl = new AnnotationSearchServiceImpl(annotationUtils,template );
     }
 

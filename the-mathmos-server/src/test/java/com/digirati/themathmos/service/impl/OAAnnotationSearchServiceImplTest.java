@@ -33,6 +33,7 @@ public class OAAnnotationSearchServiceImplTest {
 	searchQueryUtils = new SearchQueryUtils();
 	template = mock(ElasticsearchTemplate.class);
 	client = mock(Client.class);
+	when(template.getClient()).thenReturn(client);
 	impl = new OAAnnotationSearchServiceImpl(annotationUtils, template);
     }
 
