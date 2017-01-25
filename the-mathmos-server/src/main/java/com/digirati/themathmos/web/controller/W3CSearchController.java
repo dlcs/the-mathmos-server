@@ -62,7 +62,7 @@ public class W3CSearchController {
     
     @CrossOrigin
     @RequestMapping(value = W3C_MIXED_SEARCH_REQUEST_PATH, method = RequestMethod.GET)
-    public ResponseEntity<Map<String, Object>> searchOAGet(
+    public ResponseEntity<Map<String, Object>> searchW3CGet(
 	    @RequestParam(value = AnnotationSearchConstants.PARAM_FIELD_QUERY, required = false) String query, 
 	    @RequestParam(value = AnnotationSearchConstants.PARAM_FIELD_MOTIVATION, required = false) String motivation,
 	    @RequestParam(value = AnnotationSearchConstants.PARAM_FIELD_DATE, required = false) String date, 
