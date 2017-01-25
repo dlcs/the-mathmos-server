@@ -19,11 +19,11 @@ import com.digirati.themathmos.service.W3CAnnotationSearchService;
 
 
 
-@Service(W3CAnnotationSearchServiceImpl.SERVICE_NAME)
+@Service(W3CAnnotationSearchServiceImpl.W3C_ANNOTATION_SERVICE_NAME)
 public class W3CAnnotationSearchServiceImpl extends AnnotationSearchServiceImpl implements W3CAnnotationSearchService{
     
     
-    public static final String SERVICE_NAME = "w3CAnnotationSearchServiceImpl";
+    public static final String W3C_ANNOTATION_SERVICE_NAME = "w3CAnnotationSearchServiceImpl";
      
     
     

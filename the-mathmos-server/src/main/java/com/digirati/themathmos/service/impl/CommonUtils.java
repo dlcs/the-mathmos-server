@@ -15,8 +15,7 @@ import com.digirati.themathmos.model.annotation.page.PageParameters;
 
 
 public class CommonUtils {
-
-    private final static Logger LOG = Logger.getLogger(CommonUtils.class);
+ 
 
     protected static final String WC3CONTEXT_PATH = "http://www.w3.org/ns/anno.jsonld";
     protected static final String FULL_LAYER = "http://iiif.io/api/presentation/2#Layer";
@@ -162,7 +161,7 @@ public class CommonUtils {
 
 	    return Arrays.asList(termsArray);
 	}
-	return new ArrayList<String>();
+	return new ArrayList<>();
     }
 
     public String[] getBeforeAndAfterFromText(Text fragment) {
@@ -209,17 +208,19 @@ public class CommonUtils {
 	String[] beforeAfter = new String[2];
 
 	String before = "";
-	for (int s = (start - surroundingText); s < start; s++) {
-	    if (sourcePositionMap.containsKey(s + "")) {
-		before += sourcePositionMap.get(s + "").getTerm() + " ";
+	for (int s = start - surroundingText; s < start; s++) {
+	    String sString = Integer.toString(s);
+	    if (sourcePositionMap.containsKey(sString)) {
+		before += sourcePositionMap.get(sString).getTerm() + " ";
 	    }
 	}	
 	beforeAfter[0] = before;
 	
 	String after = "";
-	for (int e = end + 1; e < (end + surroundingText); e++) {
-	    if (sourcePositionMap.containsKey(e + "")) {
-		after += sourcePositionMap.get(e + "").getTerm() + " ";
+	for (int e = end + 1; e < end + surroundingText; e++) {
+	    String eString = Integer.toString(e);
+	    if (sourcePositionMap.containsKey(eString)) {
+		after += sourcePositionMap.get(eString).getTerm() + " ";
 	    }
 	}
 
@@ -238,7 +239,7 @@ public class CommonUtils {
    	PageParameters parameters = new PageParameters();
 
    	
-   	parameters.setTotalElements(totalHits+"");
+   	parameters.setTotalElements(Long.toString(totalHits));
    	
    	int lastPage = (int) (totalHits/defaultPagingNumber)+1;
    	parameters.setFirstPageNumber(getPagingParam(queryString, 1));

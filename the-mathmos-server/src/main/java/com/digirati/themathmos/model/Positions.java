@@ -23,6 +23,7 @@ public class Positions {
 	this.endPosition = endPosition;
     }	
 
+    @Override
     public String toString(){
 	return "position start:"+ startPosition +":"+endPosition;
     }

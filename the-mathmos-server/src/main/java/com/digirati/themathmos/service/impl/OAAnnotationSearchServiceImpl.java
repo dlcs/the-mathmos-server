@@ -21,11 +21,11 @@ import com.digirati.themathmos.service.OAAnnotationSearchService;
 
 
 
-@Service(OAAnnotationSearchServiceImpl.SERVICE_NAME)
+@Service(OAAnnotationSearchServiceImpl.OA_ANNOTATION_SERVICE_NAME)
 public class OAAnnotationSearchServiceImpl extends AnnotationSearchServiceImpl implements OAAnnotationSearchService{
     
  
-    public static final String SERVICE_NAME = "oaAnnotationSearchServiceImpl";
+    public static final String OA_ANNOTATION_SERVICE_NAME = "oaAnnotationSearchServiceImpl";
        
    
     

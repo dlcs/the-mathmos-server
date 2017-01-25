@@ -38,7 +38,7 @@ public class AnnotationSearchServiceImpl {
     SimpleDateFormat formatter = new SimpleDateFormat("YYYY-MM-DD'T'hh:mm:ssZ");
 
     
-    private ElasticsearchTemplate template;
+    private Client client;
 
     protected AnnotationUtils annotationUtils;
     
@@ -54,7 +54,7 @@ public class AnnotationSearchServiceImpl {
     @Autowired
     public AnnotationSearchServiceImpl(AnnotationUtils annotationUtils, ElasticsearchTemplate template) {
 	this.annotationUtils = annotationUtils;
-	this.template = template;
+	this.client = template.getClient();
     }
     
     
@@ -116,7 +116,6 @@ public class AnnotationSearchServiceImpl {
     private Page<W3CSearchAnnotation> formQuery(QueryBuilder queryBuilder,int pageNumber, int pagingSize){
    	Pageable pageable  = new PageRequest(pageNumber, pagingSize);
    	
-   	Client client = template.getClient();
    	W3CSearchAnnotationMapper resultsMapper = new W3CSearchAnnotationMapper();
 
    	SearchRequestBuilder searchRequestBuilder  = client.prepareSearch("w3cannotation");
@@ -133,30 +132,7 @@ public class AnnotationSearchServiceImpl {
    	
    	return resultsMapper.mapResults(response, W3CSearchAnnotation.class, pageable);
        }
-    
-    
-   
-    
-    private PageParameters getAnnotationPageParameters(Page<W3CSearchAnnotation> annotationPage, String queryString){
-	PageParameters parameters = new PageParameters();
-	parameters.setTotalElements(annotationPage.getTotalElements()+"");
-	parameters.setFirstPageNumber(getPagingParam(queryString, 1));
-	
-	int totalPages = annotationPage.getTotalPages();
-	parameters.setLastPageNumber(getPagingParam(queryString,totalPages)); 
-	
-	if(annotationPage.hasNext()){
-	    int nextPage = annotationPage.getNumber()+2;
-	    parameters.setNextPageNumber(getPagingParam(queryString,nextPage)); 
-	}
-	if(annotationPage.hasPrevious()){
-	    int previousPage = annotationPage.getNumber();
-	    parameters.setPreviousPageNumber(getPagingParam(queryString,previousPage)); 
-	}
-	parameters.setStartIndex(annotationPage.getNumber() * DEFAULT_PAGING_NUMBER + "");
-	return parameters;
-    }
-    
+
     
     private String getPagingParam(String queryString, int replacementParamValue){
 	if(!queryString.contains("page=")){
@@ -176,7 +152,7 @@ public class AnnotationSearchServiceImpl {
    private List<QueryBuilder> buildDateRangeQuery(String field, String allRanges) {
 	List<QueryBuilder> queryBuilders = new ArrayList<QueryBuilder>();
 	List<String> dates = annotationUtils.getListFromSpaceSeparatedTerms(allRanges);
-	QueryBuilder buildDateRangeQuery = null;
+	QueryBuilder buildDateRangeQuery;
 	for (String dateString : dates) {
 
 	    try {
@@ -234,11 +210,10 @@ public class AnnotationSearchServiceImpl {
 		if(motivationsList.size() > 1){
 		    throw new SearchQueryException(
     			"You have a motivation that is a non-<motivation>, there can only be one motivation in this instance."); 
-		}else{
-		    String tidyMotivations = motivations;
-		    tidyMotivations = motivations.replaceAll("non-", "");
+		}else{		  
+		    motivations = motivations.replaceAll("non-", "");
 		    queryList.add(QueryBuilders.existsQuery("motivations"));		    
-		    must = must.mustNot(QueryBuilders.queryStringQuery(tidyMotivations).field("motivations"));
+		    must = must.mustNot(QueryBuilders.queryStringQuery(motivations).field("motivations"));
    
 		}
 	    }else{
@@ -254,13 +229,10 @@ public class AnnotationSearchServiceImpl {
 	    queryList.add(QueryBuilders.queryStringQuery(users).field("creators"));
 	}
    	
-   	//if(queryList.size() == 1){
-   	//    must = must.should(queryList.get(0));
-   	//}else{
-   	    for(QueryBuilder eachQuery:queryList){
-   		must =  must.must(eachQuery);
-   	    }
-   	//}
+ 
+   	for(QueryBuilder eachQuery:queryList){
+   	    must =  must.must(eachQuery);
+   	}
    	
    	
    	return must;

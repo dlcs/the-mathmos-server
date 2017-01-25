@@ -34,9 +34,7 @@ public class AnnotationUtils extends CommonUtils{
     
     
     private static final String OA_SEARCH_TERMLIST = "search:TermList";
-    private static final String OA_TERMSLIST = "terms";
-    private static final String CONTEXT = "@context";
-    
+ 
    
     
     
@@ -55,7 +53,7 @@ public class AnnotationUtils extends CommonUtils{
 	    return null;
 	}
 
-	Map<String, Object> root = null;
+	Map<String, Object> root;
 	
 	if(isMixedSearch){
 	    root = new LinkedHashMap<>();
@@ -129,7 +127,7 @@ public class AnnotationUtils extends CommonUtils{
     private String getSearchQueryFromAutocompleteQuery(String query, String optionText){
 	
 	String searchQuery = query;
-	searchQuery = query.replace("autocomplete","search");
+	searchQuery = searchQuery.replace("autocomplete","search");
 	
 	String tidyQuery = removeParametersAutocompleteQuery(searchQuery,AUTOCOMPLETE_IGNORE_PARAMETERS);
 	String encodedOptionText = optionText;
@@ -231,7 +229,7 @@ public class AnnotationUtils extends CommonUtils{
    	    }
    	    return annoList;
    	}
-   	return new ArrayList<W3CAnnotation>();
+   	return new ArrayList<>();
     }
     
     public String convertSpecialCharacters(String input){

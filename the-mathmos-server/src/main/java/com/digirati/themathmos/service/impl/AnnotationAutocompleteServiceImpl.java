@@ -34,14 +34,13 @@ public class AnnotationAutocompleteServiceImpl implements AnnotationAutocomplete
     
     private final static Logger LOG = Logger.getLogger(AnnotationAutocompleteServiceImpl.class);
     
-    private ElasticsearchTemplate template;
+  
     private AnnotationUtils annotationUtils;
     
     private Client client;
     
     @Autowired
     public AnnotationAutocompleteServiceImpl(ElasticsearchTemplate template, AnnotationUtils annotationUtils){
-	this.template = template;
 	this.client = template.getClient();
 	this.annotationUtils = annotationUtils;
     }

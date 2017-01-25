@@ -2,6 +2,9 @@ package com.digirati.themathmos;
 
 public class AnnotationSearchConstants {
 
+    private AnnotationSearchConstants(){
+	
+    }
     
     public static final String FIELD_MOTIVATIONS = "motivations";
     public static final String PARAM_FIELD_MOTIVATION = "motivation";

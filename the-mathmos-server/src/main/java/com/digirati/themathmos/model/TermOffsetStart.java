@@ -3,7 +3,7 @@ package com.digirati.themathmos.model;
 public class TermOffsetStart {
     
     public TermOffsetStart(){
-	
+	//use this for testing
     }
     
     public TermOffsetStart(String term, int start){
