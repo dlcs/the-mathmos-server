@@ -3,7 +3,9 @@ package com.digirati.themathmos.service.impl;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.xml.bind.DatatypeConverter;
 
@@ -26,8 +28,11 @@ import org.springframework.stereotype.Service;
 import com.digirati.themathmos.AnnotationSearchConstants;
 import com.digirati.themathmos.exception.SearchQueryException;
 import com.digirati.themathmos.mapper.W3CSearchAnnotationMapper;
+import com.digirati.themathmos.model.ServiceResponse;
 import com.digirati.themathmos.model.W3CSearchAnnotation;
 import com.digirati.themathmos.model.annotation.page.PageParameters;
+import com.digirati.themathmos.model.annotation.w3c.W3CAnnotation;
+import com.digirati.themathmos.service.TextSearchService;
 
 @Service(AnnotationSearchServiceImpl.SERVICE_NAME)
 public class AnnotationSearchServiceImpl {
@@ -42,6 +47,8 @@ public class AnnotationSearchServiceImpl {
 
     protected AnnotationUtils annotationUtils;
     
+    protected TextSearchService textSearchService;
+    
     protected static final int DEFAULT_PAGING_NUMBER = AnnotationSearchConstants.DEFAULT_PAGING_NUMBER;;
     private static final int DEFAULT_STARTING_PAGING_NUMBER = 0;
         
@@ -52,11 +59,12 @@ public class AnnotationSearchServiceImpl {
     
 
     @Autowired
-    public AnnotationSearchServiceImpl(AnnotationUtils annotationUtils, ElasticsearchTemplate template) {
+    public AnnotationSearchServiceImpl(AnnotationUtils annotationUtils, ElasticsearchTemplate template,TextSearchService textSearchService ) {
 	this.annotationUtils = annotationUtils;
 	this.client = template.getClient();
+	this.textSearchService = textSearchService;
     }
-    
+ 
     
     public PageParameters getPageParameters(){
 	return pagingParameters;
@@ -224,6 +232,110 @@ public class AnnotationSearchServiceImpl {
      }
     
    
-
+    protected Map<String, Object> getMap(String query, String queryString, boolean isW3c, String page, boolean isMixedSearch) {
+	
+	String[] annoSearchArray  = this.getAnnotationsPage(query, null, null, null, queryString, isW3c, page);
+	
+	int annoListSize = annoSearchArray.length;
+	LOG.info("annoListSize: " + annoListSize);
+	
+	ServiceResponse<Map<String, Object>> textAnnoMap = textSearchService.getTextPositions(query, queryString, isW3c, page, true);
+	int[] textPageParams  = new int[]{0,0};
+	if(null != textAnnoMap && null != textAnnoMap.getObj()){
+	    textPageParams = annotationUtils.getPageParams(textAnnoMap.getObj(), isW3c);		
+	}
+	
+	long totalAnnotationHits = this.getTotalHits();
+	long totalTextHits = (long)textPageParams[0];
+	
+	boolean isPageable = false;
+	if(totalAnnotationHits+totalTextHits > DEFAULT_PAGING_NUMBER){	    
+	    isPageable = true;
+	}
+	
+	PageParameters textPagingParamters = textSearchService.getPageParameters();
+	textPagingParamters.setTotalElements(Long.toString(totalAnnotationHits+totalTextHits));
+	textPagingParamters.setStartIndex(Integer.toString(textPageParams[1]));
+	
+	
+	PageParameters pagingParameters = this.getPageParameters();
+	int lastAnnoPage = pagingParameters.getLastPage();
+	int lastTextPage = textPagingParamters.getLastPage();
+	
+	if(lastAnnoPage > lastTextPage){
+	    textPagingParamters.setLastPageNumber(pagingParameters.getLastPageNumber()); 
+	}
+	
+	if(null != textAnnoMap.getObj()){
+	    annotationUtils.amendPagingParameters(queryString, textAnnoMap.getObj(), textPagingParamters, isW3c);
+	}
+	
+	Map<String, Object> annoMap = null;
+	if(annoSearchArray.length != 0){
+	    List<W3CAnnotation> annotationList = annotationUtils.getW3CAnnotations(annoSearchArray);
+	    annoMap = annotationUtils.createAnnotationPage(queryString, annotationList, isW3c, pagingParameters, (AnnotationSearchServiceImpl.DEFAULT_PAGING_NUMBER - 1), true);
+	}
+	if((null == textAnnoMap || null == textAnnoMap.getObj()) && (null == annoMap || annoMap.isEmpty())){	    
+	    return  null;  
+	}
+	Map<String, Object> root;
+	if(isPageable){
+	    root = annotationUtils.buildAnnotationPageHead(queryString, isW3c, textPagingParamters);
+	}else{
+	    root = annotationUtils.buildAnnotationListHead(queryString, isW3c);
+	}   
+	
+	if(null != textAnnoMap && null != textAnnoMap.getObj()){
+	    if(isW3c){
+		Map map = (LinkedHashMap) textAnnoMap.getObj().get(CommonUtils.FULL_HAS_ANNOTATIONS);
+		List textResources = (List)map.get(CommonUtils.W3C_RESOURCELIST);
+		Map hitMap = (LinkedHashMap) textAnnoMap.getObj().get(CommonUtils.FULL_HAS_HITLIST);
+		List textHits = (List)hitMap.get(CommonUtils.W3C_RESOURCELIST);
+		    
+		Map mapForResources = new LinkedHashMap<>();
+		root.put(CommonUtils.FULL_HAS_ANNOTATIONS, mapForResources);
+		mapForResources.put(CommonUtils.W3C_RESOURCELIST, textResources);
+		    
+		Map mapForHits = new LinkedHashMap<>();
+		root.put(CommonUtils.FULL_HAS_HITLIST, mapForHits);
+		mapForHits.put(CommonUtils.W3C_RESOURCELIST, textHits);
+    	    	
+	    }else{
+		List textResources = (List)textAnnoMap.getObj().get(CommonUtils.OA_RESOURCELIST);
+    	    	List textHits = (List)textAnnoMap.getObj().get(CommonUtils.OA_HITS);
+    	    
+    	    	root.put(CommonUtils.OA_RESOURCELIST, textResources);
+    	    	root.put(CommonUtils.OA_HITS, textHits);
+	    }
+	}
+	if(null != annoMap && !annoMap.isEmpty()){
+	    if(isW3c){
+		 Map map = (LinkedHashMap) annoMap.get(CommonUtils.FULL_HAS_ANNOTATIONS);
+		 List annoResources = (List)map.get(CommonUtils.W3C_RESOURCELIST);
+		 if(root.containsKey(CommonUtils.FULL_HAS_ANNOTATIONS)){
+		     Map rootMap = (LinkedHashMap) root.get(CommonUtils.FULL_HAS_ANNOTATIONS);
+		     List existingResources = (List)rootMap.get(CommonUtils.W3C_RESOURCELIST);
+		     existingResources.addAll(annoResources);
+		 }else{
+		     Map mapForResources = new LinkedHashMap<>();
+		     root.put(CommonUtils.FULL_HAS_ANNOTATIONS, mapForResources);
+		     mapForResources.put(CommonUtils.W3C_RESOURCELIST, annoResources);
+		    }
+	    }else{
+        	 List annoResources = (List)annoMap.get(CommonUtils.OA_RESOURCELIST);
+        	 if(root.containsKey(CommonUtils.OA_RESOURCELIST)){
+        	     List existingResources = (List)root.get(CommonUtils.OA_RESOURCELIST);
+        	     existingResources.addAll(annoResources);
+        	     root.put(CommonUtils.OA_RESOURCELIST, existingResources);
+        	  }else{
+        	      root.put(CommonUtils.OA_RESOURCELIST, annoResources);
+        	 }
+	    }
+	}
+	
+	return  root;
+	
+	
+    }
  
 }

@@ -255,7 +255,8 @@ public class TextUtilsTest {
 	String queryString = "http://www.google.com?q=test";
 
 	String coordinates2 = getFileContents("test_coordinates_2.json");
-	Map<String,Object>  map =textUtils.createCoordinateAnnotation(query, coordinates2, false, positionMap, termPositionMap ,queryString, 10, new PageParameters(), false);
+	Map<String,Object>  map =textUtils.createCoordinateAnnotation(query, coordinates2, false, positionMap, termPositionMap ,queryString, //10,
+		new PageParameters(), false);
 	LOG.info(map.toString());
 	
     }

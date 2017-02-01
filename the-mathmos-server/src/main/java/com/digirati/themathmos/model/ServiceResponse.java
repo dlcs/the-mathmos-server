@@ -1,6 +1,13 @@
 package com.digirati.themathmos.model;
 
-public class ServiceResponse<T> {
+import java.io.Serializable;
+
+public class ServiceResponse<T> implements Serializable{
+
+    /**
+     * 
+     */
+    private static final long serialVersionUID = 8231671973667011469L;
 
     public enum Status {
         OK, NOT_FOUND, CACHE_KEY_MISS, ILLEGAL_MODIFICATION, NON_CONFORMANT

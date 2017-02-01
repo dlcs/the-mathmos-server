@@ -141,23 +141,7 @@ public class AnnotationUtils extends CommonUtils{
 	return tidyQuery.replaceAll("q=[^&]+","q="+encodedOptionText);
     }
     
-    /**
-     * Method to remove any ignored parameters from the query strings
-     * @param query
-     * @param paramsToRemove
-     * @return
-     */
-    private String removeParametersAutocompleteQuery(String query, String[] paramsToRemove){
-	
-	String tidyQuery = query;
-	for (String param:paramsToRemove){
-	    tidyQuery = tidyQuery.replaceAll("[&?]"+param+ "=[^&]+","");
-	}
-	if(!tidyQuery.contains("?")){
-	    tidyQuery = tidyQuery.replaceFirst("[&]","?");
-	}
-	return tidyQuery;
-    } 
+    
    
     
    
@@ -258,7 +242,36 @@ public class AnnotationUtils extends CommonUtils{
        
     
     
-   
+    public int[] getPageParams(Map<String, Object> root, boolean isW3c){
+	Map map;
+	String total = "" ;
+
+	List resources = getResources(root, isW3c);
+   	
+   	int resourcesSize = resources.size();
+   	LOG.info("resourcesSize in getPageParams" + resourcesSize);
+
+	String startIndex = "" ;
+	int[] pageParams = new int[2];
+	if(isW3c){
+   	    map = (LinkedHashMap) root.get("dcterms:isPartOf"); 
+   	    total = (String) map.get("as:totalItems");
+   	}else{
+   	    map = (LinkedHashMap) root.get("within");
+   	    total = (String) map.get("total");
+   	}
+	pageParams[0] =  Integer.parseInt(total);
+   	
+   	if (isW3c) {
+   	    startIndex = (String)root.get("as:startIndex");
+	} else {
+	    startIndex = (String)root.get("startIndex");
+	}
+   	pageParams[1] = Integer.parseInt(startIndex); //startIndex.intValue()
+   		 
+   	
+   	return pageParams;
+    }
    
    
  

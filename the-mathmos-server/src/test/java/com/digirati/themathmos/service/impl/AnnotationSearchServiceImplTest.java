@@ -15,7 +15,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.springframework.data.elasticsearch.core.ElasticsearchTemplate;
 
-
+import com.digirati.themathmos.service.TextSearchService;
 import com.digirati.themathmos.service.impl.AnnotationSearchServiceImpl;
 import com.digirati.themathmos.service.impl.AnnotationUtils;
 import com.google.common.collect.Iterators;
@@ -28,6 +28,8 @@ public class AnnotationSearchServiceImplTest {
     
     private ElasticsearchTemplate template;
     Client client;
+    
+    private TextSearchService textSearchService;
 
     protected AnnotationUtils annotationUtils;
     @BeforeClass
@@ -41,7 +43,8 @@ public class AnnotationSearchServiceImplTest {
 	template = mock(ElasticsearchTemplate.class);
 	client = mock(Client.class);
 	when(template.getClient()).thenReturn(client);
-	annotationSearchServiceImpl = new AnnotationSearchServiceImpl(annotationUtils,template );
+	textSearchService = mock(TextSearchService.class);
+	annotationSearchServiceImpl = new AnnotationSearchServiceImpl(annotationUtils,template, textSearchService);
     }
 
 

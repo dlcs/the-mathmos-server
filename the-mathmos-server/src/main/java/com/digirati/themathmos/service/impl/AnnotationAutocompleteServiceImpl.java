@@ -14,6 +14,7 @@ import org.elasticsearch.client.Client;
 import org.elasticsearch.search.suggest.Suggest;
 import org.elasticsearch.search.suggest.completion.CompletionSuggestionBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.elasticsearch.core.ElasticsearchTemplate;
 import org.springframework.stereotype.Service;
 
@@ -47,6 +48,7 @@ public class AnnotationAutocompleteServiceImpl implements AnnotationAutocomplete
 
 
     @Override
+    @Cacheable(value = "autocompleteCache", key = "#queryString.toString()+#isW3c.toString()" )
     public ServiceResponse<Map<String, Object>> getTerms(String query, String motivation, String date, String user, String min, String queryString, boolean isW3c) {
 	
 
@@ -62,6 +64,7 @@ public class AnnotationAutocompleteServiceImpl implements AnnotationAutocomplete
     }
     
     @Override
+    @Cacheable(value = "autocompleteCache", key = "#queryString.toString()+#isW3c.toString()" )
     public ServiceResponse<Map<String, Object>> getTerms(String query,String min, String queryString, boolean isW3c) {
 	
 
@@ -77,6 +80,7 @@ public class AnnotationAutocompleteServiceImpl implements AnnotationAutocomplete
     }
     
     @Override
+    @Cacheable(value = "mixedAutocompleteCache", key = "#queryString.toString()+#isW3c.toString()" )
     public ServiceResponse<Map<String, Object>> getMixedTerms(String query, String min, String queryString, boolean isW3c){
 	
 	List <SuggestOption> textOptions = findSuggestionsFor(query, "text_index") ;

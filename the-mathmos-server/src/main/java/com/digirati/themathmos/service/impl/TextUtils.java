@@ -11,9 +11,14 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang.RandomStringUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.Cache;
+import org.springframework.cache.CacheManager;
 import org.springframework.stereotype.Service;
 
+import com.digirati.themathmos.AnnotationSearchConstants;
 import com.digirati.themathmos.model.Positions;
 import com.digirati.themathmos.model.TermOffsetStart;
 import com.digirati.themathmos.model.TermOffsetsWithPosition;
@@ -22,10 +27,16 @@ import com.digirati.themathmos.model.annotation.page.PageParameters;
 import com.google.gson.Gson;
 import com.google.gson.internal.LinkedTreeMap;
 
+import net.sf.ehcache.Element;
+
 
 
 @Service(TextUtils.SERVICE_NAME)
 public class TextUtils extends CommonUtils {
+    
+    
+  
+   
     
     private final static Logger LOG = Logger.getLogger(TextUtils.class);
    
@@ -74,7 +85,7 @@ public class TextUtils extends CommonUtils {
 
     
     
-    public Map<String, Object> createCoordinateAnnotationTest(String query, String coordinatePayload,
+    /*public Map<String, Object> createCoordinateAnnotationTest(String query, String coordinatePayload,
 	    boolean isW3c, Map<String, List<Positions>> positionMap,
 	    Map<String, Map<String, TermOffsetStart>> termPositionMap, String queryString, long totalHits, PageParameters pageParams) {
 
@@ -173,7 +184,7 @@ public class TextUtils extends CommonUtils {
 
 	return root;
 
-    }
+    }*/
     
     
    
@@ -192,7 +203,8 @@ public class TextUtils extends CommonUtils {
      */
     public Map<String, Object> createCoordinateAnnotation(String query, String coordinatePayload,
 	    boolean isW3c, Map<String, List<Positions>> positionMap,
-	    Map<String, Map<String, TermOffsetStart>> termPositionMap, String queryString, long totalHits, PageParameters pageParams, boolean isMixedSearch) {
+	    Map<String, Map<String, TermOffsetStart>> termPositionMap, String queryString, //long totalHits, 
+	    PageParameters pageParams, boolean isMixedSearch) {
 
 	if (null == coordinatePayload) {
 	    return null;
@@ -207,19 +219,11 @@ public class TextUtils extends CommonUtils {
 	int  queryArrayLength = queryArray.length;
 
 	Map<String, Object> root;
+
 	
-	if(isMixedSearch){
-	    root = new LinkedHashMap<>();
-	    this.setResources(root, isW3c);
-	}else{
-	    if(TextSearchServiceImpl.DEFAULT_TEXT_PAGING_NUMBER <= totalHits){
-		root = this.buildAnnotationPageHead(queryString, isW3c, pageParams);	   
-	    }else{
-		root = this.buildAnnotationListHead(queryString, isW3c); 
-	    }
-	}
+	root = this.buildAnnotationPageHead(queryString, isW3c, pageParams);	   
 	
-	
+
 	List<Map> resources = this.getResources(root, isW3c);
 	
 	this.setHits(root, isW3c);
@@ -328,13 +332,27 @@ public class TextUtils extends CommonUtils {
 	
 	
 	
+	if(TextSearchServiceImpl.DEFAULT_TEXT_PAGING_NUMBER > resources.size()&& !isMixedSearch){
+	    if (isW3c) {
+		root.remove("dcterms:isPartOf");
+		root.remove("as:startIndex");
+	    }else{
+		root.remove("within");
+		root.remove("startIndex");
+	    }
+	    root.remove("next");
+	    root.remove("prev");
+	}
+	
 	//TODO this is not correct, we need to increment the total when we have more resources than query hits. This will happen when we have a hit that spans > 1 line in text for the image.
-	if(resources.size() > TextSearchServiceImpl.DEFAULT_TEXT_PAGING_NUMBER){
+	/*if(resources.size() > TextSearchServiceImpl.DEFAULT_TEXT_PAGING_NUMBER){
 	    String total = pageParams.getTotalElements();
 	    int size = resources.size() - TextSearchServiceImpl.DEFAULT_TEXT_PAGING_NUMBER;
 	    int totalInt = Integer.parseInt(total);
 	    pageParams.setTotalElements(Integer.toString(size + totalInt));
-	}
+	}*/
+	
+	//amendPagingParameters(queryString, root,  pageParams, isW3c);
 	return root;
 
     }
@@ -629,4 +647,13 @@ public class TextUtils extends CommonUtils {
 	query = query + "/searchResult"+searchResultRandom+xywh;
 	return query;
     }
+    
+    
+    
+    
+    
+   
+    
+    
+   
 }

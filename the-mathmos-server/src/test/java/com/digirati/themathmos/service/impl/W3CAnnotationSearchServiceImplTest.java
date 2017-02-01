@@ -13,6 +13,7 @@ import org.junit.Test;
 import org.springframework.data.elasticsearch.core.ElasticsearchTemplate;
 
 import com.digirati.themathmos.model.ServiceResponse;
+import com.digirati.themathmos.service.TextSearchService;
 import com.digirati.themathmos.service.impl.AnnotationUtils;
 import com.digirati.themathmos.service.impl.W3CAnnotationSearchServiceImpl;
 
@@ -23,6 +24,7 @@ public class W3CAnnotationSearchServiceImplTest {
     ElasticsearchTemplate template;
     Client client;
     SearchQueryUtils searchQueryUtils;
+    private TextSearchService textSearchService;
 
     @BeforeClass
     public static void setUpBeforeClass() throws Exception {
@@ -36,7 +38,8 @@ public class W3CAnnotationSearchServiceImplTest {
 	template = mock(ElasticsearchTemplate.class);
 	client = mock(Client.class);
 	when(template.getClient()).thenReturn(client);
-	impl = new W3CAnnotationSearchServiceImpl(annotationUtils, template);
+	textSearchService = mock(TextSearchService.class);
+	impl = new W3CAnnotationSearchServiceImpl(annotationUtils, template, textSearchService);
     }
 
     @Test

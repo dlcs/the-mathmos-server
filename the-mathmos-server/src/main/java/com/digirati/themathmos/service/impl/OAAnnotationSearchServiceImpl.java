@@ -7,6 +7,7 @@ import java.util.Map;
 
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.elasticsearch.core.ElasticsearchTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
@@ -17,6 +18,7 @@ import com.digirati.themathmos.model.ServiceResponse.Status;
 import com.digirati.themathmos.model.annotation.page.PageParameters;
 import com.digirati.themathmos.model.annotation.w3c.W3CAnnotation;
 import com.digirati.themathmos.service.OAAnnotationSearchService;
+import com.digirati.themathmos.service.TextSearchService;
 
 
 
@@ -26,19 +28,21 @@ public class OAAnnotationSearchServiceImpl extends AnnotationSearchServiceImpl i
     
  
     public static final String OA_ANNOTATION_SERVICE_NAME = "oaAnnotationSearchServiceImpl";
-       
+    
+    protected TextSearchService textSearchService;
    
     
     
     @Autowired
-    public OAAnnotationSearchServiceImpl(AnnotationUtils annotationUtils,ElasticsearchTemplate template) {
-	super(annotationUtils, template);
+    public OAAnnotationSearchServiceImpl(AnnotationUtils annotationUtils,ElasticsearchTemplate template,  TextSearchService textSearchService) {
+	super(annotationUtils, template, textSearchService);
    
     }
     
    
     @Override
     @Transactional(readOnly = true, isolation = Isolation.SERIALIZABLE)
+    @Cacheable(value="oaAnnotationSearchPagingCache", key="#queryString" )
     public ServiceResponse<Map<String, Object>> getAnnotationPage(String query, String motivation, String date, String user, String queryString, String page)  {
 	
 	String[] annoSearchArray  = this.getAnnotationsPage(query, motivation, date, user, queryString, false, page);

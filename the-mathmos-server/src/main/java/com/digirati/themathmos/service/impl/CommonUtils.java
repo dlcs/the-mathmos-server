@@ -10,13 +10,15 @@ import org.apache.log4j.Logger;
 import org.elasticsearch.common.text.Text;
 import org.springframework.data.domain.Page;
 
+import com.digirati.themathmos.AnnotationSearchConstants;
 import com.digirati.themathmos.model.TermOffsetStart;
 import com.digirati.themathmos.model.annotation.page.PageParameters;
 
 
 public class CommonUtils {
  
-
+    private final static Logger LOG = Logger.getLogger(CommonUtils.class);
+    
     protected static final String WC3CONTEXT_PATH = "http://www.w3.org/ns/anno.jsonld";
     protected static final String FULL_LAYER = "http://iiif.io/api/presentation/2#Layer";
 
@@ -122,15 +124,15 @@ public class CommonUtils {
 
 	setContextIdType(root, isW3c, query);
 
+	Map withinMap = new LinkedHashMap();
 	if (isW3c) {
-	    Map withinMap = new LinkedHashMap();
 	    withinMap.put("type", FULL_LAYER);
 	    withinMap.put("as:totalItems", total);
 	    withinMap.put("first", first);
 	    withinMap.put("last", last);
 	    root.put("dcterms:isPartOf", withinMap);
 	} else {
-	    Map withinMap = new LinkedHashMap();
+	    
 	    withinMap.put(ROOT_TYPE, "sc:Layer");
 	    withinMap.put("total", total);
 	    withinMap.put("first", first);
@@ -244,11 +246,13 @@ public class CommonUtils {
    	int lastPage = (int) (totalHits/defaultPagingNumber)+1;
    	parameters.setFirstPageNumber(getPagingParam(queryString, 1));
 
-   	parameters.setLastPageNumber(getPagingParam(queryString,lastPage)); 
-   	
+   	parameters.setLastPageNumber(getPagingParam(queryString,lastPage));
+   	parameters.setLastPage(lastPage);
+
    	int nextPage = (annotationPage.getNumber()/defaultPagingNumber)+2;
    	if(lastPage >= nextPage){
-   	    parameters.setNextPageNumber(getPagingParam(queryString,nextPage));  
+   	    parameters.setNextPageNumber(getPagingParam(queryString,nextPage)); 
+   	    parameters.setNextPage(nextPage);
    	}
    	
    	if(annotationPage.hasPrevious() ){
@@ -266,4 +270,83 @@ public class CommonUtils {
 	}
 	return queryString.replaceAll("page=[^&]+", "page=" + replacementParamValue);
     }
+    
+    /**
+     * Method to remove any ignored parameters from the query strings
+     * @param query
+     * @param paramsToRemove
+     * @return
+     */
+    protected String removeParametersAutocompleteQuery(String query, String[] paramsToRemove){
+	
+	String tidyQuery = query;
+	for (String param:paramsToRemove){
+	    tidyQuery = tidyQuery.replaceAll("[&?]"+param+ "=[^&]+","");
+	}
+	if(!tidyQuery.contains("?")){
+	    tidyQuery = tidyQuery.replaceFirst("[&]","?");
+	}
+	return tidyQuery;
+    }
+    
+    public void amendPagingParameters(String queryString, Map<String, Object> root, PageParameters pageParams, boolean isW3c){
+	
+	List resources = getResources(root, isW3c);
+	int resourcesSize = resources.size();
+	LOG.info("resourcesSize in amendPagingParameters " + resourcesSize);
+	int totalElements = Integer.parseInt(pageParams.getTotalElements());
+	LOG.info("totalElements from pageParames in amendPagingParameters " + totalElements);
+	int newElementsforPage = 0;
+	if(resourcesSize > AnnotationSearchConstants.DEFAULT_PAGING_NUMBER){
+	    newElementsforPage = resourcesSize - (AnnotationSearchConstants.DEFAULT_PAGING_NUMBER );
+	}
+
+	totalElements += newElementsforPage;
+	LOG.info("totalElements in amendPagingParameters: " + totalElements);
+	Map map;
+	
+	if(isW3c){
+	    map = (LinkedHashMap) root.get("dcterms:isPartOf"); 
+	    if(null != map){
+		map.put("as:totalItems", Integer.toString(resourcesSize));
+	    }
+	}else{
+	    map = (LinkedHashMap) root.get("within");
+	    if(null != map){
+		map.put("total", Integer.toString(resourcesSize));
+	    }
+	}
+	
+    }
+    
+    public int[] tallyPagingParameters(Map<String, Object> root, boolean isW3c, int totalElements, int startIndex){
+	
+   	List resources = getResources(root, isW3c);
+   	
+   	int resourcesSize = resources.size();
+   	LOG.info("resourcesSize in tallyPagingParameters " + resourcesSize);
+   	int[] returnArray = new int[2];
+   	int newElementsforPage = resourcesSize;
+   	
+   	returnArray[1]  = startIndex + resourcesSize; 
+   	totalElements += newElementsforPage;
+   	returnArray[0] = totalElements;
+   	Map map ;
+   	String total;
+   	if(isW3c){
+   	    map = (LinkedHashMap) root.get("dcterms:isPartOf"); 
+   	    map.put("as:totalItems", Integer.toString(totalElements));
+   	}else{
+   	    map = (LinkedHashMap) root.get("within");
+   	    map.put("total", Integer.toString(totalElements));
+   	}
+   	
+   	if (isW3c) {
+	    root.put("as:startIndex", Integer.toString(startIndex));
+	} else {
+	    root.put("startIndex", Integer.toString(startIndex));
+	}
+   	
+   	return returnArray;
+       }
 }

@@ -63,6 +63,8 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.cache.Cache;
+import org.springframework.cache.CacheManager;
 import org.springframework.core.io.DefaultResourceLoader;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
@@ -85,7 +87,7 @@ public class TextSearchServiceImplTest {
     private TextUtils textUtils;
     String url = "";
     private GetPayloadService coordinateService;
-    
+    private CacheManager cacheManager;
     private ResourceLoader resourceLoader;
 
     @BeforeClass
@@ -99,8 +101,9 @@ public class TextSearchServiceImplTest {
 	template = mock(ElasticsearchTemplate.class);
 	client = mock(Client.class);
 	coordinateService = mock(GetPayloadService.class);
+	cacheManager = mock(CacheManager.class);
 	when(template.getClient()).thenReturn(client);
-	textSearchServiceImpl = new TextSearchServiceImpl(textUtils,template,url, coordinateService );
+	textSearchServiceImpl = new TextSearchServiceImpl(textUtils,template,url, coordinateService, cacheManager );
     }
 
     @Test
@@ -183,6 +186,11 @@ public class TextSearchServiceImplTest {
 	
 	when(coordinateService.getJsonPayload(anyString(), anyString())).thenReturn(coordinates);
 	
+	
+	Cache.ValueWrapper obj = mock(Cache.ValueWrapper.class);
+	Cache mockCache = mock(Cache.class);
+	when(cacheManager.getCache("textSearchCache")).thenReturn(mockCache);
+	when(mockCache.get(anyString())).thenReturn(null);
 	ServiceResponse<Map<String, Object>> serviceResponse = textSearchServiceImpl.getTextPositions(query, queryString, isW3c, page, isMixedSearch);
 	assertEquals(serviceResponse.getStatus(), Status.OK);
 	

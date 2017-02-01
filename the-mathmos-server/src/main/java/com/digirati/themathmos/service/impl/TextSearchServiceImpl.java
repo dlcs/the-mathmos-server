@@ -25,6 +25,8 @@ import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.Cache;
+import org.springframework.cache.CacheManager;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -48,6 +50,7 @@ import com.digirati.themathmos.service.TextSearchService;
 import com.google.gson.Gson;
 import com.google.gson.internal.LinkedTreeMap;
 
+
 @Service(TextSearchServiceImpl.SERVICE_NAME)
 public class TextSearchServiceImpl implements TextSearchService {
 
@@ -60,6 +63,7 @@ public class TextSearchServiceImpl implements TextSearchService {
 
     private TextUtils textUtils;
     private String coordinateServerUrl;
+    private CacheManager cacheManager;
     
     private static final String TEXT_FIELD_NAME = "text";
     private static final String FIELD_TYPE_NAME = "text";
@@ -67,7 +71,6 @@ public class TextSearchServiceImpl implements TextSearchService {
     
     private PageParameters pagingParameters = null;
     
-
     private Client client;
     
     private GetPayloadService coordinateService;
@@ -75,11 +78,13 @@ public class TextSearchServiceImpl implements TextSearchService {
     private long totalHits = 0;
 
     @Autowired
-    public TextSearchServiceImpl(TextUtils textUtils, ElasticsearchTemplate template, @Value("${text.server.coordinate.url}") String coordinateServerUrl,  GetPayloadService coordinateService) {
+    public TextSearchServiceImpl(TextUtils textUtils, ElasticsearchTemplate template, @Value("${text.server.coordinate.url}") String coordinateServerUrl,  GetPayloadService coordinateService,
+	    CacheManager cacheManager) {
 	this.textUtils = textUtils;
 	this.client = template.getClient();
 	this.coordinateServerUrl = coordinateServerUrl;
 	this.coordinateService = coordinateService;
+	this.cacheManager = cacheManager;
     }
     
     @Override
@@ -93,11 +98,78 @@ public class TextSearchServiceImpl implements TextSearchService {
     }
 
 
-    @Override
+    @Override 
     @Transactional(readOnly = true, isolation = Isolation.SERIALIZABLE)
-    public ServiceResponse<Map<String, Object>> getTextPositions(String query, String queryString, boolean isW3c,
-	    String page, boolean isMixedSearch) {
+    public ServiceResponse<Map<String, Object>> getTextPositions(String query, String queryString, boolean isW3c, String page, boolean isMixedSearch) {
 
+	totalHits = 0;
+	String pageTest = "";
+	int pageNumber = 1;
+	Cache cache = cacheManager.getCache("textSearchCache");
+	if ("1".equals(page) || null == page) {
+	    pageTest = "";
+	}else{
+	    pageTest = page; 
+	    pageNumber = Integer.parseInt(page);
+	}
+	String queryWithNoPageParamter = textUtils.removeParametersAutocompleteQuery(queryString,new String[]{"page"});
+	String queryWithAmendedPageParamter = queryWithNoPageParamter + pageTest;
+	String queryWithPageParamter = "";
+	Cache.ValueWrapper obj = cache.get(queryWithAmendedPageParamter);
+	
+	
+	if(null != obj){	    
+	    Map<String, Object> textMap = (Map)obj.get();
+	    return new ServiceResponse<>(Status.OK, textMap);
+	}else{	
+	    if(pageNumber > 1){
+		Cache.ValueWrapper firstObj = cache.get(queryWithNoPageParamter);
+		
+		if(null == firstObj){
+		    Map<String, Object> firstTextMap = getTextMap(query, queryString, isW3c, null,isMixedSearch); 
+		    if(null != firstTextMap){
+			cache.put(queryWithNoPageParamter, firstTextMap);
+			firstObj = cache.get(queryWithNoPageParamter);
+		    }
+		}
+		Map<String, Object> textMap = (Map)firstObj.get();
+		int[] totalElements = textUtils.tallyPagingParameters(textMap,isW3c, 0, 0);
+		
+		for(int y = 1; y < pageNumber; y++){
+		    Map<String, Object> otherTextMaps = getTextMap(query, queryString, isW3c, page,isMixedSearch);		    
+		    if(null != otherTextMaps){
+			totalElements = textUtils.tallyPagingParameters(otherTextMaps,isW3c, totalElements[0], totalElements[1]);
+			queryWithPageParamter = queryWithNoPageParamter + (y + 1);
+			cache.put(queryWithPageParamter, otherTextMaps);
+		    }else{
+			LOG.error("Error with the cache ");
+		    }
+		}
+		obj = cache.get(queryWithAmendedPageParamter);
+		if(null != obj){	    
+		    Map<String, Object> requestedTextMap = (Map)obj.get();
+		    return new ServiceResponse<>(Status.OK, requestedTextMap);
+		}
+		
+	    }else{
+		Map<String, Object> textMap = getTextMap(query, queryString, isW3c, page,isMixedSearch);
+		if(null != textMap){
+		    cache.put(queryWithNoPageParamter, textMap);
+		    return new ServiceResponse<>(Status.OK, textMap);
+		}else{
+		    return new ServiceResponse<>(Status.NOT_FOUND, null);
+		}
+	    } 
+	}	
+	return new ServiceResponse<>(Status.NOT_FOUND, null);
+
+    }
+    
+    
+    
+    
+    private Map<String, Object> getTextMap(String query, String queryString, boolean isW3c, String page, boolean isMixedSearch) {
+	
 	totalHits = 0;
 	QueryBuilder queryBuilder = buildQuery(query);
 
@@ -110,12 +182,11 @@ public class TextSearchServiceImpl implements TextSearchService {
 	    from = (pagingInteger.intValue() - 1) * pagingSize;
 	}
 
-	List<String> queryTerms = textUtils.getListFromSpaceSeparatedTerms(query);
 
 	Page<TextAnnotation> annotationPage = formQuery(queryBuilder, from, pagingSize);
 
 	LOG.info("total pages "+annotationPage.getTotalPages());
-
+	
 	Map<String, List<TermWithTermOffsets>> termWithOffsetsMap = new HashMap<>();
 	Map<String, Map<String, TermOffsetStart>> termPositionsMap = new HashMap<>();
 	Map<String, Map<String, String>> offsetPositionMap = new HashMap<>();
@@ -132,8 +203,8 @@ public class TextSearchServiceImpl implements TextSearchService {
 	pagingParameters = textUtils.getAnnotationPageParameters(annotationPage, queryString,
 		DEFAULT_TEXT_PAGING_NUMBER, totalHits);
 
-	if (StringUtils.isEmpty(payload)) {
-	    return new ServiceResponse<>(Status.NOT_FOUND, null);
+	if (null == payload || StringUtils.isEmpty(payload) || "null".equals(payload)) {
+	    return null;
 	} else {
 	    // now call another service to get the actual coordinates
 	    String coordinatePayload = coordinateService.getJsonPayload(coordinateServerUrl, payload);
@@ -141,18 +212,21 @@ public class TextSearchServiceImpl implements TextSearchService {
 	    Map<String, List<Positions>> positionMap = textUtils.getPositionsMap();
 	    LOG.info("PositionMap " + positionMap.toString());
 
+	   
 	    Map<String, Object> textMap = textUtils.createCoordinateAnnotation(query, coordinatePayload,
-		    // hitsMapper,
-		    isW3c, positionMap, termPositionsMap, queryString, this.getTotalHits(), pagingParameters,
+		    isW3c, positionMap, termPositionsMap, queryString, //this.getTotalHits(), 
+		    pagingParameters,
 		    isMixedSearch);
 
 	    if (null != textMap && !textMap.isEmpty()) {
-		return new ServiceResponse<>(Status.OK, textMap);
+		textUtils.amendPagingParameters(queryString, textMap, pagingParameters, isW3c);
+		return  textMap;
 	    } else {
-		return new ServiceResponse<>(Status.NOT_FOUND, null);
+		return null;
 	    }
 	}
     }
+    
     
     
     /**

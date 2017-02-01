@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.elasticsearch.core.ElasticsearchTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
@@ -15,6 +16,7 @@ import com.digirati.themathmos.model.ServiceResponse;
 import com.digirati.themathmos.model.ServiceResponse.Status;
 import com.digirati.themathmos.model.annotation.page.PageParameters;
 import com.digirati.themathmos.model.annotation.w3c.W3CAnnotation;
+import com.digirati.themathmos.service.TextSearchService;
 import com.digirati.themathmos.service.W3CAnnotationSearchService;
 
 
@@ -28,15 +30,15 @@ public class W3CAnnotationSearchServiceImpl extends AnnotationSearchServiceImpl 
     
     
     @Autowired
-    public W3CAnnotationSearchServiceImpl( AnnotationUtils annotationUtils, ElasticsearchTemplate template) {
-	super(annotationUtils, template);
-        
-    }
+    public W3CAnnotationSearchServiceImpl(AnnotationUtils annotationUtils,ElasticsearchTemplate template,  TextSearchService textSearchService) {
+   	super(annotationUtils, template, textSearchService);
+       }
     
     
     
  
     @Override
+    @Cacheable(value = "w3cAnnotationSearchPagingCache", key = "#queryString" )
     @Transactional(readOnly = true, isolation = Isolation.SERIALIZABLE)
     public ServiceResponse<Map<String, Object>> getAnnotationPage(String query, String motivation, String date, String user, String queryString, String page) {
 	

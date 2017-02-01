@@ -36,6 +36,7 @@ public class TextSearchAnnotationMapper extends DefaultResultMapper {
     @Override
     public <T> Page<T> mapResults(SearchResponse response, Class<T> clazz, Pageable pageable) {
 	long totalHits = response.getHits().totalHits();
+	LOG.info("total hits in mapResults are :" + totalHits);
 	List<T> results = new ArrayList<>();
 	for (SearchHit hit : response.getHits()) {
 	    if (hit != null) {
