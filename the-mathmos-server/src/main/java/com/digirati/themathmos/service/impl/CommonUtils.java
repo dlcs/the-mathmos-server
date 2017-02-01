@@ -273,9 +273,9 @@ public class CommonUtils {
     
     /**
      * Method to remove any ignored parameters from the query strings
-     * @param query
-     * @param paramsToRemove
-     * @return
+     * @param query <code>String</code> containing the paramters
+     * @param paramsToRemove <code>String[]</code> of params to remove.
+     * @return <code>String</code> clear of requested params
      */
     protected String removeParametersAutocompleteQuery(String query, String[] paramsToRemove){
 	
@@ -288,6 +288,8 @@ public class CommonUtils {
 	}
 	return tidyQuery;
     }
+    
+    
     
     public void amendPagingParameters(String queryString, Map<String, Object> root, PageParameters pageParams, boolean isW3c){
 	
