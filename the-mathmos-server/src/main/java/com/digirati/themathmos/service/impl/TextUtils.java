@@ -196,7 +196,6 @@ public class TextUtils extends CommonUtils {
      * @param positionMap - {@code Map}
      * @param termPositionMap - {@code Map}
      * @param queryString - {@code String} The entire query String e.g. http://searchme/search/oa?q=turnips
-     * @param totalHits - {@code long} The total number of elasticsearch hits (note this may change if we have hits that go over 2 lines.
      * @param pageParams - {@code PageParameters} An object that holds the page parameters for our annotation
      * @param isMixedSearch - {@code boolean} true if we are searching both text and annotations 
      * @return {@code Map} a Map representing the json for an text-derived annotation. 
