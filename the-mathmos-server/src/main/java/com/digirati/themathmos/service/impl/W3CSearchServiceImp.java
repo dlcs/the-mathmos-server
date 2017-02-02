@@ -34,28 +34,23 @@ public class W3CSearchServiceImp extends AnnotationSearchServiceImpl implements 
 	super(annotationUtils, template, textSearchService, cacheManager);
     }
     
-   
-    
-    
     
     @Override
     @Transactional(readOnly = true, isolation = Isolation.SERIALIZABLE)
     public ServiceResponse<Map<String, Object>> getAnnotationPage(String query,  String queryString, String page)  {
 	
-
 	String pageTest = "";
 	int pageNumber = 1;
-	Cache mixedCache = cacheManager.getCache("mixedSearchCache");
-	if ("1".equals(page) || null == page) {
-	    pageTest = "";
-	}else{
+	
+	if (!"1".equals(page) && null != page) {
 	    pageTest = page; 
 	    pageNumber = Integer.parseInt(page);
 	}
 	
 	String queryWithNoPageParamter = annotationUtils.removeParametersAutocompleteQuery(queryString,new String[]{"page"});
 	String queryWithAmendedPageParamter = queryWithNoPageParamter + pageTest;
-	String queryWithPageParamter = "";
+	
+	Cache mixedCache = cacheManager.getCache("mixedSearchCache");
 	Cache.ValueWrapper obj = mixedCache.get(queryWithAmendedPageParamter);
 	
 	Map<String, Object> textAnnoMap;
@@ -79,7 +74,7 @@ public class W3CSearchServiceImp extends AnnotationSearchServiceImpl implements 
 			    Map<String, Object> textMap = this.getMap(query, queryString, true, Integer.toString(y),true);		    
 			    if(null != textMap){
 				totalElements = annotationUtils.tallyPagingParameters(textMap,true, totalElements[0], totalElements[1]);
-				queryWithPageParamter = queryWithNoPageParamter + (y);
+				String queryWithPageParamter = queryWithNoPageParamter + (y);
 				mixedCache.put(queryWithPageParamter, textMap);
 			    }else{
 				LOG.error("Error with the cache ");
