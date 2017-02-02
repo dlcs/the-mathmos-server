@@ -349,9 +349,9 @@ public class CommonUtils {
    	LOG.info("resourcesSize in tallyPagingParameters " + resourcesSize);
    	int[] returnArray = new int[2];
    	int newElementsforPage = resourcesSize;
-   	
+   	int totalElementsTally = totalElements;
    	returnArray[1]  = startIndex + resourcesSize; 
-   	int totalElementsTally = totalElements += newElementsforPage;
+   	totalElementsTally += newElementsforPage;
    	returnArray[0] = totalElementsTally;
    	Map map ;
   
