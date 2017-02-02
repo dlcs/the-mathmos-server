@@ -7,6 +7,7 @@ import java.util.Map;
 
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.elasticsearch.core.ElasticsearchTemplate;
 import org.springframework.stereotype.Service;
@@ -29,13 +30,11 @@ public class OAAnnotationSearchServiceImpl extends AnnotationSearchServiceImpl i
  
     public static final String OA_ANNOTATION_SERVICE_NAME = "oaAnnotationSearchServiceImpl";
     
-    protected TextSearchService textSearchService;
-   
-    
+ 
     
     @Autowired
-    public OAAnnotationSearchServiceImpl(AnnotationUtils annotationUtils,ElasticsearchTemplate template,  TextSearchService textSearchService) {
-	super(annotationUtils, template, textSearchService);
+    public OAAnnotationSearchServiceImpl(AnnotationUtils annotationUtils,ElasticsearchTemplate template,  TextSearchService textSearchService, CacheManager cacheManager) {
+	super(annotationUtils, template, textSearchService, cacheManager);
    
     }
     

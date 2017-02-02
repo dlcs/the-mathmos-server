@@ -19,6 +19,8 @@ import org.elasticsearch.index.query.MultiMatchQueryBuilder.Type;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.Cache;
+import org.springframework.cache.CacheManager;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -30,6 +32,7 @@ import com.digirati.themathmos.exception.SearchQueryException;
 import com.digirati.themathmos.mapper.W3CSearchAnnotationMapper;
 import com.digirati.themathmos.model.ServiceResponse;
 import com.digirati.themathmos.model.W3CSearchAnnotation;
+import com.digirati.themathmos.model.ServiceResponse.Status;
 import com.digirati.themathmos.model.annotation.page.PageParameters;
 import com.digirati.themathmos.model.annotation.w3c.W3CAnnotation;
 import com.digirati.themathmos.service.TextSearchService;
@@ -49,6 +52,8 @@ public class AnnotationSearchServiceImpl {
     
     protected TextSearchService textSearchService;
     
+    protected CacheManager cacheManager;
+    
     protected static final int DEFAULT_PAGING_NUMBER = AnnotationSearchConstants.DEFAULT_PAGING_NUMBER;;
     private static final int DEFAULT_STARTING_PAGING_NUMBER = 0;
         
@@ -59,10 +64,11 @@ public class AnnotationSearchServiceImpl {
     
 
     @Autowired
-    public AnnotationSearchServiceImpl(AnnotationUtils annotationUtils, ElasticsearchTemplate template,TextSearchService textSearchService ) {
+    public AnnotationSearchServiceImpl(AnnotationUtils annotationUtils, ElasticsearchTemplate template,TextSearchService textSearchService, CacheManager cacheManager) {
 	this.annotationUtils = annotationUtils;
 	this.client = template.getClient();
 	this.textSearchService = textSearchService;
+	this.cacheManager = cacheManager;
     }
  
     
@@ -241,6 +247,9 @@ public class AnnotationSearchServiceImpl {
 	
 	ServiceResponse<Map<String, Object>> textAnnoMap = textSearchService.getTextPositions(query, queryString, isW3c, page, true);
 	int[] textPageParams  = new int[]{0,0};
+	
+	
+	
 	if(null != textAnnoMap && null != textAnnoMap.getObj()){
 	    textPageParams = annotationUtils.getPageParams(textAnnoMap.getObj(), isW3c);		
 	}
@@ -254,6 +263,7 @@ public class AnnotationSearchServiceImpl {
 	}
 	
 	PageParameters textPagingParamters = textSearchService.getPageParameters();
+	LOG.info("total annotations are : " + (totalAnnotationHits+totalTextHits));
 	textPagingParamters.setTotalElements(Long.toString(totalAnnotationHits+totalTextHits));
 	textPagingParamters.setStartIndex(Integer.toString(textPageParams[1]));
 	
@@ -267,7 +277,12 @@ public class AnnotationSearchServiceImpl {
 	}
 	
 	if(null != textAnnoMap.getObj()){
-	    annotationUtils.amendPagingParameters(queryString, textAnnoMap.getObj(), textPagingParamters, isW3c);
+	    Map<String, Object> testingRoot = (Map)textAnnoMap.getObj();
+	    if(null != annotationUtils.getResources(testingRoot, isW3c)){
+		annotationUtils.amendPagingParameters(queryString, textAnnoMap.getObj(), textPagingParamters, isW3c);
+	    }else{
+		textAnnoMap = null;
+	    }
 	}
 	
 	Map<String, Object> annoMap = null;
@@ -283,9 +298,12 @@ public class AnnotationSearchServiceImpl {
 	    root = annotationUtils.buildAnnotationPageHead(queryString, isW3c, textPagingParamters);
 	}else{
 	    root = annotationUtils.buildAnnotationListHead(queryString, isW3c);
-	}   
+	}  
+	
+	
 	
 	if(null != textAnnoMap && null != textAnnoMap.getObj()){
+	    
 	    if(isW3c){
 		Map map = (LinkedHashMap) textAnnoMap.getObj().get(CommonUtils.FULL_HAS_ANNOTATIONS);
 		List textResources = (List)map.get(CommonUtils.W3C_RESOURCELIST);
@@ -325,6 +343,9 @@ public class AnnotationSearchServiceImpl {
         	 List annoResources = (List)annoMap.get(CommonUtils.OA_RESOURCELIST);
         	 if(root.containsKey(CommonUtils.OA_RESOURCELIST)){
         	     List existingResources = (List)root.get(CommonUtils.OA_RESOURCELIST);
+        	     if(null == existingResources){
+        		 existingResources = new ArrayList<>();
+        	     }
         	     existingResources.addAll(annoResources);
         	     root.put(CommonUtils.OA_RESOURCELIST, existingResources);
         	  }else{
@@ -337,5 +358,87 @@ public class AnnotationSearchServiceImpl {
 	
 	
     }
+    
+    
+    
+    private String[] getCachedAnnotations(String query, String queryString, boolean isW3c,String page){
+	
+	String pageTest = "";
+	int pageNumber = 1;
+	Cache cache;
+	if(isW3c){
+	    cache = cacheManager.getCache("w3cAnnotationSearchPagingCache");
+	}else{
+	    cache  = cacheManager.getCache("oaAnnotationSearchPagingCache");
+	}
+	String[] emptyArray = new String[0];
+	 
+	if ("1".equals(page) || null == page) {
+	    pageTest = "";
+	} else {
+	    pageTest = page;
+	    pageNumber = Integer.parseInt(page);
+	}
+	String queryWithNoPageParamter = annotationUtils.removeParametersAutocompleteQuery(queryString,
+		new String[] { "page" });
+	String queryWithAmendedPageParamter = queryWithNoPageParamter + pageTest;
+	String queryWithPageParamter = "";
+	Cache.ValueWrapper obj = cache.get(queryWithAmendedPageParamter);
+	
+	if (null != obj) {
+	    String[] annoArray = (String[]) obj.get();
+	    return annoArray;
+	} else {
+	    if (pageNumber > 1) {
+		Cache.ValueWrapper firstObj = cache.get(queryWithNoPageParamter);
+		LOG.info("getting "+queryWithNoPageParamter + "from the cache");
+		if (null == firstObj) {
+		    String[] firstAnnoArray = getAnnotationsPage(query, null, null, null, queryWithNoPageParamter, isW3c, page);
+		    if (null != firstAnnoArray) {
+			cache.put(queryWithNoPageParamter, firstAnnoArray);
+			firstObj = cache.get(queryWithNoPageParamter);
+		    }
+		}
+		if (null != firstObj) {
+		    String[] firstAnnoArray = (String[]) firstObj.get();
+	
+		    //int[] totalElements = annotationUtils.tallyPagingParameters(textMap, isW3c, 0, 0);
+
+		    for (int y = 1; y < pageNumber; y++) {
+			String thisPage = Integer.toString(y + 1);
+			String[] otherAnnoArrays = getAnnotationsPage(query, null, null, null, queryWithNoPageParamter, isW3c, thisPage);
+			if (null != otherAnnoArrays) {
+			   // totalElements = annotationUtils.tallyPagingParameters(otherTextMaps, isW3c, totalElements[0],
+			//	    totalElements[1]);
+			    queryWithPageParamter = queryWithNoPageParamter + (y + 1);
+			    cache.put(queryWithPageParamter, annotationUtils);
+			} else {
+			    LOG.error("Error with the cache ");
+			}
+		    }
+		    obj = cache.get(queryWithAmendedPageParamter);
+		    if (null != obj) {
+			String[] requestedAnnoArray = (String[]) obj.get();
+			return requestedAnnoArray;
+		    }
+		}else{
+		    LOG.error("Error with the cache - cannot create the first non paged search results");
+		}
+
+	    } else {
+		String[] annoArrays = getAnnotationsPage(query, null, null, null, queryString, isW3c, page);
+		
+		if (null != annoArrays) {
+		    cache.put(queryString, annoArrays);
+		    return annoArrays;
+		} else {
+		    return emptyArray;
+		}
+	    }
+	}
+	
+	return emptyArray;
+    }
+    
  
 }

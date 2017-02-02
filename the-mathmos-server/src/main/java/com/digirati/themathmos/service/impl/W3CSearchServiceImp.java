@@ -2,8 +2,7 @@ package com.digirati.themathmos.service.impl;
 
 
 
-import java.util.LinkedHashMap;
-import java.util.List;
+
 import java.util.Map;
 
 import org.apache.log4j.Logger;
@@ -17,8 +16,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.digirati.themathmos.model.ServiceResponse;
 import com.digirati.themathmos.model.ServiceResponse.Status;
-import com.digirati.themathmos.model.annotation.page.PageParameters;
-import com.digirati.themathmos.model.annotation.w3c.W3CAnnotation;
 import com.digirati.themathmos.service.TextSearchService;
 import com.digirati.themathmos.service.W3CSearchService;
 
@@ -31,14 +28,10 @@ public class W3CSearchServiceImp extends AnnotationSearchServiceImpl implements 
  
     public static final String W3C_SERVICE_NAME = "w3cSearchServiceImpl";
        
-    private CacheManager cacheManagerMixed;
-    
-    //private TextSearchService textSearchService;
     
     @Autowired
-    public W3CSearchServiceImp(AnnotationUtils annotationUtils,ElasticsearchTemplate template,TextSearchService textSearchService,  CacheManager cacheManager ) {
-	super(annotationUtils, template, textSearchService);
-	this.cacheManagerMixed = cacheManager;
+    public W3CSearchServiceImp(AnnotationUtils annotationUtils,ElasticsearchTemplate template,TextSearchService textSearchService, CacheManager cacheManager ) {
+	super(annotationUtils, template, textSearchService, cacheManager);
     }
     
    
@@ -52,7 +45,7 @@ public class W3CSearchServiceImp extends AnnotationSearchServiceImpl implements 
 
 	String pageTest = "";
 	int pageNumber = 1;
-	Cache mixedCache = cacheManagerMixed.getCache("mixedSearchCache");
+	Cache mixedCache = cacheManager.getCache("mixedSearchCache");
 	if ("1".equals(page) || null == page) {
 	    pageTest = "";
 	}else{
@@ -73,7 +66,7 @@ public class W3CSearchServiceImp extends AnnotationSearchServiceImpl implements 
 	    if(pageNumber > 1){
 		Cache.ValueWrapper firstObj = mixedCache.get(queryWithNoPageParamter);
 		if(null == firstObj){
-		    Map<String, Object> firstTextMap = getMap(query,queryString,true, page, true); 
+		    Map<String, Object> firstTextMap = this.getMap(query,queryString,true, null, true); 
 		    if(null != firstTextMap){
 			mixedCache.put(queryWithNoPageParamter, firstTextMap);
 			firstObj = mixedCache.get(queryWithNoPageParamter);
@@ -82,11 +75,11 @@ public class W3CSearchServiceImp extends AnnotationSearchServiceImpl implements 
 		if(null != firstObj){
 		    Map<String, Object> firstTextMap = (Map)firstObj.get();
 			int[] totalElements = annotationUtils.tallyPagingParameters(firstTextMap,true, 0, 0);
-			for(int y = 1; y < pageNumber; y++){
-			    Map<String, Object> textMap = getMap(query, queryString, true, page,true);		    
+			for(int y = 2; y <= pageNumber; y++){
+			    Map<String, Object> textMap = this.getMap(query, queryString, true, Integer.toString(y),true);		    
 			    if(null != textMap){
 				totalElements = annotationUtils.tallyPagingParameters(textMap,true, totalElements[0], totalElements[1]);
-				queryWithPageParamter = queryWithNoPageParamter + (y + 1);
+				queryWithPageParamter = queryWithNoPageParamter + (y);
 				mixedCache.put(queryWithPageParamter, textMap);
 			    }else{
 				LOG.error("Error with the cache ");
@@ -99,7 +92,7 @@ public class W3CSearchServiceImp extends AnnotationSearchServiceImpl implements 
 			}
 		}				
 	    }else{
-		textAnnoMap = getMap(query,queryString,true, page, true); 
+		textAnnoMap = this.getMap(query,queryString,true, page, true); 
 		if(null != textAnnoMap){
 		    mixedCache.put(queryWithNoPageParamter, textAnnoMap);
 		    LOG.info(mixedCache.get(queryWithNoPageParamter).get().toString());

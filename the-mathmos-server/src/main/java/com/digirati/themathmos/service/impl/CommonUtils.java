@@ -47,12 +47,28 @@ public class CommonUtils {
 	List resources;
 	if (isW3c) {
 	    Map map = (LinkedHashMap) root.get(FULL_HAS_ANNOTATIONS);
+	    if(null == map){
+		return null;
+	    }
 	    resources = (List) map.get(W3C_RESOURCELIST);
 	} else {
 	    resources = (List) root.get(OA_RESOURCELIST);
 	}
 	return resources;
     }
+    
+    protected void removeResources(Map<String, Object> root, boolean isW3c) {
+   	List resources;
+   	if (isW3c) {
+   	    Map map = (LinkedHashMap) root.get(FULL_HAS_ANNOTATIONS);
+   	    resources = (List) map.get(W3C_RESOURCELIST);
+   	    root.remove(FULL_HAS_ANNOTATIONS);
+   	} else {
+   	    resources = (List) root.get(OA_RESOURCELIST);
+   	    root.remove(OA_RESOURCELIST);
+   	}
+   	
+       }
 
     protected void setResources(Map<String, Object> root, boolean isW3c) {
 	List resources = new ArrayList();
@@ -325,22 +341,26 @@ public class CommonUtils {
 	
    	List resources = getResources(root, isW3c);
    	
-   	int resourcesSize = resources.size();
+   	int resourcesSize = 0;
+   	if(null != resources){
+   	    resourcesSize = resources.size();
+   	}
+  
    	LOG.info("resourcesSize in tallyPagingParameters " + resourcesSize);
    	int[] returnArray = new int[2];
    	int newElementsforPage = resourcesSize;
    	
    	returnArray[1]  = startIndex + resourcesSize; 
-   	totalElements += newElementsforPage;
-   	returnArray[0] = totalElements;
+   	int totalElementsTally = totalElements += newElementsforPage;
+   	returnArray[0] = totalElementsTally;
    	Map map ;
-   	String total;
+  
    	if(isW3c){
    	    map = (LinkedHashMap) root.get("dcterms:isPartOf"); 
-   	    map.put("as:totalItems", Integer.toString(totalElements));
+   	    map.put("as:totalItems", Integer.toString(totalElementsTally));
    	}else{
    	    map = (LinkedHashMap) root.get("within");
-   	    map.put("total", Integer.toString(totalElements));
+   	    map.put("total", Integer.toString(totalElementsTally));
    	}
    	
    	if (isW3c) {

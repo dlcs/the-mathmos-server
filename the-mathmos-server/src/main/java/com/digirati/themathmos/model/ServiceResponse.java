@@ -14,7 +14,7 @@ public class ServiceResponse<T> implements Serializable{
     }
 
     private final Status status;
-    private final T obj;
+    private final transient T obj;
 
     public ServiceResponse(Status status, T obj) {
         this.status = status;

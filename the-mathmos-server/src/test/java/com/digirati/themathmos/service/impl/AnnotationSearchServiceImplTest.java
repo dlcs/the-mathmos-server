@@ -13,6 +13,7 @@ import org.elasticsearch.search.SearchHits;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.springframework.cache.CacheManager;
 import org.springframework.data.elasticsearch.core.ElasticsearchTemplate;
 
 import com.digirati.themathmos.service.TextSearchService;
@@ -30,6 +31,8 @@ public class AnnotationSearchServiceImplTest {
     Client client;
     
     private TextSearchService textSearchService;
+    
+    private CacheManager cacheManager;
 
     protected AnnotationUtils annotationUtils;
     @BeforeClass
@@ -44,7 +47,8 @@ public class AnnotationSearchServiceImplTest {
 	client = mock(Client.class);
 	when(template.getClient()).thenReturn(client);
 	textSearchService = mock(TextSearchService.class);
-	annotationSearchServiceImpl = new AnnotationSearchServiceImpl(annotationUtils,template, textSearchService);
+	cacheManager = mock(CacheManager.class);
+	annotationSearchServiceImpl = new AnnotationSearchServiceImpl(annotationUtils,template, textSearchService, cacheManager);
     }
 
 

@@ -9,6 +9,7 @@ import org.elasticsearch.client.Client;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.springframework.cache.CacheManager;
 import org.springframework.data.elasticsearch.core.ElasticsearchTemplate;
 
 import com.digirati.themathmos.model.ServiceResponse;
@@ -24,6 +25,7 @@ public class OAAnnotationSearchServiceImplTest {
     Client client;
     SearchQueryUtils searchQueryUtils;
     private TextSearchService textSearchService;
+    private CacheManager cacheManager;
 
     @BeforeClass
     public static void setUpBeforeClass() throws Exception {
@@ -37,7 +39,8 @@ public class OAAnnotationSearchServiceImplTest {
 	client = mock(Client.class);
 	when(template.getClient()).thenReturn(client);
 	textSearchService = mock(TextSearchService.class);
-	impl = new OAAnnotationSearchServiceImpl(annotationUtils, template, textSearchService);
+	cacheManager = mock(CacheManager.class);
+	impl = new OAAnnotationSearchServiceImpl(annotationUtils, template, textSearchService, cacheManager);
     }
 
     @Test

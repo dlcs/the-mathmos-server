@@ -248,9 +248,10 @@ public class AnnotationUtils extends CommonUtils{
 
 	List resources = getResources(root, isW3c);
    	
-   	int resourcesSize = resources.size();
-   	LOG.info("resourcesSize in getPageParams" + resourcesSize);
-
+	if(null != resources){
+	    LOG.info("resourcesSize in getPageParams" + resources.size());
+	}
+   	
 	String startIndex = "" ;
 	int[] pageParams = new int[2];
 	if(isW3c){

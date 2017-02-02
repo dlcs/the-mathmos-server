@@ -98,9 +98,10 @@ public class TextSearchServiceImpl implements TextSearchService {
     }
 
 
-    @Override 
+    @Override
     @Transactional(readOnly = true, isolation = Isolation.SERIALIZABLE)
-    public ServiceResponse<Map<String, Object>> getTextPositions(String query, String queryString, boolean isW3c, String page, boolean isMixedSearch) {
+    public ServiceResponse<Map<String, Object>> getTextPositions(String query, String queryString, boolean isW3c,
+	    String page, boolean isMixedSearch) {
 
 	totalHits = 0;
 	String pageTest = "";
@@ -108,64 +109,81 @@ public class TextSearchServiceImpl implements TextSearchService {
 	Cache cache = cacheManager.getCache("textSearchCache");
 	if ("1".equals(page) || null == page) {
 	    pageTest = "";
-	}else{
-	    pageTest = page; 
+	} else {
+	    pageTest = page;
 	    pageNumber = Integer.parseInt(page);
 	}
-	String queryWithNoPageParamter = textUtils.removeParametersAutocompleteQuery(queryString,new String[]{"page"});
+	String queryWithNoPageParamter = textUtils.removeParametersAutocompleteQuery(queryString,
+		new String[] { "page" });
 	String queryWithAmendedPageParamter = queryWithNoPageParamter + pageTest;
 	String queryWithPageParamter = "";
+	// Call to get query from cache treat no page parameter as 1 page parameter as they are the same call.
 	Cache.ValueWrapper obj = cache.get(queryWithAmendedPageParamter);
-	
-	
-	if(null != obj){	    
-	    Map<String, Object> textMap = (Map)obj.get();
+
+	if (null != obj) {
+	    Map<String, Object> textMap = (Map) obj.get();
 	    return new ServiceResponse<>(Status.OK, textMap);
-	}else{	
-	    if(pageNumber > 1){
+	} else {
+	    if (pageNumber > 1) {
+		//Cache or create and cache the first page 
 		Cache.ValueWrapper firstObj = cache.get(queryWithNoPageParamter);
-		
-		if(null == firstObj){
-		    Map<String, Object> firstTextMap = getTextMap(query, queryString, isW3c, null,isMixedSearch); 
-		    if(null != firstTextMap){
+		LOG.info("getting "+queryWithNoPageParamter + "from the cache");
+		boolean isInitialSearch = false;
+		if (null == firstObj) {
+		    Map<String, Object> firstTextMap = getTextMap(query, queryWithNoPageParamter, isW3c, null, isMixedSearch);
+		    if (null != firstTextMap) {
 			cache.put(queryWithNoPageParamter, firstTextMap);
 			firstObj = cache.get(queryWithNoPageParamter);
+			isInitialSearch = true;
 		    }
 		}
-		Map<String, Object> textMap = (Map)firstObj.get();
-		int[] totalElements = textUtils.tallyPagingParameters(textMap,isW3c, 0, 0);
-		
-		for(int y = 1; y < pageNumber; y++){
-		    Map<String, Object> otherTextMaps = getTextMap(query, queryString, isW3c, page,isMixedSearch);		    
-		    if(null != otherTextMaps){
-			totalElements = textUtils.tallyPagingParameters(otherTextMaps,isW3c, totalElements[0], totalElements[1]);
-			queryWithPageParamter = queryWithNoPageParamter + (y + 1);
-			cache.put(queryWithPageParamter, otherTextMaps);
-		    }else{
-			LOG.error("Error with the cache ");
+		//We should now have the first page, so pull back the total elements and start index
+		if (null != firstObj) {
+		    Map<String, Object> textMap = (Map) firstObj.get();
+		    int[] totalElements = textUtils.tallyPagingParameters(textMap, isW3c, 0, 0);
+		    // iterate through the pages getting back 
+		    for (int y = 2; y <= pageNumber; y++) {
+			LOG.info("GOINGTHROUGH THE LOOpP");
+			Map<String, Object> otherTextMaps = getTextMap(query, queryString, isW3c, Integer.toString(y), isMixedSearch);
+			if (null != otherTextMaps) {
+			    totalElements = textUtils.tallyPagingParameters(otherTextMaps, isW3c, totalElements[0],
+				    totalElements[1]);
+			    queryWithPageParamter = queryWithNoPageParamter + (y);
+			    cache.put(queryWithPageParamter, otherTextMaps);
+			} else {
+			    LOG.error("No results for page "+ y + " need to get back map with no resources plus numbers ");
+			    if(isInitialSearch){
+				//totalElements = textUtils.tallyPagingParameters(textMap, isW3c, totalElements[0],
+				//    totalElements[1]);
+			    	textUtils.removeResources(textMap, isW3c);
+			    	queryWithPageParamter = queryWithNoPageParamter + (y);
+			    	cache.put(queryWithPageParamter, textMap);
+			    	return new ServiceResponse<>(Status.OK, textMap);
+			    }			    
+			}
 		    }
+		    obj = cache.get(queryWithAmendedPageParamter);
+		    if (null != obj) {
+			Map<String, Object> requestedTextMap = (Map) obj.get();
+			return new ServiceResponse<>(Status.OK, requestedTextMap);
+		    }
+		}else{
+		    LOG.error("Error with the cache - cannot create the first non paged search results");
 		}
-		obj = cache.get(queryWithAmendedPageParamter);
-		if(null != obj){	    
-		    Map<String, Object> requestedTextMap = (Map)obj.get();
-		    return new ServiceResponse<>(Status.OK, requestedTextMap);
-		}
-		
-	    }else{
-		Map<String, Object> textMap = getTextMap(query, queryString, isW3c, page,isMixedSearch);
-		if(null != textMap){
+
+	    } else {
+		Map<String, Object> textMap = getTextMap(query, queryString, isW3c, page, isMixedSearch);
+		if (null != textMap) {
 		    cache.put(queryWithNoPageParamter, textMap);
 		    return new ServiceResponse<>(Status.OK, textMap);
-		}else{
+		} else {
 		    return new ServiceResponse<>(Status.NOT_FOUND, null);
 		}
-	    } 
-	}	
+	    }
+	}
 	return new ServiceResponse<>(Status.NOT_FOUND, null);
 
     }
-    
-    
     
     
     private Map<String, Object> getTextMap(String query, String queryString, boolean isW3c, String page, boolean isMixedSearch) {

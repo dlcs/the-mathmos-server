@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.elasticsearch.core.ElasticsearchTemplate;
 import org.springframework.stereotype.Service;
@@ -30,8 +31,8 @@ public class W3CAnnotationSearchServiceImpl extends AnnotationSearchServiceImpl 
     
     
     @Autowired
-    public W3CAnnotationSearchServiceImpl(AnnotationUtils annotationUtils,ElasticsearchTemplate template,  TextSearchService textSearchService) {
-   	super(annotationUtils, template, textSearchService);
+    public W3CAnnotationSearchServiceImpl(AnnotationUtils annotationUtils,ElasticsearchTemplate template,  TextSearchService textSearchService, CacheManager cacheManager) {
+   	super(annotationUtils, template, textSearchService, cacheManager);
        }
     
     

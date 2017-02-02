@@ -11,14 +11,9 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang.RandomStringUtils;
-import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.Cache;
-import org.springframework.cache.CacheManager;
 import org.springframework.stereotype.Service;
 
-import com.digirati.themathmos.AnnotationSearchConstants;
 import com.digirati.themathmos.model.Positions;
 import com.digirati.themathmos.model.TermOffsetStart;
 import com.digirati.themathmos.model.TermOffsetsWithPosition;
@@ -27,7 +22,6 @@ import com.digirati.themathmos.model.annotation.page.PageParameters;
 import com.google.gson.Gson;
 import com.google.gson.internal.LinkedTreeMap;
 
-import net.sf.ehcache.Element;
 
 
 
