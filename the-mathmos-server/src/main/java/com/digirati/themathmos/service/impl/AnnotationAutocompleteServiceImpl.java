@@ -125,10 +125,6 @@ public class AnnotationAutocompleteServiceImpl implements AnnotationAutocomplete
        return options;
     }
     
-    public void testForEmptyParams(String query, String motivation, String date, String user) throws SearchQueryException{
-   	if(StringUtils.isEmpty(query) && StringUtils.isEmpty(motivation) && StringUtils.isEmpty(date) && StringUtils.isEmpty(user)){
-   	    throw new SearchQueryException("Please enter either a query, moitvation, date or user to search ");	    
-   	}
-    }
+   
 
 }

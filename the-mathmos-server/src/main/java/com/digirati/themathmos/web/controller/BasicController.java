@@ -4,19 +4,10 @@ import javax.servlet.http.HttpServletRequest;
 
 
 
-import org.springframework.web.bind.annotation.RestController;
-
-
-
-
-
-
-
-@RestController(BasicController.CONTROLLER_NAME)
 public class BasicController {
     
     
-    public static final String CONTROLLER_NAME = "basicController";
+ 
     
 
     protected String createQueryString(HttpServletRequest request){

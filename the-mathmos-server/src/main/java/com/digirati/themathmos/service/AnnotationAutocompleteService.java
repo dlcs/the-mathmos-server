@@ -14,8 +14,6 @@ public interface AnnotationAutocompleteService {
     
     public ServiceResponse<Map<String, Object>> getTerms(String query, String min, String queryString, boolean isW3c);
     
-    public ServiceResponse<Map<String, Object>> getMixedTerms(String query, String min, String queryString, boolean isW3c);
-    
-    public  void testForEmptyParams(String query, String motivation, String date, String user);
+    public ServiceResponse<Map<String, Object>> getMixedTerms(String query, String min, String queryString, boolean isW3c);  
 
 }
