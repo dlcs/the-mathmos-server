@@ -32,7 +32,7 @@ public class TextUtils extends CommonUtils {
   
    
     
-    private final static Logger LOG = Logger.getLogger(TextUtils.class);
+    private static final Logger LOG = Logger.getLogger(TextUtils.class);
    
     public static final String SERVICE_NAME = "TextUtils";  
     
@@ -163,16 +163,17 @@ public class TextUtils extends CommonUtils {
 			    int end = positionList.get(count).getEndPosition();
 			    beforeAfter = this.getHighlights(start, end, BEFORE_AFTER_WORDS, sourcePositionMap);
 
-			    String queryForResource = "";
+			    StringBuilder queryForResource = new StringBuilder();
 
 			    int countInt = Integer.parseInt(termCount);
 			    if(queryArrayLength > countInt){
 				if(queryCount == 0){
 				   for(int r= 0; r <countInt;r++){
-				       queryForResource += queryArray[r] + " "; 
+				       queryForResource.append(queryArray[r] + " "); 
 				   }
-				   queryForResource = queryForResource.substring(0,queryForResource.length()-1);
-				   xywhMap.put(xywh, queryForResource);
+				   
+				   //queryForResource = queryForResource.substring(0,queryForResource.length()-1);
+				   xywhMap.put(xywh, queryForResource.substring(0, queryForResource.length()-1));
 				}else{
 				    Collection<String> stringList = xywhMap.values();
 				    int countOfElements = 0;
@@ -182,10 +183,10 @@ public class TextUtils extends CommonUtils {
 					countOfElements += valueArray.length;
 				    }
 				    for(int r= countOfElements; r<countInt+countOfElements;r++){
-					 queryForResource += queryArray[r] + " "; 
+					queryForResource.append(queryArray[r] + " "); 
 				    }
-				    queryForResource = queryForResource.substring(0,queryForResource.length()-1);
-				    xywhMap.put(xywh, queryForResource);
+				    //queryForResource = queryForResource.substring(0,queryForResource.length()-1);
+				    xywhMap.put(xywh, queryForResource.substring(0, queryForResource.length()-1));
 				}
 				queryCount++;
 			    }else{
@@ -198,7 +199,7 @@ public class TextUtils extends CommonUtils {
 			Map<String, Object> hitMap = new LinkedHashMap<>();
 			if(xywhMap.size() == 1){
 			    List<String> annotationsList = new ArrayList<>();
-			    annotationsList.add(annoURLMap.get(xywh.toString()));
+			    annotationsList.add(annoURLMap.get(xywh));
 			    
 			    setHits(isW3c, hitMap, annotationsList, query, beforeAfter);
 			    resources.add(createResource(id, query, isW3c, xywh,annoURLMap.get(xywh))); 
@@ -226,14 +227,14 @@ public class TextUtils extends CommonUtils {
 	
 	if(TextSearchServiceImpl.DEFAULT_TEXT_PAGING_NUMBER > resources.size()&& !isMixedSearch){
 	    if (isW3c) {
-		root.remove("dcterms:isPartOf");
-		root.remove("as:startIndex");
+		root.remove(W3C_WITHIN_IS_PART_OF);
+		root.remove(W3C_STARTINDEX);
 	    }else{
-		root.remove("within");
-		root.remove("startIndex");
+		root.remove(OA_WITHIN);
+		root.remove(OA_STARTINDEX);
 	    }
-	    root.remove("next");
-	    root.remove("prev");
+	    root.remove(NEXT);
+	    root.remove(PREV);
 	}
 	
 	

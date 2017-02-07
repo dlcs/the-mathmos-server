@@ -19,7 +19,6 @@ import org.elasticsearch.index.query.MultiMatchQueryBuilder.Type;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -32,7 +31,6 @@ import com.digirati.themathmos.exception.SearchQueryException;
 import com.digirati.themathmos.mapper.W3CSearchAnnotationMapper;
 import com.digirati.themathmos.model.ServiceResponse;
 import com.digirati.themathmos.model.W3CSearchAnnotation;
-import com.digirati.themathmos.model.ServiceResponse.Status;
 import com.digirati.themathmos.model.annotation.page.PageParameters;
 import com.digirati.themathmos.model.annotation.w3c.W3CAnnotation;
 import com.digirati.themathmos.service.TextSearchService;
@@ -40,7 +38,7 @@ import com.digirati.themathmos.service.TextSearchService;
 @Service(AnnotationSearchServiceImpl.SERVICE_NAME)
 public class AnnotationSearchServiceImpl {
 
-    private final static Logger LOG = Logger.getLogger(AnnotationSearchServiceImpl.class);
+    private static final Logger LOG = Logger.getLogger(AnnotationSearchServiceImpl.class);
 
     public static final String SERVICE_NAME = "annotationSearchServiceImpl";
     SimpleDateFormat formatter = new SimpleDateFormat("YYYY-MM-DD'T'hh:mm:ssZ");
@@ -54,7 +52,7 @@ public class AnnotationSearchServiceImpl {
     
     protected CacheManager cacheManager;
     
-    protected static final int DEFAULT_PAGING_NUMBER = AnnotationSearchConstants.DEFAULT_PAGING_NUMBER;;
+    protected static final int DEFAULT_PAGING_NUMBER = AnnotationSearchConstants.DEFAULT_PAGING_NUMBER;
     private static final int DEFAULT_STARTING_PAGING_NUMBER = 0;
         
     private long totalHits = 0;  
@@ -64,6 +62,13 @@ public class AnnotationSearchServiceImpl {
     
 
     @Autowired
+    /**
+     * 
+     * @param annotationUtils {@code AnnotationUtils} helper for annotations
+     * @param template {@code ElasticsearchTemplate} what we use to get the elasticsearch client
+     * @param textSearchService {@code TextSearchService} our text search service
+     * @param cacheManager {@code CacheManager} our cache manager
+     */
     public AnnotationSearchServiceImpl(AnnotationUtils annotationUtils, ElasticsearchTemplate template,TextSearchService textSearchService, CacheManager cacheManager) {
 	this.annotationUtils = annotationUtils;
 	this.client = template.getClient();
@@ -80,7 +85,17 @@ public class AnnotationSearchServiceImpl {
 	return totalHits;
     }
     
-   
+   /**
+    * Method to get annotation page form elasticsearch
+    * @param query {@code String} e.g. q=test
+    * @param motivation {@code String} e.g. motivation=tagging
+    * @param date {@code String} e.g. date=date in format (YYYY-MM-DD'T'hh:mm:ssZ)
+    * @param user {@code String} e.g. user=sarah
+    * @param queryString {@code String} e.g/ http://www.examples.com/search/search/oa?q=test
+    * @param isW3c {@code boolean} true if w3c annotation and false if oa
+    * @param page {@code String} page parameter e.g. page=2
+    * @return {@code String[]} containing either the w3c or oa annotations
+    */
     public String[] getAnnotationsPage(String query, String motivation, String date, String user, String queryString,
 	    boolean isW3c, String page)  {
 	
@@ -148,8 +163,7 @@ public class AnnotationSearchServiceImpl {
        }
 
    private QueryBuilder buildDateRangeQuery(String field,String from, String to){
-       QueryBuilder dateRange = QueryBuilders.rangeQuery(field).from(from).to(to).includeLower(true).includeUpper(true);
-       return dateRange;
+       return QueryBuilders.rangeQuery(field).from(from).to(to).includeLower(true).includeUpper(true);
    }
    
    private List<QueryBuilder> buildDateRangeQuery(String field, String allRanges) {
@@ -211,12 +225,12 @@ public class AnnotationSearchServiceImpl {
     			"You have a motivation that is a non-<motivation>, there can only be one motivation in this instance."); 
 		}else{		  
 		    String tidyMotivations = motivations.replaceAll("non-", "");
-		    queryList.add(QueryBuilders.existsQuery("motivations"));		    
-		    must = must.mustNot(QueryBuilders.queryStringQuery(tidyMotivations).field("motivations"));
+		    queryList.add(QueryBuilders.existsQuery(AnnotationSearchConstants.FIELD_MOTIVATIONS));		    
+		    must = must.mustNot(QueryBuilders.queryStringQuery(tidyMotivations).field(AnnotationSearchConstants.FIELD_MOTIVATIONS));
    
 		}
 	    }else{
-		queryList.add(QueryBuilders.queryStringQuery(motivations).field("motivations"));
+		queryList.add(QueryBuilders.queryStringQuery(motivations).field(AnnotationSearchConstants.FIELD_MOTIVATIONS));
 	    }
 	}
 
@@ -277,7 +291,7 @@ public class AnnotationSearchServiceImpl {
 	}
 	
 	if(null != textAnnoMap && null != textAnnoMap.getObj()){
-	    Map<String, Object> testingRoot = (Map)textAnnoMap.getObj();
+	    Map<String, Object> testingRoot = textAnnoMap.getObj();
 	    if(null != annotationUtils.getResources(testingRoot, isW3c)){
 		annotationUtils.amendPagingParameters(textAnnoMap.getObj(), textPagingParamters, isW3c);
 	    }else{
@@ -302,8 +316,8 @@ public class AnnotationSearchServiceImpl {
     
     
     private Map<String, Object> createResources(boolean isPageable,boolean isW3c,String queryString, ServiceResponse<Map<String, Object>> textAnnoMap, Map<String, Object> annoMap, PageParameters textPagingParamters){
-	Map<String, Object> root = createHead(isPageable,queryString, isW3c, textPagingParamters);
 	
+	Map<String, Object> root = createHead(isPageable,queryString, isW3c, textPagingParamters);
 	
 	if(null != textAnnoMap && null != textAnnoMap.getObj()){
 	    

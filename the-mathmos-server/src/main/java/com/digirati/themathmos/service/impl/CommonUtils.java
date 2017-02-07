@@ -42,6 +42,21 @@ public class CommonUtils {
 
     protected static final String ROOT_ID = "@id";
     protected static final String ROOT_TYPE = "@type";
+    
+    protected static final String W3C_WITHIN_TYPE = "type";
+    protected static final String W3C_WITHIN_IS_PART_OF = "dcterms:isPartOf";
+    protected static final String W3C_WITHIN_AS_TOTALITEMS = "as:totalItems";
+    
+    protected static final String FIRST = "first";
+    protected static final String LAST = "last";
+    protected static final String NEXT = "next";
+    protected static final String PREV = "prev";
+    
+    protected static final String OA_WITHIN_TOTAL = "total";
+    protected static final String OA_WITHIN = "within";
+    
+    protected static final String W3C_STARTINDEX =  "as:startIndex";
+    protected static final String OA_STARTINDEX =  "startIndex";
 
     protected List getResources(Map<String, Object> root, boolean isW3c) {
 	List resources;
@@ -138,30 +153,30 @@ public class CommonUtils {
 
 	Map withinMap = new LinkedHashMap();
 	if (isW3c) {
-	    withinMap.put("type", FULL_LAYER);
-	    withinMap.put("as:totalItems", total);
-	    withinMap.put("first", first);
-	    withinMap.put("last", last);
-	    root.put("dcterms:isPartOf", withinMap);
+	    withinMap.put(W3C_WITHIN_TYPE, FULL_LAYER);
+	    withinMap.put(W3C_WITHIN_AS_TOTALITEMS, total);
+	    withinMap.put(FIRST, first);
+	    withinMap.put(LAST, last);
+	    root.put(W3C_WITHIN_IS_PART_OF, withinMap);
 	} else {
 	    
 	    withinMap.put(ROOT_TYPE, "sc:Layer");
-	    withinMap.put("total", total);
-	    withinMap.put("first", first);
-	    withinMap.put("last", last);
-	    root.put("within", withinMap);
+	    withinMap.put(OA_WITHIN_TOTAL, total);
+	    withinMap.put(FIRST, first);
+	    withinMap.put(LAST, last);
+	    root.put(OA_WITHIN, withinMap);
 	}
 
 	if (null != next) {
-	    root.put("next", next);
+	    root.put(NEXT, next);
 	}
 	if (null != previous) {
-	    root.put("prev", previous);
+	    root.put(PREV, previous);
 	}
 	if (isW3c) {
-	    root.put("as:startIndex", startIndex);
+	    root.put(W3C_STARTINDEX, startIndex);
 	} else {
-	    root.put("startIndex", startIndex);
+	    root.put(OA_STARTINDEX, startIndex);
 	}
 
 	setResources(root, isW3c);
@@ -320,14 +335,14 @@ public class CommonUtils {
 	Map map;
 	
 	if(isW3c){
-	    map = (LinkedHashMap) root.get("dcterms:isPartOf"); 
+	    map = (LinkedHashMap) root.get(W3C_WITHIN_IS_PART_OF); 
 	    if(null != map){
-		map.put("as:totalItems", Integer.toString(resourcesSize));
+		map.put(W3C_WITHIN_AS_TOTALITEMS, Integer.toString(resourcesSize));
 	    }
 	}else{
-	    map = (LinkedHashMap) root.get("within");
+	    map = (LinkedHashMap) root.get(OA_WITHIN);
 	    if(null != map){
-		map.put("total", Integer.toString(resourcesSize));
+		map.put(OA_WITHIN_TOTAL, Integer.toString(resourcesSize));
 	    }
 	}
 	
@@ -337,11 +352,11 @@ public class CommonUtils {
 	Map map ;
 	  
    	if(isW3c){
-   	    map = (LinkedHashMap) root.get("dcterms:isPartOf"); 
-   	    map.put("as:totalItems", Integer.toString(total));
+   	    map = (LinkedHashMap) root.get(W3C_WITHIN_IS_PART_OF); 
+   	    map.put(W3C_WITHIN_AS_TOTALITEMS, Integer.toString(total));
    	}else{
-   	    map = (LinkedHashMap) root.get("within");
-   	    map.put("total", Integer.toString(total));
+   	    map = (LinkedHashMap) root.get(OA_WITHIN);
+   	    map.put(OA_WITHIN_TOTAL, Integer.toString(total));
    	}
 	
     }
@@ -365,17 +380,17 @@ public class CommonUtils {
    	Map map ;
   
    	if(isW3c){
-   	    map = (LinkedHashMap) root.get("dcterms:isPartOf"); 
-   	    map.put("as:totalItems", Integer.toString(totalElementsTally));
+   	    map = (LinkedHashMap) root.get(W3C_WITHIN_IS_PART_OF); 
+   	    map.put(W3C_WITHIN_AS_TOTALITEMS, Integer.toString(totalElementsTally));
    	}else{
-   	    map = (LinkedHashMap) root.get("within");
-   	    map.put("total", Integer.toString(totalElementsTally));
+   	    map = (LinkedHashMap) root.get(OA_WITHIN);
+   	    map.put(OA_WITHIN_TOTAL, Integer.toString(totalElementsTally));
    	}
    	
    	if (isW3c) {
-	    root.put("as:startIndex", Integer.toString(startIndex));
+	    root.put(W3C_STARTINDEX, Integer.toString(startIndex));
 	} else {
-	    root.put("startIndex", Integer.toString(startIndex));
+	    root.put(OA_STARTINDEX, Integer.toString(startIndex));
 	}
    	
    	return returnArray;

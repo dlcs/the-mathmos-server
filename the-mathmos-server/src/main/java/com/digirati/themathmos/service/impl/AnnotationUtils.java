@@ -255,18 +255,18 @@ public class AnnotationUtils extends CommonUtils{
 	String startIndex;
 	int[] pageParams = new int[2];
 	if(isW3c){
-   	    map = (LinkedHashMap) root.get("dcterms:isPartOf"); 
-   	    total = (String) map.get("as:totalItems");
+   	    map = (LinkedHashMap) root.get(W3C_WITHIN_IS_PART_OF); 
+   	    total = (String) map.get(W3C_WITHIN_AS_TOTALITEMS);
    	}else{
-   	    map = (LinkedHashMap) root.get("within");
-   	    total = (String) map.get("total");
+   	    map = (LinkedHashMap) root.get(OA_WITHIN);
+   	    total = (String) map.get(OA_WITHIN_TOTAL);
    	}
 	pageParams[0] =  Integer.parseInt(total);
    	
    	if (isW3c) {
-   	    startIndex = (String)root.get("as:startIndex");
+   	    startIndex = (String)root.get(W3C_STARTINDEX);
 	} else {
-	    startIndex = (String)root.get("startIndex");
+	    startIndex = (String)root.get(OA_STARTINDEX);
 	}
    	pageParams[1] = Integer.parseInt(startIndex); 
    		 
