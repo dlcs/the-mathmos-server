@@ -65,7 +65,7 @@ public class OASearchServiceImp extends AnnotationSearchServiceImpl implements O
 		Cache.ValueWrapper firstObj = mixedCache.get(queryWithNoPageParamter);
 		Map<String, Object> firstTextMap;
 		if(null == firstObj){
-		    firstTextMap = this.getMap(query,queryString,false, null, true); 
+		    firstTextMap = this.getMap(query,queryString,false, null); 
 		    if(null != firstTextMap){
 			mixedCache.put(queryWithNoPageParamter, firstTextMap);
 			firstObj = mixedCache.get(queryWithNoPageParamter);
@@ -76,7 +76,7 @@ public class OASearchServiceImp extends AnnotationSearchServiceImpl implements O
 		    int[] totalElementsForTally = annotationUtils.tallyPagingParameters(firstMap,false, 0, 0);
 		    LOG.info("totalElementsForTally 0:" + totalElementsForTally[0] + " 1:" + totalElementsForTally[1]);
 		    for(int y = 2; y <= pageNumber; y++){
-			Map<String, Object> textMap = this.getMap(query, queryString, false, Integer.toString(y),true);		    
+			Map<String, Object> textMap = this.getMap(query, queryString, false, Integer.toString(y));		    
 			if(null != textMap){
 			    totalElementsForTally = annotationUtils.tallyPagingParameters(textMap,false, totalElementsForTally[0], totalElementsForTally[1]);
 			    LOG.error("totalElementsForTally " +totalElementsForTally[0] + " and " + totalElementsForTally[1]);
@@ -96,7 +96,7 @@ public class OASearchServiceImp extends AnnotationSearchServiceImpl implements O
 		    }
 		}				
 	    }else{
-		textAnnoMap = this.getMap(query,queryString,false, page, true); 
+		textAnnoMap = this.getMap(query,queryString,false, page); 
 		if(null != textAnnoMap){
 		    mixedCache.put(queryWithNoPageParamter, textAnnoMap);
 		    LOG.info(mixedCache.get(queryWithNoPageParamter).get().toString());

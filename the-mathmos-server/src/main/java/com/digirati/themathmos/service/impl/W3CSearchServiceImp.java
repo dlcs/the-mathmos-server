@@ -61,7 +61,7 @@ public class W3CSearchServiceImp extends AnnotationSearchServiceImpl implements 
 	    if(pageNumber > 1){
 		Cache.ValueWrapper firstObj = mixedCache.get(noPageParamter);
 		if(null == firstObj){
-		    Map<String, Object> firstTextMap = this.getMap(query,queryString,true, null, true); 
+		    Map<String, Object> firstTextMap = this.getMap(query,queryString,true, null); 
 		    if(null != firstTextMap){
 			mixedCache.put(noPageParamter, firstTextMap);
 			firstObj = mixedCache.get(noPageParamter);
@@ -72,7 +72,7 @@ public class W3CSearchServiceImp extends AnnotationSearchServiceImpl implements 
 			int[] totalElements = annotationUtils.tallyPagingParameters(firstTextMap,true, 0, 0);
 			LOG.info("totalElements 0:" + totalElements[0] + " 1:" + totalElements[1]);
 			for(int y = 2; y <= pageNumber; y++){
-			    Map<String, Object> textMap = this.getMap(query, queryString, true, Integer.toString(y),true);		    
+			    Map<String, Object> textMap = this.getMap(query, queryString, true, Integer.toString(y));		    
 			    if(null != textMap){
 				totalElements = annotationUtils.tallyPagingParameters(textMap,true, totalElements[0], totalElements[1]);
 				String queryWithPageParamter = noPageParamter + (y);
@@ -91,7 +91,7 @@ public class W3CSearchServiceImp extends AnnotationSearchServiceImpl implements 
 			}
 		}				
 	    }else{
-		textAnnoMap = this.getMap(query,queryString,true, page, true); 
+		textAnnoMap = this.getMap(query,queryString,true, page); 
 		if(null != textAnnoMap){
 		    mixedCache.put(noPageParamter, textAnnoMap);
 		    LOG.info(mixedCache.get(noPageParamter).get().toString());

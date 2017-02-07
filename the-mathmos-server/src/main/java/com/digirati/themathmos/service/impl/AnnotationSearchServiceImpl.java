@@ -238,7 +238,7 @@ public class AnnotationSearchServiceImpl {
      }
     
    
-    protected Map<String, Object> getMap(String query, String queryString, boolean isW3c, String page, boolean isMixedSearch) {
+    protected Map<String, Object> getMap(String query, String queryString, boolean isW3c, String page) {
 	
 	String[] annoSearchArray  = this.getAnnotationsPage(query, null, null, null, queryString, isW3c, page);
 	
