@@ -27,7 +27,7 @@ import com.digirati.themathmos.service.W3CAnnotationSearchService;
 
 
 @RestController(W3CAnnotationSearchController.CONTROLLER_NAME)
-public class W3CAnnotationSearchController {
+public class W3CAnnotationSearchController extends BasicController {
     
     
     public static final String CONTROLLER_NAME = "w3cAnnotationSearchController";
@@ -57,10 +57,8 @@ public class W3CAnnotationSearchController {
 	    @RequestParam(value = AnnotationSearchConstants.PARAM_FIELD_USER, required = false) String user, 
 	    @RequestParam(value = AnnotationSearchConstants.PARAM_FIELD_PAGE, required = false) String page,
 	    HttpServletRequest request){
-	String queryString = request.getRequestURL().toString();
-	if(null != request.getQueryString()){
-	    queryString += "?"+ request.getQueryString();
-	}
+	String queryString = createQueryString(request);
+	
 	if(StringUtils.isEmpty(query) && StringUtils.isEmpty(motivation) && StringUtils.isEmpty(date) && StringUtils.isEmpty(user)){
 	    throw new SearchQueryException("Please enter either a query, moitvation, date or user to search ");
 	}
@@ -92,10 +90,8 @@ public class W3CAnnotationSearchController {
 	    @RequestParam(value = PARAM_MIN, required = false) String min, 
 	    HttpServletRequest request) {
 	
-	String queryString = request.getRequestURL().toString();
-	if(null != request.getQueryString()){
-	    queryString += "?"+ request.getQueryString();
-	}
+	String queryString = createQueryString(request);
+	
 	ServiceResponse<Map<String, Object>> serviceResponse = annotationAutocompleteService.getTerms(query, motivation, date, user, min, queryString, true);
 	
 	Status serviceResponseStatus = serviceResponse.getStatus();

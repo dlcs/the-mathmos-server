@@ -104,7 +104,7 @@ public class TextSearchServiceImpl implements TextSearchService {
 	    String page, boolean isMixedSearch) {
 
 	totalHits = 0;
-	String pageTest = "";
+	String pageTest;
 	int pageNumber = 1;
 	Cache cache = cacheManager.getCache("textSearchCache");
 	if ("1".equals(page) || null == page) {
@@ -116,7 +116,7 @@ public class TextSearchServiceImpl implements TextSearchService {
 	String queryWithNoPageParamter = textUtils.removeParametersAutocompleteQuery(queryString,
 		new String[] { "page" });
 	String queryWithAmendedPageParamter = queryWithNoPageParamter + pageTest;
-	String queryWithPageParamter = "";
+	String queryWithPageParamter;
 	// Call to get query from cache treat no page parameter as 1 page parameter as they are the same call.
 	Cache.ValueWrapper obj = cache.get(queryWithAmendedPageParamter);
 
@@ -143,7 +143,6 @@ public class TextSearchServiceImpl implements TextSearchService {
 		    int[] totalElements = textUtils.tallyPagingParameters(textMap, isW3c, 0, 0);
 		    // iterate through the pages getting back 
 		    for (int y = 2; y <= pageNumber; y++) {
-			LOG.info("GOINGTHROUGH THE LOOpP");
 			Map<String, Object> otherTextMaps = getTextMap(query, queryString, isW3c, Integer.toString(y), isMixedSearch);
 			if (null != otherTextMaps) {
 			    totalElements = textUtils.tallyPagingParameters(otherTextMaps, isW3c, totalElements[0],
@@ -152,9 +151,7 @@ public class TextSearchServiceImpl implements TextSearchService {
 			    cache.put(queryWithPageParamter, otherTextMaps);
 			} else {
 			    LOG.error("No results for page "+ y + " need to get back map with no resources plus numbers ");
-			    if(isInitialSearch){
-				//totalElements = textUtils.tallyPagingParameters(textMap, isW3c, totalElements[0],
-				//    totalElements[1]);
+			    if(isInitialSearch){				
 			    	textUtils.removeResources(textMap, isW3c);
 			    	queryWithPageParamter = queryWithNoPageParamter + (y);
 			    	cache.put(queryWithPageParamter, textMap);

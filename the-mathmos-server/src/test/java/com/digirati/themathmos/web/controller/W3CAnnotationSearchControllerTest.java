@@ -44,6 +44,7 @@ public class W3CAnnotationSearchControllerTest {
 	request = mock(HttpServletRequest.class);
 	when(request.getRequestURL()).thenReturn(new StringBuffer("http://www.example.com/search/"));
 	when(request.getQueryString()).thenReturn("q=test");
+	when(request.getParameter("q")).thenReturn("test");
 	
 	
 	

@@ -26,7 +26,7 @@ import com.digirati.themathmos.service.TextSearchService;
 
 
 @RestController(OATextSearchController.CONTROLLER_NAME)
-public class OATextSearchController {
+public class OATextSearchController extends BasicController{
     
     
     public static final String CONTROLLER_NAME = "OATextSearchController";
@@ -56,10 +56,7 @@ public class OATextSearchController {
 	    @RequestParam(value = AnnotationSearchConstants.PARAM_FIELD_PAGE, required = false) String page,
 	    HttpServletRequest request) {
 	//TODO implement xy parameters here to pass back to Text Server. 
-	String queryString = request.getRequestURL().toString();
-	if(null != request.getQueryString()){
-	    queryString += "?"+ request.getQueryString();
-	}
+	String queryString = createQueryString(request);
 	if(StringUtils.isEmpty(query)){
 	    throw new SearchQueryException("Please enter a query to search");
 	}
@@ -85,10 +82,7 @@ public class OATextSearchController {
 	    @RequestParam(value = PARAM_MIN, required = false) String min, 
 	    HttpServletRequest request) {
 	
-	String queryString = request.getRequestURL().toString();
-	if(null != request.getQueryString()){
-	    queryString += "?"+ request.getQueryString();
-	}
+	String queryString = createQueryString(request);
 	
 	ServiceResponse<Map<String, Object>> serviceResponse = annotationAutocompleteService.getTerms(query,  min, queryString, false);
 	

@@ -40,7 +40,7 @@ public class OASearchServiceImp extends AnnotationSearchServiceImpl implements O
     public ServiceResponse<Map<String, Object>> getAnnotationPage(String query,  String queryString, String page)  {
 	
 
-	String pageTest = "";
+	String pageTest;
 	int pageNumber = 1;
 	if ("1".equals(page) || null == page) {
 	    pageTest = "";
@@ -99,7 +99,6 @@ public class OASearchServiceImp extends AnnotationSearchServiceImpl implements O
 		textAnnoMap = this.getMap(query,queryString,false, page); 
 		if(null != textAnnoMap){
 		    mixedCache.put(queryWithNoPageParamter, textAnnoMap);
-		    LOG.info(mixedCache.get(queryWithNoPageParamter).get().toString());
 		    return new ServiceResponse<>(Status.OK, textAnnoMap);
 		}else{
 		    return new ServiceResponse<>(Status.NOT_FOUND, null);

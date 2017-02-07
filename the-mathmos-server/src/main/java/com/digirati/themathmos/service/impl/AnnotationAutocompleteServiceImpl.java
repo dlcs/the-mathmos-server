@@ -6,7 +6,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-
+import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.elasticsearch.action.suggest.SuggestRequestBuilder;
 import org.elasticsearch.action.suggest.SuggestResponse;
@@ -18,6 +18,7 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.elasticsearch.core.ElasticsearchTemplate;
 import org.springframework.stereotype.Service;
 
+import com.digirati.themathmos.exception.SearchQueryException;
 import com.digirati.themathmos.model.ServiceResponse;
 import com.digirati.themathmos.model.ServiceResponse.Status;
 import com.digirati.themathmos.model.annotation.w3c.SuggestOption;
@@ -122,6 +123,12 @@ public class AnnotationAutocompleteServiceImpl implements AnnotationAutocomplete
             options.add(option);
         }
        return options;
+    }
+    
+    public void testForEmptyParams(String query, String motivation, String date, String user) throws SearchQueryException{
+   	if(StringUtils.isEmpty(query) && StringUtils.isEmpty(motivation) && StringUtils.isEmpty(date) && StringUtils.isEmpty(user)){
+   	    throw new SearchQueryException("Please enter either a query, moitvation, date or user to search ");	    
+   	}
     }
 
 }

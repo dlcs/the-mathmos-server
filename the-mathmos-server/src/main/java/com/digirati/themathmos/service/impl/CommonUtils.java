@@ -58,17 +58,13 @@ public class CommonUtils {
     }
     
     protected void removeResources(Map<String, Object> root, boolean isW3c) {
-   	//List resources;
-   	if (isW3c) {
-   	   // Map map = (LinkedHashMap) root.get(FULL_HAS_ANNOTATIONS);
-   	   // resources = (List) map.get(W3C_RESOURCELIST);
+
+   	if (isW3c) { 	 
    	    root.remove(FULL_HAS_ANNOTATIONS);
    	} else {
-   	   // resources = (List) root.get(OA_RESOURCELIST);
    	    root.remove(OA_RESOURCELIST);
-   	}
-   	
-       }
+   	} 	
+    }
 
     protected void setResources(Map<String, Object> root, boolean isW3c) {
 	List resources = new ArrayList();

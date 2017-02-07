@@ -28,7 +28,7 @@ import com.digirati.themathmos.service.W3CSearchService;
 
 
 @RestController(W3CSearchController.CONTROLLER_NAME)
-public class W3CSearchController {
+public class W3CSearchController extends BasicController{
     
     
     public static final String CONTROLLER_NAME = "w3cSearchController";
@@ -69,10 +69,8 @@ public class W3CSearchController {
 	    @RequestParam(value = AnnotationSearchConstants.PARAM_FIELD_USER, required = false) String user, 
 	    @RequestParam(value = AnnotationSearchConstants.PARAM_FIELD_PAGE, required = false) String page,
 	    HttpServletRequest request) {
-	String queryString = request.getRequestURL().toString();
-	if(null != request.getQueryString()){
-	    queryString += "?"+ request.getQueryString();
-	}
+	String queryString = createQueryString(request);
+	
 	
 	if(StringUtils.isEmpty(query) && StringUtils.isEmpty(motivation) && StringUtils.isEmpty(date) && StringUtils.isEmpty(user)){
 	    throw new SearchQueryException("Please enter either a query, moitvation, date or user to search ");	    
@@ -115,10 +113,7 @@ public class W3CSearchController {
 	    @RequestParam(value = PARAM_MIN, required = false) String min, 
 	    HttpServletRequest request) {
 	
-	String queryString = request.getRequestURL().toString();
-	if(null != request.getQueryString()){
-	    queryString += "?"+ request.getQueryString();
-	}
+	String queryString = createQueryString(request);
 	
 	ServiceResponse<Map<String, Object>> serviceResponse;
 	

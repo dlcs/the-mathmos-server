@@ -26,7 +26,7 @@ import com.digirati.themathmos.service.OAAnnotationSearchService;
 
 
 @RestController(OAAnnotationSearchController.CONTROLLER_NAME)
-public class OAAnnotationSearchController {
+public class OAAnnotationSearchController extends BasicController{
     
     
     public static final String CONTROLLER_NAME = "oaAnnotationSearchController";
@@ -60,14 +60,14 @@ public class OAAnnotationSearchController {
 	    @RequestParam(value = AnnotationSearchConstants.PARAM_FIELD_USER, required = false) String user, 
 	    @RequestParam(value = AnnotationSearchConstants.PARAM_FIELD_PAGE, required = false) String page,
 	    HttpServletRequest request) {
-	String queryString = request.getRequestURL().toString();
-	if(null != request.getQueryString()){
-	    queryString += "?"+ request.getQueryString();
-	}
+	
+	String queryString = createQueryString(request);
+	
 	
 	if(StringUtils.isEmpty(query) && StringUtils.isEmpty(motivation) && StringUtils.isEmpty(date) && StringUtils.isEmpty(user)){
 	    throw new SearchQueryException("Please enter either a query, moitvation, date or user to search ");
 	}
+	
 	ServiceResponse<Map<String, Object>> serviceResponse = oaAnnotationSearchService.getAnnotationPage(query, motivation, date, user, queryString, page);
 
 	Status serviceResponseStatus = serviceResponse.getStatus();
@@ -94,10 +94,11 @@ public class OAAnnotationSearchController {
 	    @RequestParam(value = PARAM_MIN, required = false) String min, 
 	    HttpServletRequest request) {
 	
-	String queryString = request.getRequestURL().toString();
+	String queryString = createQueryString(request);
+	/*String queryString = request.getRequestURL().toString();
 	if(null != request.getQueryString()){
 	    queryString += "?"+ request.getQueryString();
-	}
+	}*/
 	
 	ServiceResponse<Map<String, Object>> serviceResponse = annotationAutocompleteService.getTerms(query, motivation, date, user, min, queryString, false);
 	
