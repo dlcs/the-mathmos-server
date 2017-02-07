@@ -268,12 +268,12 @@ public class AnnotationSearchServiceImpl {
 	textPagingParamters.setStartIndex(Integer.toString(textPageParams[1]));
 	
 	
-	PageParameters pagingParameters = this.getPageParameters();
-	int lastAnnoPage = pagingParameters.getLastPage();
+	PageParameters mapPagingParameters = this.getPageParameters();
+	int lastAnnoPage = mapPagingParameters.getLastPage();
 	int lastTextPage = textPagingParamters.getLastPage();
 	
 	if(lastAnnoPage > lastTextPage){
-	    textPagingParamters.setLastPageNumber(pagingParameters.getLastPageNumber()); 
+	    textPagingParamters.setLastPageNumber(mapPagingParameters.getLastPageNumber()); 
 	}
 	
 	if(null != textAnnoMap.getObj()){
@@ -288,7 +288,7 @@ public class AnnotationSearchServiceImpl {
 	Map<String, Object> annoMap = null;
 	if(annoSearchArray.length != 0){
 	    List<W3CAnnotation> annotationList = annotationUtils.getW3CAnnotations(annoSearchArray);
-	    annoMap = annotationUtils.createAnnotationPage(queryString, annotationList, isW3c, pagingParameters, (AnnotationSearchServiceImpl.DEFAULT_PAGING_NUMBER - 1), true);
+	    annoMap = annotationUtils.createAnnotationPage(queryString, annotationList, isW3c, mapPagingParameters, AnnotationSearchServiceImpl.DEFAULT_PAGING_NUMBER - 1, true);
 	}
 	if((null == textAnnoMap || null == textAnnoMap.getObj()) && (null == annoMap || annoMap.isEmpty())){	    
 	    return  null;  
@@ -400,16 +400,11 @@ public class AnnotationSearchServiceImpl {
 		    }
 		}
 		if (null != firstObj) {
-		    String[] firstAnnoArray = (String[]) firstObj.get();
-	
-		    //int[] totalElements = annotationUtils.tallyPagingParameters(textMap, isW3c, 0, 0);
 
 		    for (int y = 1; y < pageNumber; y++) {
 			String thisPage = Integer.toString(y + 1);
 			String[] otherAnnoArrays = getAnnotationsPage(query, null, null, null, queryWithNoPageParamter, isW3c, thisPage);
-			if (null != otherAnnoArrays) {
-			   // totalElements = annotationUtils.tallyPagingParameters(otherTextMaps, isW3c, totalElements[0],
-			//	    totalElements[1]);
+			if (null != otherAnnoArrays) {		
 			    queryWithPageParamter = queryWithNoPageParamter + (y + 1);
 			    cache.put(queryWithPageParamter, annotationUtils);
 			} else {
