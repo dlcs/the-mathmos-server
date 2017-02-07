@@ -337,6 +337,19 @@ public class CommonUtils {
 	
     }
     
+    public void amendTotal(Map<String, Object> root, int total, boolean isW3c){
+	Map map ;
+	  
+   	if(isW3c){
+   	    map = (LinkedHashMap) root.get("dcterms:isPartOf"); 
+   	    map.put("as:totalItems", Integer.toString(total));
+   	}else{
+   	    map = (LinkedHashMap) root.get("within");
+   	    map.put("total", Integer.toString(total));
+   	}
+	
+    }
+    
     public int[] tallyPagingParameters(Map<String, Object> root, boolean isW3c, int totalElements, int startIndex){
 	
    	List resources = getResources(root, isW3c);
