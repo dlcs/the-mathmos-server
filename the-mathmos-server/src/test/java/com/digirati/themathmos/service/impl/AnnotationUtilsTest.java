@@ -23,7 +23,7 @@ import com.google.gson.internal.LinkedTreeMap;
 public class AnnotationUtilsTest {
     
     private AnnotationUtils annotationUtils;
-    private final static Logger LOG = Logger.getLogger(AnnotationUtilsTest.class);
+    private static final Logger LOG = Logger.getLogger(AnnotationUtilsTest.class);
 
     @BeforeClass
     public static void setUpBeforeClass() throws Exception {

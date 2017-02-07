@@ -34,7 +34,7 @@ public class AnnotationAutocompleteServiceImpl implements AnnotationAutocomplete
     
     public static final int MAX_NUMBER_OF_HITS_RETURNED = 1000;
     
-    private final static Logger LOG = Logger.getLogger(AnnotationAutocompleteServiceImpl.class);
+    private static final Logger LOG = Logger.getLogger(AnnotationAutocompleteServiceImpl.class);
     
   
     private AnnotationUtils annotationUtils;

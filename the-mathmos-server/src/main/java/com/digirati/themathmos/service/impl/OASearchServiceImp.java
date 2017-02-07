@@ -24,7 +24,7 @@ import com.digirati.themathmos.service.TextSearchService;
 
 @Service(OASearchServiceImp.OA_SERVICE_NAME)
 public class OASearchServiceImp extends AnnotationSearchServiceImpl implements OASearchService{
-    private final static Logger LOG = Logger.getLogger(OASearchServiceImp.class);
+    private static final Logger LOG = Logger.getLogger(OASearchServiceImp.class);
  
     public static final String OA_SERVICE_NAME = "oaSearchServiceImpl";
        

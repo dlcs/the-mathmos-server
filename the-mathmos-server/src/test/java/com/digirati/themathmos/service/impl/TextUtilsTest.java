@@ -30,7 +30,7 @@ import com.digirati.themathmos.service.impl.TextUtils;
 
 public class TextUtilsTest {
 
-    private final static Logger LOG = Logger.getLogger(TextUtilsTest.class);
+    private static final Logger LOG = Logger.getLogger(TextUtilsTest.class);
     TextUtils textUtils;
     
     private ResourceLoader resourceLoader;

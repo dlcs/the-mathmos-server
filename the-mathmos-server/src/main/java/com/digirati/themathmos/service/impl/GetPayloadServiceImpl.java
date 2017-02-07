@@ -18,7 +18,7 @@ import com.digirati.themathmos.service.GetPayloadService;
 public class GetPayloadServiceImpl implements GetPayloadService{
     
     
-    private final static Logger LOG = Logger.getLogger(GetPayloadServiceImpl.class);
+    private static final Logger LOG = Logger.getLogger(GetPayloadServiceImpl.class);
     
     public static final String SERVICE_NAME = "getPayloadServiceImpl";
     

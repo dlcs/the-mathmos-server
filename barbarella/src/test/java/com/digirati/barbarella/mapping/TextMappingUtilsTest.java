@@ -27,7 +27,7 @@ import com.digirati.barbarella.mapping.TextMappingUtils;
 public class TextMappingUtilsTest {
     
 
-    private final static Logger LOG = Logger.getLogger(TextMappingUtilsTest.class); 
+    private static final Logger LOG = Logger.getLogger(TextMappingUtilsTest.class); 
     
  
     private ResourceLoader resourceLoader;

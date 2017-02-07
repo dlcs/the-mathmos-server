@@ -30,7 +30,7 @@ import com.fasterxml.jackson.core.JsonGenerator;
 public class TextSearchAnnotationMapper extends DefaultResultMapper {
 
     
-    private final static Logger LOG = Logger.getLogger(TextSearchAnnotationMapper.class);
+    private static final Logger LOG = Logger.getLogger(TextSearchAnnotationMapper.class);
     
 
     @Override

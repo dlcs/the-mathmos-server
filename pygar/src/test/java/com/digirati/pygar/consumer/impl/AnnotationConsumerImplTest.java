@@ -35,7 +35,7 @@ import com.digirati.pygar.consumer.impl.AnnotationConsumerImpl;
 
 public class AnnotationConsumerImplTest {
 
-    private final static Logger LOG = Logger.getLogger(AnnotationConsumerImplTest.class);
+    private static final Logger LOG = Logger.getLogger(AnnotationConsumerImplTest.class);
     AnnotationConsumerImpl annotationConsumerImpl;
     private AmazonSQS amazonSqs;
     

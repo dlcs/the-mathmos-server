@@ -28,7 +28,7 @@ import com.google.gson.internal.LinkedTreeMap;
 @Service(AnnotationUtils.SERVICE_NAME)
 public class AnnotationUtils extends CommonUtils{
     
-    private final static Logger LOG = Logger.getLogger(AnnotationUtils.class);
+    private static final Logger LOG = Logger.getLogger(AnnotationUtils.class);
    
     public static final String SERVICE_NAME = "AnnotationUtils";  
     

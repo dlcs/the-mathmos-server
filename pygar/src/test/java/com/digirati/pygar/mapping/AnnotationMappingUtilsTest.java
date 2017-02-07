@@ -28,7 +28,7 @@ import com.digirati.pygar.mapping.BodyTargetFieldData;
 public class AnnotationMappingUtilsTest {
     
 
-    private final static Logger LOG = Logger.getLogger(AnnotationMappingUtilsTest.class); 
+    private static final Logger LOG = Logger.getLogger(AnnotationMappingUtilsTest.class); 
     
  
     private ResourceLoader resourceLoader;

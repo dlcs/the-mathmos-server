@@ -24,7 +24,7 @@ import com.digirati.themathmos.service.W3CSearchService;
 
 @Service(W3CSearchServiceImp.W3C_SERVICE_NAME)
 public class W3CSearchServiceImp extends AnnotationSearchServiceImpl implements W3CSearchService{
-    private final static Logger LOG = Logger.getLogger(W3CSearchServiceImp.class);
+    private static final Logger LOG = Logger.getLogger(W3CSearchServiceImp.class);
  
     public static final String W3C_SERVICE_NAME = "w3cSearchServiceImpl";
        

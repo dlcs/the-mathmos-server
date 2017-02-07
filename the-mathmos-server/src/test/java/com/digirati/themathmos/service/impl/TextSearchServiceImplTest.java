@@ -70,7 +70,7 @@ import com.google.common.collect.Iterators;
 @RunWith(com.carrotsearch.randomizedtesting.RandomizedRunner.class)
 public class TextSearchServiceImplTest {
     
-    private final static Logger LOG = Logger.getLogger(TextSearchServiceImplTest.class);
+    private static final Logger LOG = Logger.getLogger(TextSearchServiceImplTest.class);
     
     TextSearchServiceImpl textSearchServiceImpl;
     private ElasticsearchTemplate template;

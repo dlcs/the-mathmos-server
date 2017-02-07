@@ -34,7 +34,7 @@ import com.digirati.barbarella.consumer.impl.TextConsumerImpl;
 
 public class TextConsumerImplTest {
 
-    private final static Logger LOG = Logger.getLogger(TextConsumerImplTest.class);
+    private static final Logger LOG = Logger.getLogger(TextConsumerImplTest.class);
     TextConsumerImpl textConsumerImpl;
     private AmazonSQS amazonSqs;
        

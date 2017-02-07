@@ -24,7 +24,7 @@ import com.google.common.collect.Iterators;
 
 public class AnnotationSearchServiceImplTest {
 
-    private final static Logger LOG = Logger.getLogger(AnnotationSearchServiceImplTest.class);
+    private static final Logger LOG = Logger.getLogger(AnnotationSearchServiceImplTest.class);
     AnnotationSearchServiceImpl annotationSearchServiceImpl;
     
     private ElasticsearchTemplate template;
