@@ -293,15 +293,17 @@ public class AnnotationSearchServiceImpl {
 	if((null == textAnnoMap || null == textAnnoMap.getObj()) && (null == annoMap || annoMap.isEmpty())){	    
 	    return  null;  
 	}
-	Map<String, Object> root;
+	
+	
+	return createResources(isPageable,isW3c,queryString, textAnnoMap, annoMap, textPagingParamters);
+	
+	/*Map<String, Object> root;
 	if(isPageable){
 	    root = annotationUtils.buildAnnotationPageHead(queryString, isW3c, textPagingParamters);
 	}else{
 	    root = annotationUtils.buildAnnotationListHead(queryString, isW3c);
 	}  
-	
-	
-	
+
 	if(null != textAnnoMap && null != textAnnoMap.getObj()){
 	    
 	    if(isW3c){
@@ -355,11 +357,75 @@ public class AnnotationSearchServiceImpl {
 	}
 	
 	return  root;
-	
+	*/
 	
     }
     
     
+    
+    
+    private Map<String, Object> createResources(boolean isPageable,boolean isW3c,String queryString, ServiceResponse<Map<String, Object>> textAnnoMap, Map<String, Object> annoMap, PageParameters textPagingParamters){
+	Map<String, Object> root;
+	if(isPageable){
+	    root = annotationUtils.buildAnnotationPageHead(queryString, isW3c, textPagingParamters);
+	}else{
+	    root = annotationUtils.buildAnnotationListHead(queryString, isW3c);
+	}  
+
+	if(null != textAnnoMap && null != textAnnoMap.getObj()){
+	    
+	    if(isW3c){
+		Map map = (LinkedHashMap) textAnnoMap.getObj().get(CommonUtils.FULL_HAS_ANNOTATIONS);
+		List textResources = (List)map.get(CommonUtils.W3C_RESOURCELIST);
+		Map hitMap = (LinkedHashMap) textAnnoMap.getObj().get(CommonUtils.FULL_HAS_HITLIST);
+		List textHits = (List)hitMap.get(CommonUtils.W3C_RESOURCELIST);
+		    
+		Map mapForResources = new LinkedHashMap<>();
+		root.put(CommonUtils.FULL_HAS_ANNOTATIONS, mapForResources);
+		mapForResources.put(CommonUtils.W3C_RESOURCELIST, textResources);
+		    
+		Map mapForHits = new LinkedHashMap<>();
+		root.put(CommonUtils.FULL_HAS_HITLIST, mapForHits);
+		mapForHits.put(CommonUtils.W3C_RESOURCELIST, textHits);
+    	    	
+	    }else{
+		List textResources = (List)textAnnoMap.getObj().get(CommonUtils.OA_RESOURCELIST);
+    	    	List textHits = (List)textAnnoMap.getObj().get(CommonUtils.OA_HITS);
+    	    
+    	    	root.put(CommonUtils.OA_RESOURCELIST, textResources);
+    	    	root.put(CommonUtils.OA_HITS, textHits);
+	    }
+	}
+	if(null != annoMap && !annoMap.isEmpty()){
+	    if(isW3c){
+		 Map map = (LinkedHashMap) annoMap.get(CommonUtils.FULL_HAS_ANNOTATIONS);
+		 List annoResources = (List)map.get(CommonUtils.W3C_RESOURCELIST);
+		 if(root.containsKey(CommonUtils.FULL_HAS_ANNOTATIONS)){
+		     Map rootMap = (LinkedHashMap) root.get(CommonUtils.FULL_HAS_ANNOTATIONS);
+		     List existingResources = (List)rootMap.get(CommonUtils.W3C_RESOURCELIST);
+		     existingResources.addAll(annoResources);
+		 }else{
+		     Map mapForResources = new LinkedHashMap<>();
+		     root.put(CommonUtils.FULL_HAS_ANNOTATIONS, mapForResources);
+		     mapForResources.put(CommonUtils.W3C_RESOURCELIST, annoResources);
+		    }
+	    }else{
+        	 List annoResources = (List)annoMap.get(CommonUtils.OA_RESOURCELIST);
+        	 if(root.containsKey(CommonUtils.OA_RESOURCELIST)){
+        	     List existingResources = (List)root.get(CommonUtils.OA_RESOURCELIST);
+        	     if(null == existingResources){
+        		 existingResources = new ArrayList<>();
+        	     }
+        	     existingResources.addAll(annoResources);
+        	     root.put(CommonUtils.OA_RESOURCELIST, existingResources);
+        	  }else{
+        	      root.put(CommonUtils.OA_RESOURCELIST, annoResources);
+        	 }
+	    }
+	}
+	
+	return  root;
+    }
     
     private String[] getCachedAnnotations(String query, String queryString, boolean isW3c,String page){
 	
