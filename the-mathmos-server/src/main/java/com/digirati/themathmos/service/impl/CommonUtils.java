@@ -17,7 +17,7 @@ import com.digirati.themathmos.model.annotation.page.PageParameters;
 
 public class CommonUtils {
  
-    private final static Logger LOG = Logger.getLogger(CommonUtils.class);
+    private static final Logger LOG = Logger.getLogger(CommonUtils.class);
     
     protected static final String WC3CONTEXT_PATH = "http://www.w3.org/ns/anno.jsonld";
     protected static final String FULL_LAYER = "http://iiif.io/api/presentation/2#Layer";
@@ -236,28 +236,30 @@ public class CommonUtils {
 	
 	String[] beforeAfter = new String[2];
 
-	String before = "";
+	StringBuilder before = new StringBuilder();
 	for (int s = start - surroundingText; s < start; s++) {
 	    String sString = Integer.toString(s);
 	    if (sourcePositionMap.containsKey(sString)) {
-		before += sourcePositionMap.get(sString).getTerm() + " ";
+		before.append(sourcePositionMap.get(sString).getTerm() + " ");
 	    }
 	}	
-	beforeAfter[0] = before;
+	beforeAfter[0] = before.toString();
 	
-	String after = "";
+	StringBuilder after = new StringBuilder();
 	for (int e = end + 1; e < end + surroundingText; e++) {
 	    String eString = Integer.toString(e);
 	    if (sourcePositionMap.containsKey(eString)) {
-		after += sourcePositionMap.get(eString).getTerm() + " ";
+		after.append(sourcePositionMap.get(eString).getTerm() + " ");
 	    }
 	}
 
 	if (after.length() > 0) {
-	    after = " "+after.substring(0, after.length() - 1);
+	    String afterSubstring = after.substring(0, after.length() - 1);
+	    after = new StringBuilder();
+	    after.append(" "+afterSubstring);
 	}
 	
-	beforeAfter[1] = after;
+	beforeAfter[1] = after.toString();
 
 	return beforeAfter;
     }

@@ -54,7 +54,7 @@ import com.google.gson.internal.LinkedTreeMap;
 @Service(TextSearchServiceImpl.SERVICE_NAME)
 public class TextSearchServiceImpl implements TextSearchService {
 
-    private final static Logger LOG = Logger.getLogger(TextSearchServiceImpl.class);
+    private static final Logger LOG = Logger.getLogger(TextSearchServiceImpl.class);
 
     public static final String SERVICE_NAME = "TextSearchServiceImpl";
 
@@ -266,8 +266,7 @@ public class TextSearchServiceImpl implements TextSearchService {
 	    }
 	}
 
-	MultiTermVectorsResponse response = getMultiTermVectors(INDEX_FIELD_NAME, FIELD_TYPE_NAME, idArray, TEXT_FIELD_NAME);
-	return response;
+	return getMultiTermVectors(INDEX_FIELD_NAME, FIELD_TYPE_NAME, idArray, TEXT_FIELD_NAME);
 
     }
 
@@ -312,8 +311,7 @@ public class TextSearchServiceImpl implements TextSearchService {
      * @return {@code QueryBuilder}
      */
     private QueryBuilder buildQuery(String query) {
-	QueryBuilder queryBuilder = QueryBuilders.matchPhraseQuery(TEXT_FIELD_NAME, query);
-	return queryBuilder;
+	return QueryBuilders.matchPhraseQuery(TEXT_FIELD_NAME, query);
     }
 
     
@@ -338,8 +336,7 @@ public class TextSearchServiceImpl implements TextSearchService {
 	}
 
 	if(!multiTermVectorsRequest.isEmpty()){
-	    MultiTermVectorsResponse response = client.multiTermVectors(multiTermVectorsRequest).actionGet();
-	    return response;
+	    return client.multiTermVectors(multiTermVectorsRequest).actionGet();
 	}
 	return null;
 

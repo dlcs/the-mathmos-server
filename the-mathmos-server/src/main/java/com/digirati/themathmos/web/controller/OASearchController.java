@@ -145,13 +145,5 @@ public class OASearchController extends BasicController{
 
     }
     
-    
-    private void testForEmptyParams(String query, String motivation, String date, String user){
-	if(StringUtils.isEmpty(query) && StringUtils.isEmpty(motivation) && StringUtils.isEmpty(date) && StringUtils.isEmpty(user)){
-	    throw new SearchQueryException("Please enter either a query, moitvation, date or user to search ");	    
-	}
-    }
-    
-  
 
 }

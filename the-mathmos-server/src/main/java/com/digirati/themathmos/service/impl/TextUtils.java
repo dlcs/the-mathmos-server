@@ -82,7 +82,7 @@ public class TextUtils extends CommonUtils {
    
    
     /**
-     * Method to create annotations from a json payload of coordinates. We are always assuming that the order that we requested positions for is maintained by Starsky.
+     * Method to create annotations from a json payload of coordinates. We are assuming that the order that we requested positions for is maintained by Starsky.
      * @param query {@code String} The actual query, e.g. http://searchme/search/oa?q=turnips, then query is turnips
      * @param coordinatePayload {@code String} The json payload of coordinates returned when we send off our term vector positions for query matches
      * @param isW3c - {@code boolean} true if we want W3C Annotations returned
@@ -172,7 +172,6 @@ public class TextUtils extends CommonUtils {
 				       queryForResource.append(queryArray[r] + " "); 
 				   }
 				   
-				   //queryForResource = queryForResource.substring(0,queryForResource.length()-1);
 				   xywhMap.put(xywh, queryForResource.substring(0, queryForResource.length()-1));
 				}else{
 				    Collection<String> stringList = xywhMap.values();
@@ -185,7 +184,6 @@ public class TextUtils extends CommonUtils {
 				    for(int r= countOfElements; r<countInt+countOfElements;r++){
 					queryForResource.append(queryArray[r] + " "); 
 				    }
-				    //queryForResource = queryForResource.substring(0,queryForResource.length()-1);
 				    xywhMap.put(xywh, queryForResource.substring(0, queryForResource.length()-1));
 				}
 				queryCount++;
