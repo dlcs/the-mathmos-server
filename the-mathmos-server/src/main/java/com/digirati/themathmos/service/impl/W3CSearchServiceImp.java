@@ -47,11 +47,11 @@ public class W3CSearchServiceImp extends AnnotationSearchServiceImpl implements 
 	    pageNumber = Integer.parseInt(page);
 	}
 	
-	String queryWithNoPageParamter = annotationUtils.removeParametersAutocompleteQuery(queryString,new String[]{"page"});
-	String queryWithAmendedPageParamter = queryWithNoPageParamter + pageTest;
+	String noPageParamter = annotationUtils.removeParametersAutocompleteQuery(queryString,new String[]{"page"});
+	String amendedPageParamter = noPageParamter + pageTest;
 	
 	Cache mixedCache = cacheManager.getCache("mixedSearchCache");
-	Cache.ValueWrapper obj = mixedCache.get(queryWithAmendedPageParamter);
+	Cache.ValueWrapper obj = mixedCache.get(amendedPageParamter);
 	
 	Map<String, Object> textAnnoMap;
 	if(null != obj){	    
@@ -59,12 +59,12 @@ public class W3CSearchServiceImp extends AnnotationSearchServiceImpl implements 
 	    return new ServiceResponse<>(Status.OK, textAndAnnoMap);
 	}else{	
 	    if(pageNumber > 1){
-		Cache.ValueWrapper firstObj = mixedCache.get(queryWithNoPageParamter);
+		Cache.ValueWrapper firstObj = mixedCache.get(noPageParamter);
 		if(null == firstObj){
 		    Map<String, Object> firstTextMap = this.getMap(query,queryString,true, null, true); 
 		    if(null != firstTextMap){
-			mixedCache.put(queryWithNoPageParamter, firstTextMap);
-			firstObj = mixedCache.get(queryWithNoPageParamter);
+			mixedCache.put(noPageParamter, firstTextMap);
+			firstObj = mixedCache.get(noPageParamter);
 		    }
 		}
 		if(null != firstObj){
@@ -75,16 +75,16 @@ public class W3CSearchServiceImp extends AnnotationSearchServiceImpl implements 
 			    Map<String, Object> textMap = this.getMap(query, queryString, true, Integer.toString(y),true);		    
 			    if(null != textMap){
 				totalElements = annotationUtils.tallyPagingParameters(textMap,true, totalElements[0], totalElements[1]);
-				String queryWithPageParamter = queryWithNoPageParamter + (y);
+				String queryWithPageParamter = noPageParamter + (y);
 				mixedCache.put(queryWithPageParamter, textMap);
 			    }else{
 				LOG.error("Error with the cache ");
 			    }
 			}
 			annotationUtils.amendTotal(firstTextMap,totalElements[0], true);
-			mixedCache.put(queryWithNoPageParamter, firstTextMap);
+			mixedCache.put(noPageParamter, firstTextMap);
 			
-			obj = mixedCache.get(queryWithAmendedPageParamter);
+			obj = mixedCache.get(amendedPageParamter);
 			if(null != obj){	    
 			    Map<String, Object> textMap = (Map)obj.get();
 			    return new ServiceResponse<>(Status.OK, textMap);
@@ -93,8 +93,8 @@ public class W3CSearchServiceImp extends AnnotationSearchServiceImpl implements 
 	    }else{
 		textAnnoMap = this.getMap(query,queryString,true, page, true); 
 		if(null != textAnnoMap){
-		    mixedCache.put(queryWithNoPageParamter, textAnnoMap);
-		    LOG.info(mixedCache.get(queryWithNoPageParamter).get().toString());
+		    mixedCache.put(noPageParamter, textAnnoMap);
+		    LOG.info(mixedCache.get(noPageParamter).get().toString());
 		    return new ServiceResponse<>(Status.OK, textAnnoMap);
 		}else{
 		    return new ServiceResponse<>(Status.NOT_FOUND, null);
