@@ -2,13 +2,14 @@ package com.digirati.themathmos.model;
 
 public class Positions {
     
+    private int startPosition;
+    private int endPosition;
+    
     public Positions(int start, int end){
 	this.startPosition = start;
 	this.endPosition = end;
     }
     
-    private int startPosition;
-    private int endPosition;
     
     public int getStartPosition() {
 	return startPosition;

@@ -2,6 +2,9 @@ package com.digirati.themathmos.model;
 
 public class TermOffsetStart {
     
+    private String term;
+    private int start;
+    
     public TermOffsetStart(){
 	//use this for testing
     }
@@ -11,8 +14,7 @@ public class TermOffsetStart {
 	this.start = start;
     }
     
-    private String term;
-    private int start;
+   
     
     
     public int getStart() {
