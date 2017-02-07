@@ -232,12 +232,12 @@ public class TextSearchServiceImpl implements TextSearchService {
 
 	   
 	    Map<String, Object> textMap = textUtils.createCoordinateAnnotation(query, coordinatePayload,
-		    isW3c, positionMap, termPositionsMap, queryString, //this.getTotalHits(), 
+		    isW3c, positionMap, termPositionsMap, queryString, 
 		    pagingParameters,
 		    isMixedSearch);
 
 	    if (null != textMap && !textMap.isEmpty()) {
-		textUtils.amendPagingParameters(queryString, textMap, pagingParameters, isW3c);
+		textUtils.amendPagingParameters(textMap, pagingParameters, isW3c);
 		return  textMap;
 	    } else {
 		return null;

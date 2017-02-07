@@ -79,108 +79,7 @@ public class TextUtils extends CommonUtils {
 
     
     
-    /*public Map<String, Object> createCoordinateAnnotationTest(String query, String coordinatePayload,
-	    boolean isW3c, Map<String, List<Positions>> positionMap,
-	    Map<String, Map<String, TermOffsetStart>> termPositionMap, String queryString, long totalHits, PageParameters pageParams) {
-
-	if (null == coordinatePayload) {
-	    return null;
-	}
-	Map<String, Object> javaRootBodyMapObject = new Gson().fromJson(coordinatePayload, Map.class);
-
-	if (null == javaRootBodyMapObject) {
-	    return null;
-	}
-
-	Map<String, Object> root;
-	// TODO logic for paging in here..
-	
-	if(TextSearchServiceImpl.DEFAULT_TEXT_PAGING_NUMBER <= totalHits){
-	    root = this.buildAnnotationPageHead(query, isW3c, pageParams);
-	}else{
-	    root = this.buildAnnotationListHead(query, isW3c);
-	}
-	
-
-	this.setHits(root, isW3c);
-	List<Map> resources = this.getResources(root, isW3c);
-
-	List images = (List) javaRootBodyMapObject.get(IMAGESLIST);
-
-	for (Object object : (List) images) {
-	    Map<String, Object> image = (Map<String, Object>) object;
-	    String id = (String) image.get("image_uri");
-
-	    Map <String, String>annoURLMap = new HashMap<>();
-	
-	    List<Positions> positionList = positionMap.get(id);
-	    Map<String, TermOffsetStart> sourcePositionMap = termPositionMap.get(id);
-	    Object xywhObject = image.get("xywh");
-	    if (xywhObject instanceof String) {
-		LOG.info("String instance " + xywhObject.toString());
-		LOG.info("Position " + positionList.get(0));
-		String annoUrl = createMadeUpResource(queryString,xywhObject.toString());
-		annoURLMap.put(xywhObject.toString(), annoUrl);
-		resources.add(createResource(id, query, isW3c, xywhObject.toString(), annoUrl));
-	    }
-	    if (xywhObject instanceof ArrayList) {
-		List xywhList = (ArrayList) image.get("xywh");
-		for (Object xywhObjectFromList : xywhList) {
-		    String annoUrl = createMadeUpResource(queryString,xywhObjectFromList.toString());
-		    annoURLMap.put(xywhObjectFromList.toString(), annoUrl);
-		    resources.add(createResource(id, query, isW3c, xywhObjectFromList.toString(),annoUrl));
-		}
-	    }
-
-	    List<Map<String, Object>> hitList = this.getHits(root, isW3c);
-
-	    if (positionList.size() == 1) {
-		Map<String, Object> hitMap = new HashMap<>();
-		List<String> annotationsList = new ArrayList<>();
-		
-		String annoUrl = annoURLMap.get(xywhObject.toString());
-		annotationsList.add(annoUrl);
-		int start = positionList.get(0).getStartPosition();
-		int end = positionList.get(0).getEndPosition();
-		
-		String[] beforeAfter = this.getHighlights(start, end, BEFORE_AFTER_WORDS, sourcePositionMap);
-
-		setHits(isW3c, hitMap, annotationsList, query, beforeAfter);
-
-		hitList.add(hitMap);
-		LOG.info(hitMap.toString());
-
-	    } else {
-		if (xywhObject instanceof ArrayList) {
-		    List xywhList = (ArrayList) image.get("xywh");
-		    int count = 0;
-		    for (Object xywhObjectFromList : xywhList) {
-			LOG.info("xywh " + xywhObjectFromList.toString());
-			LOG.info("Position " + positionList.get(count));
-			int start = positionList.get(count).getStartPosition();
-			int end = positionList.get(count).getEndPosition();
-			String[] beforeAfter = this.getHighlights(start, end, BEFORE_AFTER_WORDS, sourcePositionMap);
-
-			Map<String, Object> hitMap = new HashMap<>();
-			List<String> annotationsList = new ArrayList<>();
-			
-			annotationsList.add(annoURLMap.get(xywhObjectFromList.toString()));
-			setHits(isW3c, hitMap, annotationsList, query, beforeAfter);
-
-			LOG.info(hitMap.toString());
-			hitList.add(hitMap);
-			count++;
-		    }
-		   
-		}
-	    }
-	}
-
-	return root;
-
-    }*/
-    
-    
+   
    
     /**
      * Method to create annotations from a json payload of coordinates. We are always assuming that the order that we requested positions for is maintained by Starsky.
@@ -196,7 +95,7 @@ public class TextUtils extends CommonUtils {
      */
     public Map<String, Object> createCoordinateAnnotation(String query, String coordinatePayload,
 	    boolean isW3c, Map<String, List<Positions>> positionMap,
-	    Map<String, Map<String, TermOffsetStart>> termPositionMap, String queryString, //long totalHits, 
+	    Map<String, Map<String, TermOffsetStart>> termPositionMap, String queryString,
 	    PageParameters pageParams, boolean isMixedSearch) {
 
 	if (null == coordinatePayload) {
@@ -337,15 +236,7 @@ public class TextUtils extends CommonUtils {
 	    root.remove("prev");
 	}
 	
-	//TODO this is not correct, we need to increment the total when we have more resources than query hits. This will happen when we have a hit that spans > 1 line in text for the image.
-	/*if(resources.size() > TextSearchServiceImpl.DEFAULT_TEXT_PAGING_NUMBER){
-	    String total = pageParams.getTotalElements();
-	    int size = resources.size() - TextSearchServiceImpl.DEFAULT_TEXT_PAGING_NUMBER;
-	    int totalInt = Integer.parseInt(total);
-	    pageParams.setTotalElements(Integer.toString(size + totalInt));
-	}*/
 	
-	//amendPagingParameters(queryString, root,  pageParams, isW3c);
 	return root;
 
     }

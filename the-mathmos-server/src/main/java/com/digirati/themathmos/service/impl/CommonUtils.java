@@ -58,13 +58,13 @@ public class CommonUtils {
     }
     
     protected void removeResources(Map<String, Object> root, boolean isW3c) {
-   	List resources;
+   	//List resources;
    	if (isW3c) {
-   	    Map map = (LinkedHashMap) root.get(FULL_HAS_ANNOTATIONS);
-   	    resources = (List) map.get(W3C_RESOURCELIST);
+   	   // Map map = (LinkedHashMap) root.get(FULL_HAS_ANNOTATIONS);
+   	   // resources = (List) map.get(W3C_RESOURCELIST);
    	    root.remove(FULL_HAS_ANNOTATIONS);
    	} else {
-   	    resources = (List) root.get(OA_RESOURCELIST);
+   	   // resources = (List) root.get(OA_RESOURCELIST);
    	    root.remove(OA_RESOURCELIST);
    	}
    	
@@ -307,7 +307,7 @@ public class CommonUtils {
     
     
     
-    public void amendPagingParameters(String queryString, Map<String, Object> root, PageParameters pageParams, boolean isW3c){
+    public void amendPagingParameters(Map<String, Object> root, PageParameters pageParams, boolean isW3c){
 	
 	List resources = getResources(root, isW3c);
 	int resourcesSize = resources.size();

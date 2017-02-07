@@ -279,7 +279,7 @@ public class AnnotationSearchServiceImpl {
 	if(null != textAnnoMap.getObj()){
 	    Map<String, Object> testingRoot = (Map)textAnnoMap.getObj();
 	    if(null != annotationUtils.getResources(testingRoot, isW3c)){
-		annotationUtils.amendPagingParameters(queryString, textAnnoMap.getObj(), textPagingParamters, isW3c);
+		annotationUtils.amendPagingParameters(textAnnoMap.getObj(), textPagingParamters, isW3c);
 	    }else{
 		textAnnoMap = null;
 	    }

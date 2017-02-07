@@ -58,7 +58,7 @@ public class AnnotationUtilsTest {
 	pageParams.setPreviousPageNumber(null);
 	pageParams.setStartIndex("0");
 	
-	long totalHits = 11;
+	int totalHits = 11;
 	Map<String,Object> json = annotationUtils.createAnnotationPage(query, annoList, isW3c, pageParams, totalHits, false);
 	
 	LOG.info(json);

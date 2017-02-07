@@ -47,7 +47,7 @@ public class AnnotationUtils extends CommonUtils{
    
 
     public Map<String, Object> createAnnotationPage(String query, List<W3CAnnotation> annoList, boolean isW3c,
-	    PageParameters pageParams, long totalHits, boolean isMixedSearch) {
+	    PageParameters pageParams, int totalHits, boolean isMixedSearch) {
 
 	if (null == annoList || annoList.isEmpty()) {
 	    return null;
@@ -244,7 +244,7 @@ public class AnnotationUtils extends CommonUtils{
     
     public int[] getPageParams(Map<String, Object> root, boolean isW3c){
 	Map map;
-	String total = "" ;
+	String total;
 
 	List resources = getResources(root, isW3c);
    	
@@ -252,7 +252,7 @@ public class AnnotationUtils extends CommonUtils{
 	    LOG.info("resourcesSize in getPageParams" + resources.size());
 	}
    	
-	String startIndex = "" ;
+	String startIndex;
 	int[] pageParams = new int[2];
 	if(isW3c){
    	    map = (LinkedHashMap) root.get("dcterms:isPartOf"); 
@@ -268,7 +268,7 @@ public class AnnotationUtils extends CommonUtils{
 	} else {
 	    startIndex = (String)root.get("startIndex");
 	}
-   	pageParams[1] = Integer.parseInt(startIndex); //startIndex.intValue()
+   	pageParams[1] = Integer.parseInt(startIndex); 
    		 
    	
    	return pageParams;

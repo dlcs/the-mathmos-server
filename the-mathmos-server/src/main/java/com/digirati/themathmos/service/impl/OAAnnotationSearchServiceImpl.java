@@ -53,7 +53,7 @@ public class OAAnnotationSearchServiceImpl extends AnnotationSearchServiceImpl i
 
 	List<W3CAnnotation> annotationList = annotationUtils.getW3CAnnotations(annoSearchArray);
 
-	Map<String, Object> annoMap = annotationUtils.createAnnotationPage(queryString, annotationList, false, pagingParameters, this.getTotalHits(), false);
+	Map<String, Object> annoMap = annotationUtils.createAnnotationPage(queryString, annotationList, false, pagingParameters, (int)this.getTotalHits(), false);
 	   	
 	if(null != annoMap && !annoMap.isEmpty()){
 	    return new ServiceResponse<>(Status.OK, annoMap);
