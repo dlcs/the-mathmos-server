@@ -276,7 +276,7 @@ public class AnnotationSearchServiceImpl {
 	    textPagingParamters.setLastPageNumber(mapPagingParameters.getLastPageNumber()); 
 	}
 	
-	if(null != textAnnoMap.getObj()){
+	if(null != textAnnoMap && null != textAnnoMap.getObj()){
 	    Map<String, Object> testingRoot = (Map)textAnnoMap.getObj();
 	    if(null != annotationUtils.getResources(testingRoot, isW3c)){
 		annotationUtils.amendPagingParameters(textAnnoMap.getObj(), textPagingParamters, isW3c);
@@ -296,14 +296,15 @@ public class AnnotationSearchServiceImpl {
 	
 	
 	return createResources(isPageable,isW3c,queryString, textAnnoMap, annoMap, textPagingParamters);
+    }
 	
-	/*Map<String, Object> root;
-	if(isPageable){
-	    root = annotationUtils.buildAnnotationPageHead(queryString, isW3c, textPagingParamters);
-	}else{
-	    root = annotationUtils.buildAnnotationListHead(queryString, isW3c);
-	}  
-
+    
+    
+    
+    private Map<String, Object> createResources(boolean isPageable,boolean isW3c,String queryString, ServiceResponse<Map<String, Object>> textAnnoMap, Map<String, Object> annoMap, PageParameters textPagingParamters){
+	Map<String, Object> root = createHead(isPageable,queryString, isW3c, textPagingParamters);
+	
+	
 	if(null != textAnnoMap && null != textAnnoMap.getObj()){
 	    
 	    if(isW3c){
@@ -357,149 +358,19 @@ public class AnnotationSearchServiceImpl {
 	}
 	
 	return  root;
-	*/
-	
     }
     
-    
-    
-    
-    private Map<String, Object> createResources(boolean isPageable,boolean isW3c,String queryString, ServiceResponse<Map<String, Object>> textAnnoMap, Map<String, Object> annoMap, PageParameters textPagingParamters){
+    private Map<String, Object> createHead(boolean isPageable, String queryString, boolean isW3c, PageParameters textPagingParamters){
 	Map<String, Object> root;
 	if(isPageable){
 	    root = annotationUtils.buildAnnotationPageHead(queryString, isW3c, textPagingParamters);
 	}else{
 	    root = annotationUtils.buildAnnotationListHead(queryString, isW3c);
-	}  
-
-	if(null != textAnnoMap && null != textAnnoMap.getObj()){
-	    
-	    if(isW3c){
-		Map map = (LinkedHashMap) textAnnoMap.getObj().get(CommonUtils.FULL_HAS_ANNOTATIONS);
-		List textResources = (List)map.get(CommonUtils.W3C_RESOURCELIST);
-		Map hitMap = (LinkedHashMap) textAnnoMap.getObj().get(CommonUtils.FULL_HAS_HITLIST);
-		List textHits = (List)hitMap.get(CommonUtils.W3C_RESOURCELIST);
-		    
-		Map mapForResources = new LinkedHashMap<>();
-		root.put(CommonUtils.FULL_HAS_ANNOTATIONS, mapForResources);
-		mapForResources.put(CommonUtils.W3C_RESOURCELIST, textResources);
-		    
-		Map mapForHits = new LinkedHashMap<>();
-		root.put(CommonUtils.FULL_HAS_HITLIST, mapForHits);
-		mapForHits.put(CommonUtils.W3C_RESOURCELIST, textHits);
-    	    	
-	    }else{
-		List textResources = (List)textAnnoMap.getObj().get(CommonUtils.OA_RESOURCELIST);
-    	    	List textHits = (List)textAnnoMap.getObj().get(CommonUtils.OA_HITS);
-    	    
-    	    	root.put(CommonUtils.OA_RESOURCELIST, textResources);
-    	    	root.put(CommonUtils.OA_HITS, textHits);
-	    }
-	}
-	if(null != annoMap && !annoMap.isEmpty()){
-	    if(isW3c){
-		 Map map = (LinkedHashMap) annoMap.get(CommonUtils.FULL_HAS_ANNOTATIONS);
-		 List annoResources = (List)map.get(CommonUtils.W3C_RESOURCELIST);
-		 if(root.containsKey(CommonUtils.FULL_HAS_ANNOTATIONS)){
-		     Map rootMap = (LinkedHashMap) root.get(CommonUtils.FULL_HAS_ANNOTATIONS);
-		     List existingResources = (List)rootMap.get(CommonUtils.W3C_RESOURCELIST);
-		     existingResources.addAll(annoResources);
-		 }else{
-		     Map mapForResources = new LinkedHashMap<>();
-		     root.put(CommonUtils.FULL_HAS_ANNOTATIONS, mapForResources);
-		     mapForResources.put(CommonUtils.W3C_RESOURCELIST, annoResources);
-		    }
-	    }else{
-        	 List annoResources = (List)annoMap.get(CommonUtils.OA_RESOURCELIST);
-        	 if(root.containsKey(CommonUtils.OA_RESOURCELIST)){
-        	     List existingResources = (List)root.get(CommonUtils.OA_RESOURCELIST);
-        	     if(null == existingResources){
-        		 existingResources = new ArrayList<>();
-        	     }
-        	     existingResources.addAll(annoResources);
-        	     root.put(CommonUtils.OA_RESOURCELIST, existingResources);
-        	  }else{
-        	      root.put(CommonUtils.OA_RESOURCELIST, annoResources);
-        	 }
-	    }
-	}
-	
-	return  root;
+	} 
+	return root;
     }
     
-    private String[] getCachedAnnotations(String query, String queryString, boolean isW3c,String page){
-	
-	String pageTest = "";
-	int pageNumber = 1;
-	Cache cache;
-	if(isW3c){
-	    cache = cacheManager.getCache("w3cAnnotationSearchPagingCache");
-	}else{
-	    cache  = cacheManager.getCache("oaAnnotationSearchPagingCache");
-	}
-	String[] emptyArray = new String[0];
-	 
-	if ("1".equals(page) || null == page) {
-	    pageTest = "";
-	} else {
-	    pageTest = page;
-	    pageNumber = Integer.parseInt(page);
-	}
-	String queryWithNoPageParamter = annotationUtils.removeParametersAutocompleteQuery(queryString,
-		new String[] { "page" });
-	String queryWithAmendedPageParamter = queryWithNoPageParamter + pageTest;
-	String queryWithPageParamter = "";
-	Cache.ValueWrapper obj = cache.get(queryWithAmendedPageParamter);
-	
-	if (null != obj) {
-	    String[] annoArray = (String[]) obj.get();
-	    return annoArray;
-	} else {
-	    if (pageNumber > 1) {
-		Cache.ValueWrapper firstObj = cache.get(queryWithNoPageParamter);
-		LOG.info("getting "+queryWithNoPageParamter + "from the cache");
-		if (null == firstObj) {
-		    String[] firstAnnoArray = getAnnotationsPage(query, null, null, null, queryWithNoPageParamter, isW3c, page);
-		    if (null != firstAnnoArray) {
-			cache.put(queryWithNoPageParamter, firstAnnoArray);
-			firstObj = cache.get(queryWithNoPageParamter);
-		    }
-		}
-		if (null != firstObj) {
-
-		    for (int y = 1; y < pageNumber; y++) {
-			String thisPage = Integer.toString(y + 1);
-			String[] otherAnnoArrays = getAnnotationsPage(query, null, null, null, queryWithNoPageParamter, isW3c, thisPage);
-			if (null != otherAnnoArrays) {		
-			    queryWithPageParamter = queryWithNoPageParamter + (y + 1);
-			    cache.put(queryWithPageParamter, annotationUtils);
-			} else {
-			    LOG.error("Error with the cache ");
-			}
-		    }
-		    obj = cache.get(queryWithAmendedPageParamter);
-		    if (null != obj) {
-			String[] requestedAnnoArray = (String[]) obj.get();
-			return requestedAnnoArray;
-		    }
-		}else{
-		    LOG.error("Error with the cache - cannot create the first non paged search results");
-		}
-
-	    } else {
-		String[] annoArrays = getAnnotationsPage(query, null, null, null, queryString, isW3c, page);
-		
-		if (null != annoArrays) {
-		    cache.put(queryString, annoArrays);
-		    return annoArrays;
-		} else {
-		    return emptyArray;
-		}
-	    }
-	}
-	
-	return emptyArray;
-    }
+    	
     
- 
+    
 }
