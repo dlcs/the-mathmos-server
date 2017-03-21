@@ -143,7 +143,7 @@ public class AnnotationAutocompleteServiceImpl implements AnnotationAutocomplete
         if(entryList != null) {
             CompletionSuggestion.Entry entry = entryList.get(0);
             List<CompletionSuggestion.Entry.Option> csEntryOptions =entry.getOptions();
-            if(null != options && !options.isEmpty())  {
+            if(!options.isEmpty())  {
         	Iterator <? extends  CompletionSuggestion.Entry.Option> iter = csEntryOptions.iterator();
         	while (iter.hasNext()) {
         	    CompletionSuggestion.Entry.Option next = iter.next();
@@ -151,7 +151,7 @@ public class AnnotationAutocompleteServiceImpl implements AnnotationAutocomplete
         	    LOG.info("option " + option.getText());
         	    options.add(option); 
         	}  
-            }
+           }
         }
 	
  
