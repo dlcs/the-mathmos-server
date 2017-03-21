@@ -1,10 +1,8 @@
 package com.digirati.themathmos.service.impl;
 
 
-import java.io.UnsupportedEncodingException;
-import java.net.URLDecoder;
+
 import java.util.ArrayList;
-import java.util.Base64;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -13,9 +11,6 @@ import org.apache.log4j.Logger;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.Client;
-import org.elasticsearch.index.query.IdsQueryBuilder;
-import org.elasticsearch.index.query.QueryBuilders;
-import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.suggest.completion.CompletionSuggestion;
 import org.elasticsearch.search.suggest.completion.CompletionSuggestionBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -114,12 +109,9 @@ public class AnnotationAutocompleteServiceImpl implements AnnotationAutocomplete
 	LOG.info(completionSuggestionBuilder.toString());
 	
 	// need a new SearchRequestBuilder or the source does not change
-   	SearchRequestBuilder searchRequestBuilderReal  = client.prepareSearch(index);
-	
+   	SearchRequestBuilder searchRequestBuilderReal  = client.prepareSearch(index);	
 	SearchRequestBuilder searchRequestBuilder  = client.prepareSearch(index);
-   	//searchRequestBuilder.setQuery(QueryBuilders.prefixQuery("suggest", suggestRequest));	
    	searchRequestBuilder.addSuggestion(completionSuggestionBuilder);
-   	//searchRequestBuilder.setPostFilter(QueryBuilders.boolQuery());
    	searchRequestBuilder.setFetchSource(false);
    	
    	if(null != within){
@@ -163,24 +155,6 @@ public class AnnotationAutocompleteServiceImpl implements AnnotationAutocomplete
         }
 	
  
-        
-       /* 
-        * Non-neo4j search
-        SuggestRequestBuilder suggestRequestBuilder =
-              client.prepareSuggest(index).addSuggestion(completionSuggestionBuilder);
-
-        SuggestResponse suggestResponse = suggestRequestBuilder.execute().actionGet();
-	
-        Iterator<? extends Suggest.Suggestion.Entry.Option> iterator =
-               suggestResponse.getSuggest().getSuggestion("annotation_suggest").iterator().next().getOptions().iterator();
-	Iterator<? extends Suggest.Suggestion.Entry.Option> iterator =	searchResponse.getSuggest().getSuggestion("annotation_suggest");
-        List <SuggestOption> options = new ArrayList<>();
-        
-       while (iterator.hasNext()) {
-           Suggest.Suggestion.Entry.Option next = iterator.next();
-            SuggestOption option = new SuggestOption(next.getText().string());
-            options.add(option);
-        }*/
        return options;
     }
     
