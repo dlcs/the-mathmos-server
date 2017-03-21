@@ -143,7 +143,7 @@ public class AnnotationAutocompleteServiceImpl implements AnnotationAutocomplete
         if(entryList != null) {
             CompletionSuggestion.Entry entry = entryList.get(0);
             List<CompletionSuggestion.Entry.Option> csEntryOptions =entry.getOptions();
-            if(!options.isEmpty())  {
+            if(null != csEntryOptions && !csEntryOptions.isEmpty())  {
         	Iterator <? extends  CompletionSuggestion.Entry.Option> iter = csEntryOptions.iterator();
         	while (iter.hasNext()) {
         	    CompletionSuggestion.Entry.Option next = iter.next();
