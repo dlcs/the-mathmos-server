@@ -1,24 +1,28 @@
 package com.digirati.themathmos.service.impl;
 
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
-import org.elasticsearch.action.suggest.SuggestRequestBuilder;
-import org.elasticsearch.action.suggest.SuggestResponse;
+import org.elasticsearch.action.search.SearchRequestBuilder;
+import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.Client;
-import org.elasticsearch.search.suggest.Suggest;
+import org.elasticsearch.index.query.IdsQueryBuilder;
+import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.search.SearchHit;
+import org.elasticsearch.search.suggest.completion.CompletionSuggestion;
 import org.elasticsearch.search.suggest.completion.CompletionSuggestionBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.elasticsearch.core.ElasticsearchTemplate;
 import org.springframework.stereotype.Service;
 
-import com.digirati.themathmos.exception.SearchQueryException;
 import com.digirati.themathmos.model.ServiceResponse;
 import com.digirati.themathmos.model.ServiceResponse.Status;
 import com.digirati.themathmos.model.annotation.w3c.SuggestOption;
@@ -31,6 +35,9 @@ public class AnnotationAutocompleteServiceImpl implements AnnotationAutocomplete
     
     
     public static final String SERVICE_NAME = "annotationAutocompleteServiceImpl";
+    
+    private static final String TEXT_INDEX = "text_index";
+    private static final String W3C_INDEX = "w3cannotation";
     
     public static final int MAX_NUMBER_OF_HITS_RETURNED = 1000;
     
@@ -50,10 +57,9 @@ public class AnnotationAutocompleteServiceImpl implements AnnotationAutocomplete
 
     @Override
     @Cacheable(value = "autocompleteCache", key = "#queryString.toString()+#isW3c.toString()" )
-    public ServiceResponse<Map<String, Object>> getTerms(String query, String motivation, String date, String user, String min, String queryString, boolean isW3c) {
-	
-
-	List <SuggestOption> options = findSuggestionsFor(query, "w3cannotation") ;
+    public ServiceResponse<Map<String, Object>> getTerms(String query, String motivation, String date, String user, String min, String queryString, boolean isW3c, String within) {
+    
+	List<SuggestOption> options = findSuggestionsFor(query, W3C_INDEX, within);
 	
 	if(options.isEmpty()){
 	    return new ServiceResponse<>(Status.NOT_FOUND, null);
@@ -66,11 +72,10 @@ public class AnnotationAutocompleteServiceImpl implements AnnotationAutocomplete
     
     @Override
     @Cacheable(value = "autocompleteCache", key = "#queryString.toString()+#isW3c.toString()" )
-    public ServiceResponse<Map<String, Object>> getTerms(String query,String min, String queryString, boolean isW3c) {
-	
+    public ServiceResponse<Map<String, Object>> getTerms(String query,String min, String queryString, boolean isW3c, String within) {
 
-	List <SuggestOption> options = findSuggestionsFor(query, "text_index") ;
-	
+	List<SuggestOption> options = findSuggestionsFor(query, TEXT_INDEX, within);
+
 	if(options.isEmpty()){
 	    return new ServiceResponse<>(Status.NOT_FOUND, null);
 	}else{
@@ -82,10 +87,11 @@ public class AnnotationAutocompleteServiceImpl implements AnnotationAutocomplete
     
     @Override
     @Cacheable(value = "mixedAutocompleteCache", key = "#queryString.toString()+#isW3c.toString()" )
-    public ServiceResponse<Map<String, Object>> getMixedTerms(String query, String min, String queryString, boolean isW3c){
+    public ServiceResponse<Map<String, Object>> getMixedTerms(String query, String min, String queryString, boolean isW3c, String within){
 	
-	List <SuggestOption> textOptions = findSuggestionsFor(query, "text_index") ;
-	List <SuggestOption> annoOptions = findSuggestionsFor(query, "w3cannotation") ;
+	List<SuggestOption> textOptions = findSuggestionsFor(query, TEXT_INDEX,  within);
+
+	List<SuggestOption> annoOptions = findSuggestionsFor(query, W3C_INDEX,  within);
 	
 	textOptions.addAll(annoOptions);
 	
@@ -98,7 +104,7 @@ public class AnnotationAutocompleteServiceImpl implements AnnotationAutocomplete
 	}	
     }
    
-    public List <SuggestOption>  findSuggestionsFor(String suggestRequest, String index) {
+    public List <SuggestOption>  findSuggestionsFor(String suggestRequest, String index,  String within)  {
 	CompletionSuggestionBuilder  completionSuggestionBuilder = new CompletionSuggestionBuilder("annotation_suggest");
 	
 	completionSuggestionBuilder.text(suggestRequest);
@@ -107,21 +113,74 @@ public class AnnotationAutocompleteServiceImpl implements AnnotationAutocomplete
 			
 	LOG.info(completionSuggestionBuilder.toString());
 	
+	// need a new SearchRequestBuilder or the source does not change
+   	SearchRequestBuilder searchRequestBuilderReal  = client.prepareSearch(index);
+	
+	SearchRequestBuilder searchRequestBuilder  = client.prepareSearch(index);
+   	//searchRequestBuilder.setQuery(QueryBuilders.prefixQuery("suggest", suggestRequest));	
+   	searchRequestBuilder.addSuggestion(completionSuggestionBuilder);
+   	//searchRequestBuilder.setPostFilter(QueryBuilders.boolQuery());
+   	searchRequestBuilder.setFetchSource(false);
+   	
+   	if(null != within){
+   	    String decodedWithinUrl =  annotationUtils.decodeWithinUrl(within); 
+   	
+   		
+   	    Map <String, Object> map = annotationUtils.getQueryMap(searchRequestBuilder.toString());
+   	    if(null != decodedWithinUrl){
+   		map = annotationUtils.setSource(map,decodedWithinUrl, index);
+   		searchRequestBuilderReal.setSource(map);
+   	    }else{
+   	   	LOG.error("Unable to find match to within");
+   	    }
+   	}else{
+   	    searchRequestBuilderReal = searchRequestBuilder;
+   	}
+
+   	LOG.info("doSearch query "+ searchRequestBuilderReal.toString());
+   	
+   	SearchResponse searchResponse = searchRequestBuilderReal.execute()
+   		.actionGet();
+   	
+   	
+	CompletionSuggestion compSuggestion = searchResponse.getSuggest().getSuggestion("annotation_suggest");
+
+        List<CompletionSuggestion.Entry> entryList = compSuggestion.getEntries();
+        
+        List <SuggestOption> options = new ArrayList<>();
+        if(entryList != null) {
+            CompletionSuggestion.Entry entry = entryList.get(0);
+            List<CompletionSuggestion.Entry.Option> csEntryOptions =entry.getOptions();
+            if(options != null)  {
+        	Iterator <? extends  CompletionSuggestion.Entry.Option> iter = csEntryOptions.iterator();
+        	while (iter.hasNext()) {
+        	    CompletionSuggestion.Entry.Option next = iter.next();
+        	    SuggestOption option = new SuggestOption(next.getText().string());
+        	    LOG.info("option " + option.getText());
+        	    options.add(option); 
+        	}  
+            }
+        }
+	
+ 
+        
+       /* 
+        * Non-neo4j search
         SuggestRequestBuilder suggestRequestBuilder =
-                client.prepareSuggest(index).addSuggestion(completionSuggestionBuilder);
+              client.prepareSuggest(index).addSuggestion(completionSuggestionBuilder);
 
         SuggestResponse suggestResponse = suggestRequestBuilder.execute().actionGet();
-
+	
         Iterator<? extends Suggest.Suggestion.Entry.Option> iterator =
-                suggestResponse.getSuggest().getSuggestion("annotation_suggest").iterator().next().getOptions().iterator();
-
+               suggestResponse.getSuggest().getSuggestion("annotation_suggest").iterator().next().getOptions().iterator();
+	Iterator<? extends Suggest.Suggestion.Entry.Option> iterator =	searchResponse.getSuggest().getSuggestion("annotation_suggest");
         List <SuggestOption> options = new ArrayList<>();
         
-        while (iterator.hasNext()) {
-            Suggest.Suggestion.Entry.Option next = iterator.next();
+       while (iterator.hasNext()) {
+           Suggest.Suggestion.Entry.Option next = iterator.next();
             SuggestOption option = new SuggestOption(next.getText().string());
             options.add(option);
-        }
+        }*/
        return options;
     }
     

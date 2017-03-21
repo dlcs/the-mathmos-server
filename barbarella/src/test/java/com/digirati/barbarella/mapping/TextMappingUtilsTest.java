@@ -104,8 +104,8 @@ public class TextMappingUtilsTest {
 	TextAnnotation  annotation =  mappingUtils.addAnnotations(bodyData);
 	assertEquals(annotation.getId(),"https://dlcs.io/iiif-img/50/1/000214ef-74f3-4ec2-9a5f-3b79f50fc500");
 	
-	
-	
+	LOG.info("payload: "+annotation.getSuggest().getPayload());
+	assertNotNull(annotation.getSuggest().getPayload());
 	
 	
 	LOG.info("test-message-2.json");
@@ -120,7 +120,8 @@ public class TextMappingUtilsTest {
 	
 	annotation =  mappingUtils.addAnnotations(bodyData);
 	assertEquals(annotation.getId(),"https://dlcs.io/iiif-img/50/1/987f4c4f-b586-41f7-8b77-1a050b6e4590");
-	
+	LOG.info("payload: "+annotation.getSuggest().getPayload());
+	assertNotNull(annotation.getSuggest().getPayload());
 	
 	
 	LOG.info("test-message-3.json");
@@ -135,7 +136,8 @@ public class TextMappingUtilsTest {
 	
 	annotation =  mappingUtils.addAnnotations(bodyData);
 	assertEquals(annotation.getId(),"https://dlcs.io/iiif-img/50/1/2d307ada-a9f7-4a23-adbc-73fed990013f");
-	
+	LOG.info("payload: "+annotation.getSuggest().getPayload());
+	assertNotNull(annotation.getSuggest().getPayload());
 
 	 
     }

@@ -9,11 +9,26 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.log4j.Logger;
+import org.elasticsearch.common.io.stream.BytesStreamOutput;
+import org.elasticsearch.common.lucene.BytesRefs;
+import org.elasticsearch.common.text.Text;
+import org.elasticsearch.common.xcontent.XContentBuilder;
+import org.elasticsearch.common.xcontent.XContentFactory;
+import org.elasticsearch.common.xcontent.XContentParser;
+import org.elasticsearch.rest.action.admin.indices.analyze.RestAnalyzeAction.Fields;
+import org.elasticsearch.search.suggest.Suggest;
+import org.elasticsearch.search.suggest.Suggest.Suggestion;
+import org.elasticsearch.search.suggest.Suggest.Suggestion.Entry;
+import org.elasticsearch.search.suggest.Suggest.Suggestion.Entry.Option;
+import org.elasticsearch.search.suggest.completion.CompletionSuggestion;
+import org.elasticsearch.transport.netty.ChannelBufferStreamInput;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -255,13 +270,40 @@ public class TextUtilsTest {
 	String queryString = "http://www.google.com?q=test";
 
 	String coordinates2 = getFileContents("test_coordinates_2.json");
-	Map<String,Object>  map =textUtils.createCoordinateAnnotation(query, coordinates2, false, positionMap, termPositionMap ,queryString, //10,
-		new PageParameters(), false);
+	
+	
+	Map<String,Object>  map = textUtils.createCoordinateAnnotation(query, coordinates2, true, positionMap, termPositionMap, queryString, new PageParameters(), true);
+	//Map<String,Object>  map =textUtils.createCoordinateAnnotation(params,coordinates2, positionMap, termPositionMap , //10,
+	//	new PageParameters());
 	LOG.info(map.toString());
 	
     }
     
     
+    @Test
+    public void testsetESSource(){
+	
+	Map <String, Object> map = textUtils.setESSource(0, 10, "bacon", new String[]{"body", "target", "bodyURI", "targetURI" }, "phrase");
+	LOG.info(map.toString());
+	
+	String within = "http://wellcomelibrary.org/service/collections/collections/digukmhl/";
+	map = textUtils.setSource(map,within, "text_index");
+   	LOG.info(map.toString());
+   	
+	
+    }
+    
+    @Test
+    public void testGettingSourceString(){
+	String test = "search {\"from\" : 0,\"size\" : 10, \"query\" : { \"bool\" : {\"must\" : [ { \"multi_match\" : { \"query\" : \"bacon\",\"fields\" : [ \"body\", \"target\", \"bodyURI\", \"targetURI\" ],\"type\" :\"phrase\"}}, {\"query_string\" : {\"query\" : \"tagging\",\"fields\" : [ \"motivations\" ] }} ]} },\"post_filter\" : {\"bool\" : { }}}";
+	String jsonString = textUtils.getQueryString(test);
+	LOG.info(jsonString);
+	
+	Map <String, Object>jsonMap = textUtils.getQueryMap(jsonString);
+	
+	
+	LOG.info(jsonMap.toString());
+    }
     
     
     static String readFile(String path, Charset encoding) throws IOException {
@@ -297,5 +339,30 @@ public class TextUtilsTest {
 	
 	return offsetPositionMap;
     }
+    
+   
+    @Test
+    public void testThis(){
+	
+	
+	CompletionSuggestion.Entry.Option option = new CompletionSuggestion.Entry.Option(new Text("someText"), 1.3f, null);
+	
+        CompletionSuggestion.Entry entry = new CompletionSuggestion.Entry(new Text("bacon"), 0, 5);
+        entry.addOption(option);
+        CompletionSuggestion suggestion = new CompletionSuggestion("annotation_suggest", 5);
+        suggestion.addTerm(entry);
+        List<Suggestion<? extends Entry<? extends Option>>> suggestions = new ArrayList<>();
+        suggestions.add(suggestion);
+        Suggest suggest = new Suggest(suggestions); 
+        
+        LOG.info(suggest.toString());
+        
+        
+        
+    }
+ 
+    
+   
+    
 
 }

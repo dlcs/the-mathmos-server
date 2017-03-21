@@ -42,9 +42,12 @@ public class OAAnnotationSearchServiceImpl extends AnnotationSearchServiceImpl i
     @Override
     @Transactional(readOnly = true, isolation = Isolation.SERIALIZABLE)
     @Cacheable(value="oaAnnotationSearchPagingCache", key="#queryString" )
-    public ServiceResponse<Map<String, Object>> getAnnotationPage(String query, String motivation, String date, String user, String queryString, String page)  {
+    	
+    public ServiceResponse<Map<String, Object>> getAnnotationPage(String query, String motivation, String date, String user, String queryString, String page, String within, String type)  {
 	
-	String[] annoSearchArray  = this.getAnnotationsPage(query, motivation, date, user, queryString, false, page);
+	
+	String[] annoSearchArray  = this.getAnnotationsPage(query, motivation, date, user, queryString, false, page, within, type);
+	
 	if(annoSearchArray.length == 0){
 	    return new ServiceResponse<>(Status.NOT_FOUND, null); 
 	}

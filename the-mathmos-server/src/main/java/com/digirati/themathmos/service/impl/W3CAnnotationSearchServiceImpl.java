@@ -41,9 +41,13 @@ public class W3CAnnotationSearchServiceImpl extends AnnotationSearchServiceImpl 
     @Override
     @Cacheable(value = "w3cAnnotationSearchPagingCache", key = "#queryString" )
     @Transactional(readOnly = true, isolation = Isolation.SERIALIZABLE)
-    public ServiceResponse<Map<String, Object>> getAnnotationPage(String query, String motivation, String date, String user, String queryString, String page) {
+    public ServiceResponse<Map<String, Object>> getAnnotationPage(String query, String motivation, String date, String user, String queryString, String page, String within, String type) {
+
+  
+
+	String[] annoSearchArray  = this.getAnnotationsPage(query, motivation, date, user, queryString, true, page, within, type);
 	
-	String[] annoSearchArray  = this.getAnnotationsPage(query, motivation, date, user, queryString, true, page);
+	
 	if(annoSearchArray.length == 0){
 	    return new ServiceResponse<>(Status.NOT_FOUND, null); 
 	}

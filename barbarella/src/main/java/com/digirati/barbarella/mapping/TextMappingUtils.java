@@ -1,9 +1,10 @@
 package com.digirati.barbarella.mapping;
 
 import java.io.IOException;
-
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -100,13 +101,20 @@ public class TextMappingUtils {
    	TextAnnotation text = builder.build();
    	
    	text.setId(id);
+   	List<String> payloadList = new ArrayList<>();
+   	payloadList.add(id);
    	
    	
+   	
+   	Map <String, List<String>>payloadMap = new HashMap<>();
+   	payloadMap.put("uri", payloadList); 
+   	Object payloadObject = (Object)payloadMap;
+
    	String body = fieldList.get(BODY);
    	if(null !=  body){ 
    	    text.setText(body);
    	    String[] bodyArray = new String[]{body};
-   	    text = builder.suggest(bodyArray).build();
+   	    text = builder.suggest(bodyArray, null, payloadObject).build();
    	    LOG.info(text.toString());
    	}
 

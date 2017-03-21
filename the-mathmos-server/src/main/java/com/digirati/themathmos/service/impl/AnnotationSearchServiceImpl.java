@@ -1,6 +1,7 @@
 package com.digirati.themathmos.service.impl;
 
 
+
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -31,9 +32,11 @@ import com.digirati.themathmos.exception.SearchQueryException;
 import com.digirati.themathmos.mapper.W3CSearchAnnotationMapper;
 import com.digirati.themathmos.model.ServiceResponse;
 import com.digirati.themathmos.model.W3CSearchAnnotation;
+import com.digirati.themathmos.model.Within;
 import com.digirati.themathmos.model.annotation.page.PageParameters;
 import com.digirati.themathmos.model.annotation.w3c.W3CAnnotation;
 import com.digirati.themathmos.service.TextSearchService;
+
 
 @Service(AnnotationSearchServiceImpl.SERVICE_NAME)
 public class AnnotationSearchServiceImpl {
@@ -43,7 +46,7 @@ public class AnnotationSearchServiceImpl {
     public static final String SERVICE_NAME = "annotationSearchServiceImpl";
     SimpleDateFormat formatter = new SimpleDateFormat("YYYY-MM-DD'T'hh:mm:ssZ");
 
-    
+    private static final String W3C_INDEX = "w3cannotation";
     private Client client;
 
     protected AnnotationUtils annotationUtils;
@@ -97,8 +100,8 @@ public class AnnotationSearchServiceImpl {
     * @return {@code String[]} containing either the w3c or oa annotations
     */
     public String[] getAnnotationsPage(String query, String motivation, String date, String user, String queryString,
-	    boolean isW3c, String page)  {
-	
+	    boolean isW3c, String page, String within, String type)  {
+    
 	totalHits = 0;
 	
 	pagingParameters = null;
@@ -108,16 +111,14 @@ public class AnnotationSearchServiceImpl {
 	
 	//TODO validate that pagenumber is int and is in expected range.
 	if(!StringUtils.isEmpty(page)){
-	    Integer pagingInteger =  Integer.parseInt(page);
-	    
+	    Integer pagingInteger =  Integer.parseInt(page);	    
 	    from = (pagingInteger.intValue()-1) * pagingSize;
-	    
 	}
 
-	QueryBuilder builder = buildAllThings(query,motivation,date, user);
+	QueryBuilder builder = buildAllThings(query,motivation,date, user, type);
+	Page<W3CSearchAnnotation> annotationPage;
 	
-	Page<W3CSearchAnnotation> annotationPage = formQuery(builder,from,pagingSize);
-	
+	annotationPage= formQuery(builder,from,pagingSize, within);
 	
 	if(null == annotationPage){
 	    return new String[0];
@@ -142,17 +143,74 @@ public class AnnotationSearchServiceImpl {
     }
    
     
-    private Page<W3CSearchAnnotation> formQuery(QueryBuilder queryBuilder,int pageNumber, int pagingSize){
+    private Page<W3CSearchAnnotation> formQuery(QueryBuilder queryBuilder,int pageNumber, int pagingSize, String within){
    	Pageable pageable  = new PageRequest(pageNumber, pagingSize);
    	
    	W3CSearchAnnotationMapper resultsMapper = new W3CSearchAnnotationMapper();
 
-   	SearchRequestBuilder searchRequestBuilder  = client.prepareSearch("w3cannotation");
+   	// need a new SearchRequestBuilder or the source does not change
+   	SearchRequestBuilder searchRequestBuilderReal  = client.prepareSearch(W3C_INDEX);
+   	
+   	SearchRequestBuilder searchRequestBuilder  = client.prepareSearch(W3C_INDEX);
    	searchRequestBuilder.setQuery(queryBuilder);	
    	searchRequestBuilder.setPostFilter(QueryBuilders.boolQuery());
    	searchRequestBuilder.setFrom(pageNumber).setSize(pagingSize);
+   	
+   	if(null != within){
+   	    String decodedWithinUrl =  annotationUtils.decodeWithinUrl(within); 
+   	
    		
+   	    Map <String, Object> map = annotationUtils.getQueryMap(searchRequestBuilder.toString());
+   	    if(null != decodedWithinUrl){
+   		map = annotationUtils.setSource(map,decodedWithinUrl, W3C_INDEX);
+   		searchRequestBuilderReal.setSource(map);
+   	    }else{
+   	   	LOG.error("Unable to find match to within");
+   	    }
+   	  
+   	}else{
+   	    searchRequestBuilderReal = searchRequestBuilder;
+   	}
+
+   	LOG.info("doSearch query "+ searchRequestBuilderReal.toString());
+   	
+   	SearchResponse response = searchRequestBuilderReal.execute()
+   		.actionGet();
+   	
+   	totalHits = response.getHits().totalHits();
+   	LOG.info("Total hits are: "+totalHits);
+   	
+   	return resultsMapper.mapResults(response, W3CSearchAnnotation.class, pageable);
+   }
+    
+    
+    private Page<W3CSearchAnnotation> formQueryWithWithin(String query, String type,int from, int size, String within){
+   	Pageable pageable  = new PageRequest(from, size);
+   	String[] fields = new String[]{"body", "target", "bodyURI", "targetURI"};
+   	W3CSearchAnnotationMapper resultsMapper = new W3CSearchAnnotationMapper();
+
+   	SearchRequestBuilder searchRequestBuilder  = client.prepareSearch(W3C_INDEX);
+   	
+   	Within withinObj = new Within();
+   	Map <String, String>withinMap = withinObj.getWithinMap();
+   	String withinUri = null;
+   	if(withinMap.containsKey(within)){
+   	    withinUri = withinMap.get(within);
+   	}
+   	
+   	Map <String, Object> map = annotationUtils.setESSource(from, size, query, fields, type);
+   	//String within = "http://wellcomelibrary.org/service/collections/collections/digukmhl/";
+   	if(null != withinUri){
+   	    map = annotationUtils.setSource(map,withinUri, W3C_INDEX);
+   	}else{
+   	    LOG.error("Unable to find match to within");
+   	}
+   	
+   	searchRequestBuilder.setSource(map);
+  
+   	LOG.info("source "+ searchRequestBuilder.toString());
    	LOG.info("doSearch query "+ searchRequestBuilder.toString());
+   	
    	SearchResponse response = searchRequestBuilder.execute()
    		.actionGet();
    	
@@ -160,7 +218,8 @@ public class AnnotationSearchServiceImpl {
    	LOG.info("Total hits are: "+totalHits);
    	
    	return resultsMapper.mapResults(response, W3CSearchAnnotation.class, pageable);
-       }
+   } 
+    
 
    private QueryBuilder buildDateRangeQuery(String field,String from, String to){
        return QueryBuilders.rangeQuery(field).from(from).to(to).includeLower(true).includeUpper(true);
@@ -204,15 +263,19 @@ public class AnnotationSearchServiceImpl {
 	return should;
     }
 	
-    private QueryBuilder buildAllThings(String query,String motivations, String allDateRanges, String users) {
+    private QueryBuilder buildAllThings(String query,String motivations, String allDateRanges, String users, String type) {
 	List <QueryBuilder> queryList  = new ArrayList<>();
 	
 	BoolQueryBuilder must = QueryBuilders.boolQuery();	
 	
 	if(null != query){
 	    String tidyQuery = annotationUtils.convertSpecialCharacters(query);
-	    
-	    must = must.must(QueryBuilders.multiMatchQuery(tidyQuery, "body","target","bodyURI", "targetURI").type(Type.PHRASE)); 
+	    if(null == type){
+		must = must.must(QueryBuilders.multiMatchQuery(tidyQuery, "body","target","bodyURI", "targetURI").type(Type.PHRASE)); 
+	    }
+	    if ("topic".equals(type)){
+		must = must.must(QueryBuilders.multiMatchQuery(tidyQuery, "bodyURI"));
+	    }
 	}
 		
 	if(null != motivations){
@@ -252,14 +315,16 @@ public class AnnotationSearchServiceImpl {
      }
     
    
-    protected Map<String, Object> getMap(String query, String queryString, boolean isW3c, String page) {
+    protected Map<String, Object> getMap(String query, String queryString, boolean isW3c, String page, String within, String type) {
 	
-	String[] annoSearchArray  = this.getAnnotationsPage(query, null, null, null, queryString, isW3c, page);
+	
+	
+	String[] annoSearchArray  = this.getAnnotationsPage(query, null, null, null, queryString, isW3c, page, within, type);
 	
 	int annoListSize = annoSearchArray.length;
 	LOG.info("annoListSize: " + annoListSize);
 	
-	ServiceResponse<Map<String, Object>> textAnnoMap = textSearchService.getTextPositions(query, queryString, isW3c, page, true);
+	ServiceResponse<Map<String, Object>> textAnnoMap = textSearchService.getTextPositions(query, queryString, isW3c, page, true, within);
 	int[] textPageParams  = new int[]{0,0};
 	
 	
@@ -383,6 +448,10 @@ public class AnnotationSearchServiceImpl {
 	} 
 	return root;
     }
+    
+    
+    
+    
     
     	
     

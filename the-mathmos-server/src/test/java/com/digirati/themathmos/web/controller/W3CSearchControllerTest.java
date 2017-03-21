@@ -5,6 +5,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -36,6 +37,11 @@ public class W3CSearchControllerTest {
     private W3CSearchService w3cSearchService;
     private AnnotationAutocompleteService annotationAutocompleteService;
     HttpServletRequest request;
+    HttpServletRequest withinRequest;
+    HttpServletRequest withinAutocompleteRequest;
+    
+    String within ="http://www.google.com";
+    
     
     @BeforeClass
     public static void setUpBeforeClass() throws Exception {
@@ -50,9 +56,20 @@ public class W3CSearchControllerTest {
 	annotationAutocompleteService = mock(AnnotationAutocompleteService.class);
 	controller = new W3CSearchController(w3cAnnotationSearchService,annotationAutocompleteService,textSearchService, w3cSearchService );
 	
+	within = URLEncoder.encode(within, "UTF-8");
+	
 	request = mock(HttpServletRequest.class);
+	withinRequest = mock(HttpServletRequest.class);
+	withinAutocompleteRequest = mock(HttpServletRequest.class);
+	
 	when(request.getRequestURL()).thenReturn(new StringBuffer("http://www.example.com/search/"));
 	when(request.getQueryString()).thenReturn("q=test");
+	
+	when(withinRequest.getRequestURL()).thenReturn(new StringBuffer("http://www.example.com/"+within+"/search/w3c"));
+	when(withinRequest.getQueryString()).thenReturn("q=test");
+	
+	when(withinAutocompleteRequest.getRequestURL()).thenReturn(new StringBuffer("http://www.example.com/"+within+"/autocomplete/w3c"));
+	when(withinAutocompleteRequest.getQueryString()).thenReturn("q=test");
 	
 	
 	
@@ -67,9 +84,9 @@ public class W3CSearchControllerTest {
 	String page = null;
 	ServiceResponse notFoundResponse = new ServiceResponse(Status.NOT_FOUND, null);
 	
-	when(textSearchService.getTextPositions(queryNotFound, "http://www.example.com/search/?q=test",true, page, false)).thenReturn(notFoundResponse);
-	when(w3cAnnotationSearchService.getAnnotationPage(queryNotFound, motivation,date, user, "http://www.example.com/search/?q=test",page)).thenReturn(notFoundResponse);
-	when(w3cSearchService.getAnnotationPage(queryNotFound, "http://www.example.com/search/?q=test",page)).thenReturn(notFoundResponse);
+	when(textSearchService.getTextPositions(queryNotFound, "http://www.example.com/search/?q=test",true, page, false, null)).thenReturn(notFoundResponse);
+	when(w3cAnnotationSearchService.getAnnotationPage(queryNotFound, motivation,date, user, "http://www.example.com/search/?q=test",page, null, null)).thenReturn(notFoundResponse);
+	when(w3cSearchService.getAnnotationPage(queryNotFound, "http://www.example.com/search/?q=test",page, null, null)).thenReturn(notFoundResponse);
 	
 	ResponseEntity<Map<String, Object>> responseEntity = controller.searchW3CGet(queryNotFound, motivation, date, user, page, request);
 	assertEquals(responseEntity.getStatusCode().NOT_FOUND, HttpStatus.NOT_FOUND);
@@ -79,9 +96,9 @@ public class W3CSearchControllerTest {
 	ServiceResponse foundResponse = new ServiceResponse(Status.OK, map);
 	
 	String queryFound = "found";
-	when(textSearchService.getTextPositions(queryFound, "http://www.example.com/search/?q=test",true, page, false)).thenReturn(foundResponse);	
-	when(w3cAnnotationSearchService.getAnnotationPage(queryFound, motivation,date, user, "http://www.example.com/search/?q=test",page)).thenReturn(foundResponse);
-	when(w3cSearchService.getAnnotationPage(queryFound, "http://www.example.com/search/?q=test",page)).thenReturn(foundResponse);
+	when(textSearchService.getTextPositions(queryFound, "http://www.example.com/search/?q=test",true, page, false, null)).thenReturn(foundResponse);	
+	when(w3cAnnotationSearchService.getAnnotationPage(queryFound, motivation,date, user, "http://www.example.com/search/?q=test",page, null, null)).thenReturn(foundResponse);
+	when(w3cSearchService.getAnnotationPage(queryFound, "http://www.example.com/search/?q=test",page, null, null)).thenReturn(foundResponse);
 	
 	responseEntity = controller.searchW3CGet(queryFound, motivation, date, user, page, request);
 	assertEquals(responseEntity.getStatusCode().OK, HttpStatus.OK);
@@ -103,9 +120,9 @@ public class W3CSearchControllerTest {
 	String min = null;
 	ServiceResponse notFoundResponse = new ServiceResponse(Status.NOT_FOUND, null);
 	
-	when(annotationAutocompleteService.getTerms(queryNotFound, motivation,date, user, min,"http://www.example.com/search/?q=test", true)).thenReturn(notFoundResponse);
-	when(annotationAutocompleteService.getMixedTerms(queryNotFound, min,"http://www.example.com/search/?q=test", true)).thenReturn(notFoundResponse);
-	when(annotationAutocompleteService.getTerms(queryNotFound, min,"http://www.example.com/search/?q=test", true)).thenReturn(notFoundResponse);
+	when(annotationAutocompleteService.getTerms(queryNotFound, motivation,date, user, min,"http://www.example.com/search/?q=test", true, null)).thenReturn(notFoundResponse);
+	when(annotationAutocompleteService.getMixedTerms(queryNotFound, min,"http://www.example.com/search/?q=test", true, null)).thenReturn(notFoundResponse);
+	when(annotationAutocompleteService.getTerms(queryNotFound, min,"http://www.example.com/search/?q=test", true, null)).thenReturn(notFoundResponse);
 	
 	ResponseEntity<Map<String, Object>> responseEntity = controller.autocompleteW3CMixedGet(queryNotFound, motivation, date, user,  min, request);
 	assertEquals(responseEntity.getStatusCode().NOT_FOUND, HttpStatus.NOT_FOUND);
@@ -115,13 +132,77 @@ public class W3CSearchControllerTest {
 	ServiceResponse foundResponse = new ServiceResponse(Status.OK, map);
 	
 	String queryFound = "found";
-	when(annotationAutocompleteService.getTerms(queryFound, motivation,date, user, min,"http://www.example.com/search/?q=test", true)).thenReturn(foundResponse);
-	when(annotationAutocompleteService.getMixedTerms(queryFound, min,"http://www.example.com/search/?q=test", true)).thenReturn(foundResponse);
-	when(annotationAutocompleteService.getTerms(queryFound, min,"http://www.example.com/search/?q=test", true)).thenReturn(foundResponse);
+	when(annotationAutocompleteService.getTerms(queryFound, motivation,date, user, min,"http://www.example.com/search/?q=test", true, null)).thenReturn(foundResponse);
+	when(annotationAutocompleteService.getMixedTerms(queryFound, min,"http://www.example.com/search/?q=test", true, null)).thenReturn(foundResponse);
+	when(annotationAutocompleteService.getTerms(queryFound, min,"http://www.example.com/search/?q=test", true, null)).thenReturn(foundResponse);
 	
 	responseEntity = controller.autocompleteW3CMixedGet(queryFound, motivation, date, user,  min, request);
 	assertEquals(responseEntity.getStatusCode().OK, HttpStatus.OK);
     }
     
-
+    @Test
+    public void testSearchWithinGet() throws UnsupportedEncodingException {
+	String queryNotFound = "not found";
+	String motivation = null;
+	String date = null;
+	String user = null;
+	String page = null;
+	ServiceResponse notFoundResponse = new ServiceResponse(Status.NOT_FOUND, null);
+	
+	when(textSearchService.getTextPositions(queryNotFound, "http://www.example.com/"+within+"/search/w3c?q=test",true, page, false, within)).thenReturn(notFoundResponse);
+	when(w3cAnnotationSearchService.getAnnotationPage(queryNotFound, motivation,date, user, "http://www.example.com/"+within+"/search/w3c?q=test",page, within, null)).thenReturn(notFoundResponse);
+	when(w3cSearchService.getAnnotationPage(queryNotFound, "http://www.example.com/"+within+"/search/w3c?q=test",page, within, null)).thenReturn(notFoundResponse);
+	
+	ResponseEntity<Map<String, Object>> responseEntity = controller.searchW3CWithinGet(within,queryNotFound, motivation, date, user, page, withinRequest);
+	assertEquals(responseEntity.getStatusCode().NOT_FOUND, HttpStatus.NOT_FOUND);
+	
+	Map<String, Object> map = new HashMap<>();
+	
+	ServiceResponse foundResponse = new ServiceResponse(Status.OK, map);
+	
+	String queryFound = "found";
+	when(textSearchService.getTextPositions(queryFound, "http://www.example.com/"+within+"/search/w3c?q=test",true, page, false, within)).thenReturn(foundResponse);	
+	when(w3cAnnotationSearchService.getAnnotationPage(queryFound, motivation,date, user, "http://www.example.com/"+within+"/search/w3c?q=test",page, within, null)).thenReturn(foundResponse);
+	when(w3cSearchService.getAnnotationPage(queryFound, "http://www.example.com/"+within+"/search/w3c?q=test",page, within, null)).thenReturn(foundResponse);
+	
+	responseEntity = controller.searchW3CWithinGet(within,queryFound, motivation, date, user, page, withinRequest);
+	assertEquals(responseEntity.getStatusCode().OK, HttpStatus.OK);
+	
+	String queryEmpty = "";
+	try{
+	responseEntity = controller.searchW3CWithinGet(within,queryEmpty,motivation, date, user,  page, withinRequest);
+	}catch (SearchQueryException sqe){
+	    assertNotNull(sqe);
+	}
+    }
+    
+    @Test
+    public void testAutocompleteWithinGet() throws UnsupportedEncodingException {
+	String queryNotFound = "not found";
+	String motivation = null;
+	String date = null;
+	String user = null;
+	String min = null;
+	ServiceResponse notFoundResponse = new ServiceResponse(Status.NOT_FOUND, null);
+	
+	when(annotationAutocompleteService.getTerms(queryNotFound, motivation,date, user, min,"http://www.example.com/"+within+"/autocomplete/w3c?q=test", true, within)).thenReturn(notFoundResponse);
+	when(annotationAutocompleteService.getMixedTerms(queryNotFound, min,"http://www.example.com/"+within+"/autocomplete/w3c?q=test", true, within)).thenReturn(notFoundResponse);
+	when(annotationAutocompleteService.getTerms(queryNotFound, min,"http://www.example.com/"+within+"/autocomplete/w3c?q=test", true, null)).thenReturn(notFoundResponse);
+	
+	ResponseEntity<Map<String, Object>> responseEntity = controller.autocompleteW3CWithinMixedGet(within,queryNotFound, motivation, date, user,  min, withinAutocompleteRequest);
+	assertEquals(responseEntity.getStatusCode().NOT_FOUND, HttpStatus.NOT_FOUND);
+	
+	Map<String, Object> map = new HashMap<>();
+	
+	ServiceResponse foundResponse = new ServiceResponse(Status.OK, map);
+	
+	String queryFound = "found";
+	when(annotationAutocompleteService.getTerms(queryFound, motivation,date, user, min,"http://www.example.com/"+within+"/autocomplete/w3c?q=test", true, within)).thenReturn(foundResponse);
+	when(annotationAutocompleteService.getMixedTerms(queryFound, min,"http://www.example.com/"+within+"/autocomplete/w3c?q=test", true, within)).thenReturn(foundResponse);
+	when(annotationAutocompleteService.getTerms(queryFound, min,"http://www.example.com/"+within+"/autocomplete/w3c?q=test", true, within)).thenReturn(foundResponse);
+	
+	responseEntity = controller.autocompleteW3CWithinMixedGet(within,queryFound, motivation, date, user,  min, withinAutocompleteRequest);
+	assertEquals(responseEntity.getStatusCode().OK, HttpStatus.OK);
+    }
+    
 }

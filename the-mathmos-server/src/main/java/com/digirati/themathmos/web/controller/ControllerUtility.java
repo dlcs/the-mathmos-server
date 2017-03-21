@@ -4,7 +4,7 @@ import javax.servlet.http.HttpServletRequest;
 
 
 
-public class BasicController {
+public class ControllerUtility {
     
     
  

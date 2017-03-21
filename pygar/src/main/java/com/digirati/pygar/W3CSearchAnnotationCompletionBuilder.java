@@ -35,7 +35,6 @@ public class W3CSearchAnnotationCompletionBuilder {
 	        String [] inputWords = analyseInput(input);
 		Completion suggest = new Completion(inputWords);
 		suggest.setOutput(output);
-
 		suggest.setPayload(payload);
 		
 		suggest.setWeight(weight);

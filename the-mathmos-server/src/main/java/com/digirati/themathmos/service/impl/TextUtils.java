@@ -14,6 +14,7 @@ import org.apache.commons.lang.RandomStringUtils;
 import org.apache.log4j.Logger;
 import org.springframework.stereotype.Service;
 
+
 import com.digirati.themathmos.model.Positions;
 import com.digirati.themathmos.model.TermOffsetStart;
 import com.digirati.themathmos.model.TermOffsetsWithPosition;
@@ -94,7 +95,7 @@ public class TextUtils extends CommonUtils {
      * @return {@code Map} a Map representing the json for an text-derived annotation. 
      */
     public Map<String, Object> createCoordinateAnnotation(String query, String coordinatePayload,
-	    boolean isW3c, Map<String, List<Positions>> positionMap,
+	   boolean isW3c, Map<String, List<Positions>> positionMap,
 	    Map<String, Map<String, TermOffsetStart>> termPositionMap, String queryString,
 	    PageParameters pageParams, boolean isMixedSearch) {
 
@@ -116,7 +117,7 @@ public class TextUtils extends CommonUtils {
 	root = this.buildAnnotationPageHead(queryString, isW3c, pageParams);	   
 	
 
-	List<Map> resources = this.getResources(root, isW3c);
+	List<Map> resources = this.getResources(root,isW3c);
 	
 	this.setHits(root, isW3c);
 	
@@ -200,7 +201,7 @@ public class TextUtils extends CommonUtils {
 			    annotationsList.add(annoURLMap.get(xywh));
 			    
 			    setHits(isW3c, hitMap, annotationsList, query, beforeAfter);
-			    resources.add(createResource(id, query, isW3c, xywh,annoURLMap.get(xywh))); 
+			    resources.add(createResource(id, query,isW3c, xywh,annoURLMap.get(xywh))); 
 			}else{
 			    List <String>list = new ArrayList<>(xywhMap.keySet());
 			    Collections.sort(list, Collections.reverseOrder());
@@ -211,7 +212,7 @@ public class TextUtils extends CommonUtils {
 				annotationsList.add(annoURLMap.get(xywhKey));
 				resources.add(createResource(id, partQuery, isW3c, xywhKey,annoURLMap.get(xywhKey))); 
 			    }
-			    setHits(isW3c, hitMap, annotationsList, query, beforeAfter);
+			    setHits(isW3c, hitMap, annotationsList,query, beforeAfter);
 			    LOG.info("Hit:" +hitMap.toString());
 			}
 			hitList.add(hitMap);
@@ -504,15 +505,7 @@ public class TextUtils extends CommonUtils {
     }
     
     
-    /**
-     * Utility method the get an int value from a Double
-     * @param input {@code double}
-     * @return {@code int} value
-     */
-    private int removeDotZero(Double input) {
-	return input.intValue();
-
-    }
+    
    
     /**
      * Method to manufacture a resource for the annotation

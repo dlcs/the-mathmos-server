@@ -108,8 +108,10 @@ public class AnnotationMappingUtilsTest {
 	BodyTargetFieldData data = mappingUtils.determineJsonMappingType(content);
 	Map<String, List<String>> bodyData = data.getFieldData();
 	Map<String, List<String>> targetData = data.getTargetFieldData();
+	
 	assertEquals(bodyData.get("id").get(0),"http://annotation-local.digtest.co.uk:80/annotation/w3c/64edd991-3f26-4be0-888c-9d6ddc6b97d3/2e8cdaec-8818-4c0a-a671-7b8937ced55e");
 	assertEquals(targetData.get("target").get(0), "http://www.example.com/index.html");
+	assertEquals(targetData.get("targetSourceUri").get(0), "http://www.example.com/index.html");
 	
 	content = getFileContents("test-message-2.json");
 	LOG.info("test-message-2.json");
@@ -157,9 +159,9 @@ public class AnnotationMappingUtilsTest {
 	assertEquals(annotation.getId(),"http://annotation-local.digtest.co.uk:80/annotation/w3c/64edd991-3f26-4be0-888c-9d6ddc6b97d3/2e8cdaec-8818-4c0a-a671-7b8937ced55e");
 	
 	assertEquals(annotation.getTarget().get(0), "http://www.example.com/index.html");
-	
-	
-	
+	assertEquals(annotation.getURI().get(0), "http://www.example.com/index.html");
+	LOG.info("suggest payload " + annotation.getSuggest().getPayload());
+	assertNotNull(annotation.getSuggest().getPayload());
 	LOG.info("test-message-2.json");
 	LOG.info("-------------------");
 	content = getFileContents("test-message-2.json");
@@ -174,6 +176,9 @@ public class AnnotationMappingUtilsTest {
 	assertEquals(annotation.getId(),"http://annotation-local.digtest.co.uk:80/annotation/w3c/70fbd357-874c-46c2-8533-04eb33cc6445/c5c8f275-a9c4-499e-96b0-d35a0d2e302b");
 	
 	assertNotEquals(annotation.getTarget().get(0), "http://www.example.com/index.html");
+	assertEquals(annotation.getURI().get(0), "http://example.com/document1");
+	LOG.info("suggest payload " + annotation.getSuggest().getPayload());
+	assertNotNull(annotation.getSuggest().getPayload());
 	
 	LOG.info("test-message-3.json");
 	LOG.info("-------------------");
@@ -189,6 +194,8 @@ public class AnnotationMappingUtilsTest {
 	assertEquals(annotation.getId(),"http://data.llgc.org.uk/def/cynefin/annotation/20456642545664352432368723075");
 	
 	assertNotEquals(annotation.getTarget().get(0), "http://www.example.com/index.html");
+	LOG.info("suggest payload " + annotation.getSuggest().getPayload());
+	assertNotNull(annotation.getSuggest().getPayload());
 	
 	LOG.info("test-message-4.json");
 	LOG.info("-------------------");
@@ -204,6 +211,26 @@ public class AnnotationMappingUtilsTest {
 	assertEquals(annotation.getId(),"https://annotation-dev.digtest.co.uk:443/annotation/w3c/7f548f8cadfd52ca1ce258d222ec908c_a/5464471c-de1a-4e69-8df4-1f4979e5ad32");
 	
 	assertNotEquals(annotation.getTarget().get(0), "http://www.example.com/index.html");
+	LOG.info("suggest payload " + annotation.getSuggest().getPayload());
+	assertNotNull(annotation.getSuggest().getPayload());
+	
+	LOG.info("test-message-5.json");
+	LOG.info("-------------------");
+	content = getFileContents("test-message-5.json");
+	LOG.info(content);
+	
+	data = mappingUtils.determineJsonMappingType(content);
+	bodyData = data.getFieldData();
+	targetData = data.getTargetFieldData();
+	
+	
+	annotation =  mappingUtils.addAnnotations(bodyData, targetData);
+	assertNotEquals(annotation.getId(),"https://annotation-dev.digtest.co.uk:443/annotation/w3c/7f548f8cadfd52ca1ce258d222ec908c_a/5464471c-de1a-4e69-8df4-1f4979e5ad32");
+	
+	assertEquals(annotation.getTarget().get(0), "http://www.example.com/index.html");
+	assertEquals(annotation.getURI().get(0), "http://www.example.com/index.html");
+	LOG.info("suggest payload " + annotation.getSuggest().getPayload());
+	assertNotNull(annotation.getSuggest().getPayload());
 	 
     }
     

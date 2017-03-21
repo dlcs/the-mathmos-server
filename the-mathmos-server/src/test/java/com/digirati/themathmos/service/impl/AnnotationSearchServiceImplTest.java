@@ -103,7 +103,9 @@ public class AnnotationSearchServiceImplTest {
 
 	when(client.prepareSearch("w3cannotation")).thenReturn(builder);
 
-	String[] results = annotationSearchServiceImpl.getAnnotationsPage(query, motivation, date, user, queryString, isW3c, page);
+	
+	
+	String[] results = annotationSearchServiceImpl.getAnnotationsPage(query, motivation, date, user, queryString, isW3c, page, null, null);
 	LOG.info(results[0]);
 	
 	//motivation = "commenting";

@@ -67,6 +67,12 @@ public class TextSearchServiceImpl implements TextSearchService {
     
     private static final String TEXT_FIELD_NAME = "text";
     private static final String FIELD_TYPE_NAME = "text";
+    private static final String TERM_VECTORS_FIELD_NAME = "term_vectors";
+    private static final String TERMS_FIELD_NAME = "terms";
+    private static final String POSITION_FIELD_NAME = "position";
+    private static final String TOKENS_FIELD_NAME = "tokens";
+    private static final String START_OFFSET_FIELD_NAME = "start_offset";
+    
     private static final String INDEX_FIELD_NAME = "text_index";
     
     private PageParameters pagingParameters = null;
@@ -100,8 +106,9 @@ public class TextSearchServiceImpl implements TextSearchService {
 
     @Override
     @Transactional(readOnly = true, isolation = Isolation.SERIALIZABLE)
-    public ServiceResponse<Map<String, Object>> getTextPositions(String query, String queryString, boolean isW3c,
-	    String page, boolean isMixedSearch) {
+   public ServiceResponse<Map<String, Object>> getTextPositions(String query, String queryString, boolean isW3c,
+   String page, boolean isMixedSearch, String within) {
+	
 
 	totalHits = 0;
 	String pageTest;
@@ -130,7 +137,7 @@ public class TextSearchServiceImpl implements TextSearchService {
 		LOG.info("getting "+queryWithNoPageParamter + "from the cache");
 		boolean isInitialSearch = false;
 		if (null == firstObj) {
-		    Map<String, Object> firstTextMap = getTextMap(query, queryWithNoPageParamter, isW3c, null, isMixedSearch);
+		    Map<String, Object> firstTextMap = getTextMap(query, queryWithNoPageParamter, isW3c, null, isMixedSearch, within);
 		    if (null != firstTextMap) {
 			cache.put(queryWithNoPageParamter, firstTextMap);
 			firstObj = cache.get(queryWithNoPageParamter);
@@ -143,9 +150,9 @@ public class TextSearchServiceImpl implements TextSearchService {
 		    int[] totalElements = textUtils.tallyPagingParameters(textMap, isW3c, 0, 0);
 		    // iterate through the pages getting back 
 		    for (int y = 2; y <= pageNumber; y++) {
-			Map<String, Object> otherTextMaps = getTextMap(query, queryString, isW3c, Integer.toString(y), isMixedSearch);
+			Map<String, Object> otherTextMaps = getTextMap(query, queryString,isW3c, Integer.toString(y), isMixedSearch, within);
 			if (null != otherTextMaps) {
-			    totalElements = textUtils.tallyPagingParameters(otherTextMaps, isW3c, totalElements[0],
+			    totalElements = textUtils.tallyPagingParameters(otherTextMaps,isW3c, totalElements[0],
 				    totalElements[1]);
 			    queryWithPageParamter = queryWithNoPageParamter + (y);
 			    cache.put(queryWithPageParamter, otherTextMaps);
@@ -169,7 +176,7 @@ public class TextSearchServiceImpl implements TextSearchService {
 		}
 
 	    } else {
-		Map<String, Object> textMap = getTextMap(query, queryString, isW3c, page, isMixedSearch);
+		Map<String, Object> textMap = getTextMap(query, queryString, isW3c, page, isMixedSearch, within);
 		if (null != textMap) {
 		    cache.put(queryWithNoPageParamter, textMap);
 		    return new ServiceResponse<>(Status.OK, textMap);
@@ -183,8 +190,8 @@ public class TextSearchServiceImpl implements TextSearchService {
     }
     
     
-    private Map<String, Object> getTextMap(String query, String queryString, boolean isW3c, String page, boolean isMixedSearch) {
-	
+    private Map<String, Object> getTextMap(String query, String queryString, boolean isW3c, String page, boolean isMixedSearch, String within) {
+   
 	totalHits = 0;
 	QueryBuilder queryBuilder = buildQuery(query);
 
@@ -198,7 +205,7 @@ public class TextSearchServiceImpl implements TextSearchService {
 	}
 
 
-	Page<TextAnnotation> annotationPage = formQuery(queryBuilder, from, pagingSize);
+	Page<TextAnnotation> annotationPage = formQuery(queryBuilder, from, pagingSize, within);
 
 	LOG.info("total pages "+annotationPage.getTotalPages());
 	
@@ -229,10 +236,10 @@ public class TextSearchServiceImpl implements TextSearchService {
 
 	   
 	    Map<String, Object> textMap = textUtils.createCoordinateAnnotation(query, coordinatePayload,
-		    isW3c, positionMap, termPositionsMap, queryString, 
+	  isW3c, positionMap, termPositionsMap, queryString, 
 		    pagingParameters,
 		    isMixedSearch);
-
+	  
 	    if (null != textMap && !textMap.isEmpty()) {
 		textUtils.amendPagingParameters(textMap, pagingParameters, isW3c);
 		return  textMap;
@@ -280,17 +287,35 @@ public class TextSearchServiceImpl implements TextSearchService {
      * @param isOneWordSearch - not required..
      * @return {@code Page} - of {@code TextAnnotation} objects.
      */
-    private Page<TextAnnotation> formQuery(QueryBuilder queryBuilder, int from, int pagingSize) {
+    private Page<TextAnnotation> formQuery(QueryBuilder queryBuilder, int from, int pagingSize, String within) {
 	LOG.info("Page stats are from:" +from + " pagingSize:" +  pagingSize);
 	Pageable pageable = new PageRequest(from, pagingSize);
 
 	TextSearchAnnotationMapper resultsMapper = new TextSearchAnnotationMapper();
+	SearchRequestBuilder searchRequestBuilderReal  = client.prepareSearch(INDEX_FIELD_NAME);
 
 	SearchRequestBuilder searchRequestBuilder = client.prepareSearch(INDEX_FIELD_NAME);
 	searchRequestBuilder.setQuery(queryBuilder);
 	searchRequestBuilder.setFrom(from);
 	searchRequestBuilder.setSize(pagingSize);
 	searchRequestBuilder.setFetchSource(false);
+	
+	if(null != within){
+   	    String decodedWithinUrl =  textUtils.decodeWithinUrl(within); 
+   	
+   		
+   	    Map <String, Object> map = textUtils.getQueryMap(searchRequestBuilder.toString());
+   	    if(null != decodedWithinUrl){
+   		map = textUtils.setSource(map,decodedWithinUrl, INDEX_FIELD_NAME);
+   		searchRequestBuilderReal.setSource(map);
+   	    }else{
+   	   	LOG.error("Unable to find match to within");
+   	    }
+   	  
+   	}else{
+   	    searchRequestBuilderReal = searchRequestBuilder;
+   	}
+
 		
 	LOG.info("doSearch query " + searchRequestBuilder.toString());
 	SearchResponse response = searchRequestBuilder.execute().actionGet();
@@ -360,23 +385,23 @@ public class TextSearchServiceImpl implements TextSearchService {
 	try {
 	    Map<String, Object> javaRootBodyMapObject = new Gson().fromJson(builder.string(), Map.class);
 
-	    Map termVectors = (Map) javaRootBodyMapObject.get("term_vectors");
+	    Map termVectors = (Map) javaRootBodyMapObject.get(TERM_VECTORS_FIELD_NAME);
 	    LinkedTreeMap text = (LinkedTreeMap) termVectors.get(TEXT_FIELD_NAME);
-	    LinkedTreeMap terms = (LinkedTreeMap) text.get("terms");
+	    LinkedTreeMap terms = (LinkedTreeMap) text.get(TERMS_FIELD_NAME);
 	    LinkedTreeMap queryTerm = (LinkedTreeMap) terms.get(query.toLowerCase());
 
 	    termWithOffsets.setTerm(query.toLowerCase());
 
 	    List<TermOffsetsWithPosition> termOffsets = new ArrayList<>();
 	    termWithOffsets.setOffsets(termOffsets);
-	    ArrayList tokens = (ArrayList) queryTerm.get("tokens");
+	    ArrayList tokens = (ArrayList) queryTerm.get(TOKENS_FIELD_NAME);
 	    for (Object token : tokens) {
 		LinkedTreeMap tokenObject = (LinkedTreeMap) token;
 
 		TermOffsetsWithPosition offsets = new TermOffsetsWithPosition();
-		offsets.setPosition(removeDotZero((Double) tokenObject.get("position")));
+		offsets.setPosition(removeDotZero((Double) tokenObject.get(POSITION_FIELD_NAME)));
 		offsets.setEnd(removeDotZero((Double) tokenObject.get("end_offset")));
-		offsets.setStart(removeDotZero((Double) tokenObject.get("start_offset")));
+		offsets.setStart(removeDotZero((Double) tokenObject.get(START_OFFSET_FIELD_NAME)));
 		termOffsets.add(offsets);
 	    }
 
@@ -400,19 +425,19 @@ public class TextSearchServiceImpl implements TextSearchService {
 	try {
 	    Map<String, Object> javaRootBodyMapObject = new Gson().fromJson(builder.string(), Map.class);
 	    LOG.info(javaRootBodyMapObject.toString());
-	    Map termVectors = (Map) javaRootBodyMapObject.get("term_vectors");
+	    Map termVectors = (Map) javaRootBodyMapObject.get(TERM_VECTORS_FIELD_NAME);
 	    LinkedTreeMap text = (LinkedTreeMap) termVectors.get(TEXT_FIELD_NAME);	    
-	    LinkedTreeMap terms = (LinkedTreeMap) text.get("terms");
+	    LinkedTreeMap terms = (LinkedTreeMap) text.get(TERMS_FIELD_NAME);
 	    Set<String> querySet = (Set) terms.keySet();
 
 	    for (String term : querySet) {
 		LinkedTreeMap queryTerm = (LinkedTreeMap) terms.get(term);
 
-		ArrayList tokens = (ArrayList) queryTerm.get("tokens");
+		ArrayList tokens = (ArrayList) queryTerm.get(TOKENS_FIELD_NAME);
 		for (Object token : tokens) {
 		    LinkedTreeMap tokenObject = (LinkedTreeMap) token;
-		    TermOffsetStart termStart = new TermOffsetStart(term, removeDotZero((Double) tokenObject.get("start_offset")));
-		    positionMap.put(removeDotZeroString((Double) tokenObject.get("position")), termStart);
+		    TermOffsetStart termStart = new TermOffsetStart(term, removeDotZero((Double) tokenObject.get(START_OFFSET_FIELD_NAME)));
+		    positionMap.put(removeDotZeroString((Double) tokenObject.get(POSITION_FIELD_NAME)), termStart);
 		}
 	    }
 

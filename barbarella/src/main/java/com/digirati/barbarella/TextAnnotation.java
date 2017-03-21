@@ -17,7 +17,7 @@ public class TextAnnotation {
     	
 	private String text;
 	
-	@CompletionField (payloads = false)
+	@CompletionField (payloads = true)
     	private Completion suggest;
     	
 

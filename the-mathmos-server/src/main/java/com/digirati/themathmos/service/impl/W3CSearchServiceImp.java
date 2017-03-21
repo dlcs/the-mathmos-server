@@ -37,7 +37,7 @@ public class W3CSearchServiceImp extends AnnotationSearchServiceImpl implements 
     
     @Override
     @Transactional(readOnly = true, isolation = Isolation.SERIALIZABLE)
-    public ServiceResponse<Map<String, Object>> getAnnotationPage(String query,  String queryString, String page)  {
+    public ServiceResponse<Map<String, Object>> getAnnotationPage(String query,  String queryString, String page, String within, String type)  {
 	
 	String pageTest = "";
 	int pageNumber = 1;
@@ -61,7 +61,7 @@ public class W3CSearchServiceImp extends AnnotationSearchServiceImpl implements 
 	    if(pageNumber > 1){
 		Cache.ValueWrapper firstObj = mixedCache.get(noPageParamter);
 		if(null == firstObj){
-		    Map<String, Object> firstTextMap = this.getMap(query,queryString,true, null); 
+		    Map<String, Object> firstTextMap = this.getMap(query,queryString,true, null, within, type); 
 		    if(null != firstTextMap){
 			mixedCache.put(noPageParamter, firstTextMap);
 			firstObj = mixedCache.get(noPageParamter);
@@ -72,7 +72,7 @@ public class W3CSearchServiceImp extends AnnotationSearchServiceImpl implements 
 			int[] totalElements = annotationUtils.tallyPagingParameters(firstTextMap,true, 0, 0);
 			LOG.info("totalElements 0:" + totalElements[0] + " 1:" + totalElements[1]);
 			for(int y = 2; y <= pageNumber; y++){
-			    Map<String, Object> textMap = this.getMap(query, queryString, true, Integer.toString(y));		    
+			    Map<String, Object> textMap = this.getMap(query, queryString, true, Integer.toString(y), within, type);		    
 			    if(null != textMap){
 				totalElements = annotationUtils.tallyPagingParameters(textMap,true, totalElements[0], totalElements[1]);
 				String queryWithPageParamter = noPageParamter + (y);
@@ -91,7 +91,7 @@ public class W3CSearchServiceImp extends AnnotationSearchServiceImpl implements 
 			}
 		}				
 	    }else{
-		textAnnoMap = this.getMap(query,queryString,true, page); 
+		textAnnoMap = this.getMap(query,queryString,true, page, within, type); 
 		if(null != textAnnoMap){
 		    mixedCache.put(noPageParamter, textAnnoMap);
 		    LOG.info(mixedCache.get(noPageParamter).get().toString());

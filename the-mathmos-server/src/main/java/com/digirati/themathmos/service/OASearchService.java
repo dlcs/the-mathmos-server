@@ -9,6 +9,6 @@ public interface OASearchService {
     
     
 
-    public ServiceResponse<Map<String, Object>> getAnnotationPage(String query, String queryString, String page);
+    public ServiceResponse<Map<String, Object>> getAnnotationPage(String query, String queryString, String page, String within, String type);
 
 }

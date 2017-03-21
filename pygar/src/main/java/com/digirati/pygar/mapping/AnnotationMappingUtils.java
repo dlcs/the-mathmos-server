@@ -40,9 +40,12 @@ public class AnnotationMappingUtils {
     private static final String CREATOR = "creator";
     private static final String XYWH = "xywh";
     private static final String TARGETURL = "targetUri";
+    private static final String TARGETSOURCEURL = "targetSourceUri";
     private static final String BODYURL = "bodyUri";
     private static final String W3CJSONLD = "w3cJsonLd";
     private static final String OAJSONLD = "oaJsonLd";
+    private static final String URL = "URL";
+    private static final String SOURCE = "source";
     
     private static final String AWS_BODY_W3C_FIELD = "w3c";
     private static final String AWS_BODY_OA_FIELD = "oa";
@@ -55,6 +58,7 @@ public class AnnotationMappingUtils {
 	
 	Map<String, List<String>> fieldData = new HashMap<>();
 	Map<String, List<String>> targetFieldData = new HashMap<>();
+	Map<String, List<String>> targetURIFieldData = new HashMap<>();
 	List<String> bodyValueData = new ArrayList<>();
 	List<String> targetValueData = new ArrayList<>();
 
@@ -81,11 +85,11 @@ public class AnnotationMappingUtils {
 		fieldList.add(body.toString());
 		fieldData.put(BODY, fieldList);
 		 
-		extractHelper(fieldList, "URL", fieldData, true); 
+		extractHelper(fieldList, URL, fieldData, true); 
 	    }else{
 		List<String> bodyList = returnGSonValueData(bodyValueData,body);
 		fieldData.put(BODY, bodyList);
-		extractHelper(bodyList, "URL", fieldData, true); 
+		extractHelper(bodyList, URL, fieldData, true); 
 	    }
 	    //We could have an empty body with some bodyValue
 	    if(null == body){
@@ -94,7 +98,7 @@ public class AnnotationMappingUtils {
 		    List <String>bodyValueFieldList = new ArrayList<>();
 		    bodyValueFieldList.add(bodyValue.toString());
 		    fieldData.put(BODY, bodyValueFieldList);
-		    extractHelper(bodyValueFieldList, "URL", fieldData, true);
+		    extractHelper(bodyValueFieldList, URL, fieldData, true);
 		}
 	    }
 	   
@@ -136,25 +140,44 @@ public class AnnotationMappingUtils {
 		targetFieldList.add(target.toString());
 		targetFieldData.put(TARGET, targetFieldList);
 		
-		extractHelper(target.toString(), XYWH, targetFieldData, false); 
+		extractHelper(target.toString(), XYWH, targetFieldData, false); 		
+		extractHelper(target.toString(), URL, targetFieldData, false); 
 		
-		extractHelper(target.toString(), "URL", targetFieldData, false); 
-		
+		List <String>targetSourceFieldList = new ArrayList<>();
+		targetSourceFieldList.add(target.toString());
+		targetFieldData.put(TARGETSOURCEURL, targetSourceFieldList);
 
 	    } else{
 		List<String> targetList = returnGSonValueData(targetValueData,target);
 		
 		extractHelper(targetList, XYWH, targetFieldData, false); 
-		extractHelper(targetList, "URL", targetFieldData, false); 
+		extractHelper(targetList, URL, targetFieldData, false); 
 
 		targetFieldData.put(TARGET, targetList);
 	    }
+	        
+	    getSourceField(w3c,targetURIFieldData, target, SOURCE);	   
+	    if(!targetURIFieldData.isEmpty() && !targetFieldData.containsKey(TARGETSOURCEURL)){
+		targetFieldData.put(TARGETSOURCEURL, targetURIFieldData.get(SOURCE));
+	    }
+	    	    
+	    getSourceField(w3c,targetURIFieldData, target, ID);
+	    if(!targetURIFieldData.isEmpty() && !targetFieldData.containsKey(TARGETSOURCEURL)){
+		targetFieldData.put(TARGETSOURCEURL, targetURIFieldData.get(ID));
+	    }
+	    
+	    if(!targetFieldData.containsKey(TARGETSOURCEURL) && targetFieldData.containsKey(TARGETURL)){
+		targetFieldData.put(TARGETSOURCEURL, targetFieldData.get(TARGETURL));
+	    }
+	    
 	    getField(w3c,targetFieldData, target, "source", LOOK_IN_RESOURCE_JSONLD);
+	    
 	    getField(w3c,targetFieldData, target, "type", LOOK_IN_RESOURCE_JSONLD);
 	    
 	   if(LOG.isDebugEnabled()){
 		createJsonforMapping(fieldData, BODY);
 		createJsonforMapping(targetFieldData, TARGET);
+		createJsonforMapping(targetURIFieldData, TARGETSOURCEURL);
 	    }
   
 	    
@@ -211,6 +234,20 @@ public class AnnotationMappingUtils {
 	}	
     }
     
+    /**
+     * Method to look up fields of interest within a json-ld annotation.
+     * @param javaRootMapObject
+     * @param fieldData
+     * @param body <code>Object</code> the json object we want to find the value within, e.g. body or target
+     * @param field <code>String</code> the field we want to get a value for
+     * @param location <code>String</code> indicating where in the json-ld to find the field e.g. motivation is a top annotation level field, but purpose can only be found in a resource, 
+     * and type can be found in both, but we only want the resource level ones, e.g. not type Annotation.
+     */
+    public void getSourceField(Map<String, Object> javaRootMapObject ,Map<String, List<String>> fieldData, Object body, String field){	
+	
+	returnGSonData(field,fieldData,body, false);
+		
+    }
   
     /**
      * Recursive method to get back the values for specific fields in specific objects such as field 'purpose' in the body
@@ -298,6 +335,14 @@ public class AnnotationMappingUtils {
 	
    	List<String> idList = fieldList.get(ID); 
    	
+   	List <String>targetSourceUrlList = targetFieldList.get(TARGETSOURCEURL);
+   	Object payloadObject = null;
+   	if(null != targetSourceUrlList){
+   	    Map <String, List<String>>payloadMap = new HashMap<>();
+   	    payloadMap.put("uri", targetSourceUrlList); 
+   	    payloadObject = (Object)payloadMap;
+   	}
+   	
    	W3CSearchAnnotationCompletionBuilder builder = new W3CSearchAnnotationCompletionBuilder(idList.get(0));
    	W3CSearchAnnotation anno = builder.build();
    	
@@ -347,9 +392,14 @@ public class AnnotationMappingUtils {
    	    anno.setTargetURI(targetUrlList);
    	}
    	
-   	if(!combinedbodyTargetList.isEmpty()){
-   	    String[] bodyTargetArray = combinedbodyTargetList.toArray(new String[0]);
-   	    anno = builder.suggest(bodyTargetArray).build();
+   	if(null !=  targetSourceUrlList){
+   	    anno.setURI(targetSourceUrlList);
+   	}
+   	String[] bodyTargetArray = null;
+   	if(!combinedbodyTargetList.isEmpty() || null != payloadObject){
+   	    bodyTargetArray = combinedbodyTargetList.toArray(new String[0]);
+   	    
+   	    anno = builder.suggest(bodyTargetArray, null,payloadObject).build();
    	} 	
    	
    	List <String>creatorList = fieldList.get(CREATOR);

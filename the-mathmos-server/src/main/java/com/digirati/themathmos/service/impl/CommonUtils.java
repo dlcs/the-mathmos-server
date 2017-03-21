@@ -2,6 +2,8 @@ package com.digirati.themathmos.service.impl;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Base64;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -13,6 +15,7 @@ import org.springframework.data.domain.Page;
 import com.digirati.themathmos.AnnotationSearchConstants;
 import com.digirati.themathmos.model.TermOffsetStart;
 import com.digirati.themathmos.model.annotation.page.PageParameters;
+import com.google.gson.Gson;
 
 
 public class CommonUtils {
@@ -397,4 +400,82 @@ public class CommonUtils {
    	
    	return returnArray;
        }
+    
+    
+    public Map<String, Object>  setSource(Map<String, Object> root, String within, String index){
+	String type = "sc:Canvas";
+	if(!index.equals("w3cannotation")){
+	    type = "svcs:has_service";
+	}
+	Map <String, Object> gasFilter = new LinkedHashMap<>();
+	root.put("gas-filter", gasFilter);
+	gasFilter.put("name", "SearchResultCypherFilter");
+	gasFilter.put("query", "MATCH (c:IIIF {uri:'"+ within +"'})-[:hasPart*1..]->(m:IIIF) WHERE (m.type = '"+ type +"') return DISTINCT m.uri as id");
+	//gasFilter.put("shouldExclude", new Boolean(true));
+	gasFilter.put("protocol","bolt");
+	LOG.info(root.toString());
+   	return root;
+    } 
+    
+    public Map<String, Object> setESSource(int from, int size, String query, String[] fields,String type) {
+	Map<String, Object> root = new LinkedHashMap<>();
+	Map<String, Object> queryMap = new LinkedHashMap<>();
+	Map<String, Object> boolMap = new LinkedHashMap<>();
+	Map<String, Object> mustMap = new LinkedHashMap<>();
+	Map<String, Object> multiMatchMap = new LinkedHashMap<>();
+	root.put("from", new Integer(from));
+	root.put("size", new Integer(size));
+	root.put("query", queryMap);
+	queryMap.put("bool", boolMap);
+	boolMap.put("must", mustMap);
+	mustMap.put("multi_match", multiMatchMap);
+	multiMatchMap.put("query", query);
+	List<String>fieldList = Arrays.asList(fields);
+	multiMatchMap.put("fields", fieldList);
+	multiMatchMap.put("type", type);
+	
+   	return root;
+    }
+    
+    /**
+     * Utility method the get an int value from a Double
+     * @param input {@code double}
+     * @return {@code int} value
+     */
+    protected int removeDotZero(Double input) {
+	return input.intValue();
+
+    }
+    
+    public String getQueryString(String rawJson){
+	int indexOfFirstBrace = rawJson.indexOf("{");
+	int indexOfLastBrace = rawJson.lastIndexOf("}");
+	String amendedRawJson = rawJson.substring(indexOfFirstBrace, indexOfLastBrace+1);
+	return amendedRawJson;
+	//Map<String, Object> javaRootBodyMapObject  = new Gson().fromJson(rawJson, Map.class);
+    }
+   
+    public Map<String, Object> getQueryMap(String rawJson){
+	
+	String queryString = getQueryString(rawJson);
+	
+	Map<String, Object> jsonMap  = new Gson().fromJson(queryString, Map.class);
+	if(jsonMap.containsKey("from")){
+	    Double fromDouble = (Double)jsonMap.get("from"); 
+	    LOG.info(fromDouble);
+	    jsonMap.put("from", removeDotZero(fromDouble));
+	}
+	if(jsonMap.containsKey("size")){
+	    Double sizeDouble = (Double)jsonMap.get("size");
+	    LOG.info(sizeDouble);		
+	    jsonMap.put("size", removeDotZero(sizeDouble));
+	}
+	return jsonMap;
+    }
+    
+    
+    public String decodeWithinUrl(String within){
+	
+	return new String(Base64.getDecoder().decode(within)); 
+    }
 }

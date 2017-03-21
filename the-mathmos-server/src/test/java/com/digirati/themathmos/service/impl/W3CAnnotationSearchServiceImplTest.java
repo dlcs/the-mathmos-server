@@ -13,6 +13,7 @@ import org.junit.Test;
 import org.springframework.cache.CacheManager;
 import org.springframework.data.elasticsearch.core.ElasticsearchTemplate;
 
+
 import com.digirati.themathmos.model.ServiceResponse;
 import com.digirati.themathmos.service.TextSearchService;
 import com.digirati.themathmos.service.impl.AnnotationUtils;
@@ -56,7 +57,11 @@ public class W3CAnnotationSearchServiceImplTest {
 	
 	long totalHits = 20;
 	searchQueryUtils.setUpBuilder(totalHits, client);
-	ServiceResponse<Map<String, Object>> response = impl.getAnnotationPage(query, motivation, date, user, queryString, page);
+	
+	
+	
+	
+	ServiceResponse<Map<String, Object>> response = impl.getAnnotationPage(query, motivation, date, user, queryString, page, null, null);
 	assertEquals(ServiceResponse.Status.NOT_FOUND,response.getStatus());
     }
 
