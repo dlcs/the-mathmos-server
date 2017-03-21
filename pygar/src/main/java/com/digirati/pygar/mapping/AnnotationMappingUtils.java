@@ -205,8 +205,8 @@ public class AnnotationMappingUtils {
     
     /**
      * Method to look up fields of interest within a json-ld annotation.
-     * @param javaRootMapObject
-     * @param fieldData
+     * @param javaRootMapObject {@code Map} the json object
+     * @param fieldData {@code Map} for field data
      * @param body <code>Object</code> the json object we want to find the value within, e.g. body or target
      * @param field <code>String</code> the field we want to get a value for
      * @param location <code>String</code> indicating where in the json-ld to find the field e.g. motivation is a top annotation level field, but purpose can only be found in a resource, 
@@ -236,11 +236,10 @@ public class AnnotationMappingUtils {
     
     /**
      * Method to look up fields of interest within a json-ld annotation.
-     * @param javaRootMapObject
-     * @param fieldData
+     * @param javaRootMapObject {@code Map} the json object
+     * @param fieldData {@code Map} for field data
      * @param body <code>Object</code> the json object we want to find the value within, e.g. body or target
      * @param field <code>String</code> the field we want to get a value for
-     * @param location <code>String</code> indicating where in the json-ld to find the field e.g. motivation is a top annotation level field, but purpose can only be found in a resource, 
      * and type can be found in both, but we only want the resource level ones, e.g. not type Annotation.
      */
     public void getSourceField(Map<String, Object> javaRootMapObject ,Map<String, List<String>> fieldData, Object body, String field){	
