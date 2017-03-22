@@ -306,7 +306,7 @@ public class TextSearchServiceImpl implements TextSearchService {
    		
    	    Map <String, Object> map = textUtils.getQueryMap(searchRequestBuilder.toString());
    	    if(null != decodedWithinUrl){
-   		map = textUtils.setSource(map,decodedWithinUrl, INDEX_FIELD_NAME);
+   		map = textUtils.setSource(map,decodedWithinUrl, INDEX_FIELD_NAME, pagingSize);
    		searchRequestBuilderReal.setSource(map);
    	    }else{
    	   	LOG.error("Unable to find match to within");

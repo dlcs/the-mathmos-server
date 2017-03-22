@@ -112,6 +112,7 @@ public class AnnotationAutocompleteServiceImpl implements AnnotationAutocomplete
    	SearchRequestBuilder searchRequestBuilderReal  = client.prepareSearch(index);	
 	SearchRequestBuilder searchRequestBuilder  = client.prepareSearch(index);
    	searchRequestBuilder.addSuggestion(completionSuggestionBuilder);
+   	searchRequestBuilder.setSize(1);
    	searchRequestBuilder.setFetchSource(false);
    	
    	if(null != within){
@@ -120,7 +121,7 @@ public class AnnotationAutocompleteServiceImpl implements AnnotationAutocomplete
    		
    	    Map <String, Object> map = annotationUtils.getQueryMap(searchRequestBuilder.toString());
    	    if(null != decodedWithinUrl){
-   		map = annotationUtils.setSource(map,decodedWithinUrl, index);
+   		map = annotationUtils.setSource(map,decodedWithinUrl, index, 1);
    		searchRequestBuilderReal.setSource(map);
    	    }else{
    	   	LOG.error("Unable to find match to within");

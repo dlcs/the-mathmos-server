@@ -402,7 +402,7 @@ public class CommonUtils {
        }
     
     
-    public Map<String, Object>  setSource(Map<String, Object> root, String within, String index){
+    public Map<String, Object>  setSource(Map<String, Object> root, String within, String index, int maxSize){
 	String type = "sc:Canvas";
 	if(!index.equals("w3cannotation")){
 	    type = "svcs:has_service";
@@ -411,7 +411,7 @@ public class CommonUtils {
 	root.put("gas-filter", gasFilter);
 	gasFilter.put("name", "SearchResultCypherFilter");
 	gasFilter.put("query", "MATCH (c:IIIF {uri:'"+ within +"'})-[:hasPart*1..]->(m:IIIF) WHERE (m.type = '"+ type +"') return DISTINCT m.uri as id");
-	//gasFilter.put("shouldExclude", new Boolean(true));
+	gasFilter.put("maxResultSize", new Integer(maxSize));
 	gasFilter.put("protocol","bolt");
 	LOG.info(root.toString());
    	return root;

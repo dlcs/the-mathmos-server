@@ -162,7 +162,7 @@ public class AnnotationSearchServiceImpl {
    		
    	    Map <String, Object> map = annotationUtils.getQueryMap(searchRequestBuilder.toString());
    	    if(null != decodedWithinUrl){
-   		map = annotationUtils.setSource(map,decodedWithinUrl, W3C_INDEX);
+   		map = annotationUtils.setSource(map,decodedWithinUrl, W3C_INDEX, pagingSize);
    		searchRequestBuilderReal.setSource(map);
    	    }else{
    	   	LOG.error("Unable to find match to within");
@@ -201,7 +201,7 @@ public class AnnotationSearchServiceImpl {
    	Map <String, Object> map = annotationUtils.setESSource(from, size, query, fields, type);
    	//String within = "http://wellcomelibrary.org/service/collections/collections/digukmhl/";
    	if(null != withinUri){
-   	    map = annotationUtils.setSource(map,withinUri, W3C_INDEX);
+   	    map = annotationUtils.setSource(map,withinUri, W3C_INDEX, size);
    	}else{
    	    LOG.error("Unable to find match to within");
    	}
