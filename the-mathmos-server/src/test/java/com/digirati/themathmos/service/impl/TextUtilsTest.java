@@ -287,7 +287,7 @@ public class TextUtilsTest {
 	LOG.info(map.toString());
 	
 	String within = "http://wellcomelibrary.org/service/collections/collections/digukmhl/";
-	map = textUtils.setSource(map,within, "text_index");
+	map = textUtils.setSource(map,within, "text_index", 1);
    	LOG.info(map.toString());
    	
 	
