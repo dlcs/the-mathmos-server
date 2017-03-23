@@ -82,11 +82,11 @@ public class OASearchControllerTest {
 	String page = null;
 	ServiceResponse notFoundResponse = new ServiceResponse(Status.NOT_FOUND, null);
 	
-	when(textSearchService.getTextPositions(queryNotFound, "http://www.example.com/search/?q=test",false, page, false, null)).thenReturn(notFoundResponse);
+	when(textSearchService.getTextPositions(queryNotFound, "http://www.example.com/search/?q=test",false, page, false, null, null)).thenReturn(notFoundResponse);
 	when(oaAnnotationSearchService.getAnnotationPage(queryNotFound, motivation,date, user, "http://www.example.com/search/?q=test",page, null, null)).thenReturn(notFoundResponse);
-	when(oaSearchService.getAnnotationPage(queryNotFound, "http://www.example.com/search/?q=test",page, null, null)).thenReturn(notFoundResponse);
+	when(oaSearchService.getAnnotationPage(queryNotFound, "http://www.example.com/search/?q=test",page, null, null,null)).thenReturn(notFoundResponse);
 	
-	ResponseEntity<Map<String, Object>> responseEntity = controller.searchOAMixedGet(queryNotFound, motivation, date, user, page, request);
+	ResponseEntity<Map<String, Object>> responseEntity = controller.searchOAMixedGet(queryNotFound, motivation, date, user, page, null, null,request);
 	assertEquals(responseEntity.getStatusCode().NOT_FOUND, HttpStatus.NOT_FOUND);
 	
 	Map<String, Object> map = new HashMap<>();
@@ -94,16 +94,16 @@ public class OASearchControllerTest {
 	ServiceResponse foundResponse = new ServiceResponse(Status.OK, map);
 	
 	String queryFound = "found";
-	when(textSearchService.getTextPositions(queryFound, "http://www.example.com/search/?q=test",false, page, false, null)).thenReturn(foundResponse);	
+	when(textSearchService.getTextPositions(queryFound, "http://www.example.com/search/?q=test",false, page, false, null, null)).thenReturn(foundResponse);	
 	when(oaAnnotationSearchService.getAnnotationPage(queryFound, motivation,date, user, "http://www.example.com/search/?q=test",page, null, null)).thenReturn(foundResponse);
-	when(oaSearchService.getAnnotationPage(queryFound, "http://www.example.com/search/?q=test",page, null, null)).thenReturn(foundResponse);
+	when(oaSearchService.getAnnotationPage(queryFound, "http://www.example.com/search/?q=test",page, null, null, null)).thenReturn(foundResponse);
 	
-	responseEntity = controller.searchOAMixedGet(queryFound, motivation, date, user, page, request);
+	responseEntity = controller.searchOAMixedGet(queryFound, motivation, date, user, page, null, null, request);
 	assertEquals(responseEntity.getStatusCode().OK, HttpStatus.OK);
 	
 	String queryEmpty = "";
 	try{
-	responseEntity = controller.searchOAMixedGet(queryEmpty,motivation, date, user,  page, request);
+	responseEntity = controller.searchOAMixedGet(queryEmpty,motivation, date, user,  page, null, null,request);
 	}catch (SearchQueryException sqe){
 	    assertNotNull(sqe);
 	}
@@ -147,11 +147,11 @@ public class OASearchControllerTest {
 	String page = null;
 	ServiceResponse notFoundResponse = new ServiceResponse(Status.NOT_FOUND, null);
 	
-	when(textSearchService.getTextPositions(queryNotFound, "http://www.example.com/"+within+"/search/oa?q=test",false, page, false, within)).thenReturn(notFoundResponse);
+	when(textSearchService.getTextPositions(queryNotFound, "http://www.example.com/"+within+"/search/oa?q=test",false, page, false, within, null)).thenReturn(notFoundResponse);
 	when(oaAnnotationSearchService.getAnnotationPage(queryNotFound, motivation,date, user, "http://www.example.com/"+within+"/search/oa?q=test",page, within, null)).thenReturn(notFoundResponse);
-	when(oaSearchService.getAnnotationPage(queryNotFound, "http://www.example.com/"+within+"/search/oa?q=test",page, within, null)).thenReturn(notFoundResponse);
+	when(oaSearchService.getAnnotationPage(queryNotFound, "http://www.example.com/"+within+"/search/oa?q=test",page, within, null, null)).thenReturn(notFoundResponse);
 	
-	ResponseEntity<Map<String, Object>> responseEntity = controller.searchOAWithinMixedGet(within,queryNotFound, motivation, date, user, page, withinRequest);
+	ResponseEntity<Map<String, Object>> responseEntity = controller.searchOAWithinMixedGet(within,queryNotFound, motivation, date, user, page, null, null, withinRequest);
 	assertEquals(responseEntity.getStatusCode().NOT_FOUND, HttpStatus.NOT_FOUND);
 	
 	Map<String, Object> map = new HashMap<>();
@@ -159,16 +159,16 @@ public class OASearchControllerTest {
 	ServiceResponse foundResponse = new ServiceResponse(Status.OK, map);
 	
 	String queryFound = "found";
-	when(textSearchService.getTextPositions(queryFound,"http://www.example.com/"+within+"/search/oa?q=test",false, page, false, within)).thenReturn(foundResponse);	
+	when(textSearchService.getTextPositions(queryFound,"http://www.example.com/"+within+"/search/oa?q=test",false, page, false, within, null)).thenReturn(foundResponse);	
 	when(oaAnnotationSearchService.getAnnotationPage(queryFound, motivation,date, user, "http://www.example.com/"+within+"/search/oa?q=test",page, within, null)).thenReturn(foundResponse);
-	when(oaSearchService.getAnnotationPage(queryFound, "http://www.example.com/"+within+"/search/oa?q=test",page, within, null)).thenReturn(foundResponse);
+	when(oaSearchService.getAnnotationPage(queryFound, "http://www.example.com/"+within+"/search/oa?q=test",page, within, null, null)).thenReturn(foundResponse);
 	
-	responseEntity = controller.searchOAWithinMixedGet(within,queryFound, motivation, date, user, page, withinRequest);
+	responseEntity = controller.searchOAWithinMixedGet(within,queryFound, motivation, date, user, page, null, null,withinRequest);
 	assertEquals(responseEntity.getStatusCode().OK, HttpStatus.OK);
 	
 	String queryEmpty = "";
 	try{
-	responseEntity = controller.searchOAWithinMixedGet(within,queryEmpty,motivation, date, user,  page, withinRequest);
+	responseEntity = controller.searchOAWithinMixedGet(within,queryEmpty,motivation, date, user,  page, null, null, withinRequest);
 	}catch (SearchQueryException sqe){
 	    assertNotNull(sqe);
 	}

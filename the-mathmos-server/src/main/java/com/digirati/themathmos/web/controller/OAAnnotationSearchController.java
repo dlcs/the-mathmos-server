@@ -71,7 +71,7 @@ public class OAAnnotationSearchController {
 	String type = null;
 	
 	if(StringUtils.isEmpty(query) && StringUtils.isEmpty(motivation) && StringUtils.isEmpty(date) && StringUtils.isEmpty(user)){
-	    throw new SearchQueryException("Please enter either a query, moitvation, date or user to search ");
+	    throw new SearchQueryException(AnnotationSearchConstants.EMPTY_QUERY_MESSAGE);
 	}
 	
 	ServiceResponse<Map<String, Object>> serviceResponse = oaAnnotationSearchService.getAnnotationPage(query, motivation, date, user, queryString, page, null, type);
@@ -105,7 +105,7 @@ public class OAAnnotationSearchController {
 	String within = withinId;
 	String type = null;
 	if(StringUtils.isEmpty(query) && StringUtils.isEmpty(motivation) && StringUtils.isEmpty(date) && StringUtils.isEmpty(user)){
-	    throw new SearchQueryException("Please enter either a query, moitvation, date or user to search ");
+	    throw new SearchQueryException(AnnotationSearchConstants.EMPTY_QUERY_MESSAGE);
 	}
 	
 	ServiceResponse<Map<String, Object>> serviceResponse = oaAnnotationSearchService.getAnnotationPage(query, motivation, date, user, queryString, page, within, type);

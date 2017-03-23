@@ -58,14 +58,19 @@ public class OATextSearchController{
     public ResponseEntity<Map<String, Object>> searchTextOAGet(
 	    @RequestParam(value = AnnotationSearchConstants.PARAM_FIELD_QUERY, required = true) String query, 	
 	    @RequestParam(value = AnnotationSearchConstants.PARAM_FIELD_PAGE, required = false) String page,
+	    @RequestParam(value = AnnotationSearchConstants.PARAM_FIELD_WIDTH, required = false) String width,
+	    @RequestParam(value = AnnotationSearchConstants.PARAM_FIELD_HEIGHT, required = false) String height,
 	    HttpServletRequest request) {
 	//TODO implement xy parameters here to pass back to Text Server. 
 	String queryString = controllerUtility.createQueryString(request);
-
+	String widthHeight = null;
+	if(!StringUtils.isEmpty(width) && !StringUtils.isEmpty(height)){
+	    widthHeight = width+"|" + height;
+	}
 	if(StringUtils.isEmpty(query)){
 	    throw new SearchQueryException("Please enter a query to search");
 	}
-	ServiceResponse<Map<String, Object>> serviceResponse = textSearchService.getTextPositions(query, queryString, false, page, false, null);
+	ServiceResponse<Map<String, Object>> serviceResponse = textSearchService.getTextPositions(query, queryString, false, page, false, null, widthHeight);
 
 	Status serviceResponseStatus = serviceResponse.getStatus();
 
@@ -86,14 +91,20 @@ public class OATextSearchController{
 	    @PathVariable String withinId,
 	    @RequestParam(value = AnnotationSearchConstants.PARAM_FIELD_QUERY, required = true) String query, 	
 	    @RequestParam(value = AnnotationSearchConstants.PARAM_FIELD_PAGE, required = false) String page,
+	    @RequestParam(value = AnnotationSearchConstants.PARAM_FIELD_WIDTH, required = false) String width,
+	    @RequestParam(value = AnnotationSearchConstants.PARAM_FIELD_HEIGHT, required = false) String height,
 	    HttpServletRequest request) {
 	//TODO implement xy parameters here to pass back to Text Server. 
 	String queryString = controllerUtility.createQueryString(request);
 	String within = withinId;
+	String widthHeight = null;
+	if(!StringUtils.isEmpty(width) && !StringUtils.isEmpty(height)){
+	    widthHeight = width+"|" + height;
+	}
 	if(StringUtils.isEmpty(query)){
 	    throw new SearchQueryException("Please enter a query to search");
 	}
-	ServiceResponse<Map<String, Object>> serviceResponse = textSearchService.getTextPositions(query, queryString, false, page, false, within);
+	ServiceResponse<Map<String, Object>> serviceResponse = textSearchService.getTextPositions(query, queryString, false, page, false, within, widthHeight);
 
 	Status serviceResponseStatus = serviceResponse.getStatus();
 

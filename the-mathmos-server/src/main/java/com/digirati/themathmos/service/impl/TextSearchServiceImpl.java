@@ -107,7 +107,7 @@ public class TextSearchServiceImpl implements TextSearchService {
     @Override
     @Transactional(readOnly = true, isolation = Isolation.SERIALIZABLE)
    public ServiceResponse<Map<String, Object>> getTextPositions(String query, String queryString, boolean isW3c,
-   String page, boolean isMixedSearch, String within) {
+   String page, boolean isMixedSearch, String within,String widthHeight) {
 	
 
 	totalHits = 0;
@@ -137,7 +137,7 @@ public class TextSearchServiceImpl implements TextSearchService {
 		LOG.info("getting "+queryWithNoPageParamter + "from the cache");
 		boolean isInitialSearch = false;
 		if (null == firstObj) {
-		    Map<String, Object> firstTextMap = getTextMap(query, queryWithNoPageParamter, isW3c, null, isMixedSearch, within);
+		    Map<String, Object> firstTextMap = getTextMap(query, queryWithNoPageParamter, isW3c, null, isMixedSearch, within, widthHeight);
 		    if (null != firstTextMap) {
 			cache.put(queryWithNoPageParamter, firstTextMap);
 			firstObj = cache.get(queryWithNoPageParamter);
@@ -150,7 +150,7 @@ public class TextSearchServiceImpl implements TextSearchService {
 		    int[] totalElements = textUtils.tallyPagingParameters(textMap, isW3c, 0, 0);
 		    // iterate through the pages getting back 
 		    for (int y = 2; y <= pageNumber; y++) {
-			Map<String, Object> otherTextMaps = getTextMap(query, queryString,isW3c, Integer.toString(y), isMixedSearch, within);
+			Map<String, Object> otherTextMaps = getTextMap(query, queryString,isW3c, Integer.toString(y), isMixedSearch, within, widthHeight);
 			if (null != otherTextMaps) {
 			    totalElements = textUtils.tallyPagingParameters(otherTextMaps,isW3c, totalElements[0],
 				    totalElements[1]);
@@ -176,7 +176,7 @@ public class TextSearchServiceImpl implements TextSearchService {
 		}
 
 	    } else {
-		Map<String, Object> textMap = getTextMap(query, queryString, isW3c, page, isMixedSearch, within);
+		Map<String, Object> textMap = getTextMap(query, queryString, isW3c, page, isMixedSearch, within, widthHeight);
 		if (null != textMap) {
 		    cache.put(queryWithNoPageParamter, textMap);
 		    return new ServiceResponse<>(Status.OK, textMap);
@@ -190,7 +190,7 @@ public class TextSearchServiceImpl implements TextSearchService {
     }
     
     
-    private Map<String, Object> getTextMap(String query, String queryString, boolean isW3c, String page, boolean isMixedSearch, String within) {
+    private Map<String, Object> getTextMap(String query, String queryString, boolean isW3c, String page, boolean isMixedSearch, String within, String widthHeight) {
    
 	totalHits = 0;
 	QueryBuilder queryBuilder = buildQuery(query);
@@ -217,7 +217,19 @@ public class TextSearchServiceImpl implements TextSearchService {
 
 	LOG.info("termWithOffsetsMap "+ termWithOffsetsMap.toString());
 	LOG.info("termPositionsMap "+ termPositionsMap.toString());
-	Map<String, Object> offsetPayloadMap = textUtils.createOffsetPayload(termWithOffsetsMap, "1024", "768",
+	String width = null;
+	String height = null;
+	
+	if(null != widthHeight){
+	    String[] widthHeightArray = widthHeight.split("[|]");
+	    width = widthHeightArray[0];
+	    height = widthHeightArray[1];
+	}
+	
+	
+	Map<String, Object> offsetPayloadMap = //textUtils.createOffsetPayload(termWithOffsetsMap, width, height,
+		//offsetPositionMap);
+	textUtils.createOffsetPayload(termWithOffsetsMap,"1024", "768",
 		offsetPositionMap);
 
 	String payload = new Gson().toJson(offsetPayloadMap);

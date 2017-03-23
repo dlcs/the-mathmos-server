@@ -66,7 +66,7 @@ public class W3CAnnotationSearchController {
 	String queryString = controllerUtility.createQueryString(request);
 	String type = null;
 	if(StringUtils.isEmpty(query) && StringUtils.isEmpty(motivation) && StringUtils.isEmpty(date) && StringUtils.isEmpty(user)){
-	    throw new SearchQueryException("Please enter either a query, moitvation, date or user to search ");
+	    throw new SearchQueryException(AnnotationSearchConstants.EMPTY_QUERY_MESSAGE);
 	}
 	
 	ServiceResponse<Map<String, Object>> serviceResponse = w3cAnnotationSearchService.getAnnotationPage(query, motivation, date, user, queryString, page, null, type);
@@ -97,7 +97,7 @@ public class W3CAnnotationSearchController {
 	String within = withinId;
 	String type = null;
 	if(StringUtils.isEmpty(query) && StringUtils.isEmpty(motivation) && StringUtils.isEmpty(date) && StringUtils.isEmpty(user)){
-	    throw new SearchQueryException("Please enter either a query, moitvation, date or user to search ");
+	    throw new SearchQueryException(AnnotationSearchConstants.EMPTY_QUERY_MESSAGE);
 	}
 	
 	ServiceResponse<Map<String, Object>> serviceResponse = w3cAnnotationSearchService.getAnnotationPage(query, motivation, date, user, queryString, page, within, type);

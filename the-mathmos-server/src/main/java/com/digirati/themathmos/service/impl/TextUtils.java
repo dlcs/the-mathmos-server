@@ -11,6 +11,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang.RandomStringUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.springframework.stereotype.Service;
 
@@ -317,8 +318,12 @@ public class TextUtils extends CommonUtils {
 
 	    root.put("imageURI", imageId);
 	    root.put("positions", positions);
-	    root.put("width", width);
-	    root.put("height", height);
+	    if(!StringUtils.isEmpty(width)){
+		root.put("width", width);
+	    }
+	    if(!StringUtils.isEmpty(height)){
+		root.put("height", height);
+	    }
 
 	    realRoot.add(root);
 	}

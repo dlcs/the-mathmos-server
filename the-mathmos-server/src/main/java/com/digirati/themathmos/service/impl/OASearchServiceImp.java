@@ -37,7 +37,7 @@ public class OASearchServiceImp extends AnnotationSearchServiceImpl implements O
    
     @Override
     @Transactional(readOnly = true, isolation = Isolation.SERIALIZABLE)
-    public ServiceResponse<Map<String, Object>> getAnnotationPage(String query,  String queryString, String page, String within, String type)  {
+    public ServiceResponse<Map<String, Object>> getAnnotationPage(String query,  String queryString, String page, String within, String type, String widthHeight)  {
 	
 
 	String pageTest;
@@ -65,7 +65,7 @@ public class OASearchServiceImp extends AnnotationSearchServiceImpl implements O
 		Cache.ValueWrapper firstObj = mixedCache.get(queryWithNoPageParamter);
 		Map<String, Object> firstTextMap;
 		if(null == firstObj){
-		    firstTextMap = this.getMap(query,queryString,false, null, within, type); 
+		    firstTextMap = this.getMap(query,queryString,false, null, within, type, widthHeight); 
 		    if(null != firstTextMap){
 			mixedCache.put(queryWithNoPageParamter, firstTextMap);
 			firstObj = mixedCache.get(queryWithNoPageParamter);
@@ -76,7 +76,7 @@ public class OASearchServiceImp extends AnnotationSearchServiceImpl implements O
 		    int[] totalElementsForTally = annotationUtils.tallyPagingParameters(firstMap,false, 0, 0);
 		    LOG.info("totalElementsForTally 0:" + totalElementsForTally[0] + " 1:" + totalElementsForTally[1]);
 		    for(int y = 2; y <= pageNumber; y++){
-			Map<String, Object> textMap = this.getMap(query, queryString, false, Integer.toString(y), within, type);		    
+			Map<String, Object> textMap = this.getMap(query, queryString, false, Integer.toString(y), within, type, widthHeight);		    
 			if(null != textMap){
 			    totalElementsForTally = annotationUtils.tallyPagingParameters(textMap,false, totalElementsForTally[0], totalElementsForTally[1]);
 			    LOG.error("totalElementsForTally " +totalElementsForTally[0] + " and " + totalElementsForTally[1]);
@@ -96,7 +96,7 @@ public class OASearchServiceImp extends AnnotationSearchServiceImpl implements O
 		    }
 		}				
 	    }else{
-		textAnnoMap = this.getMap(query,queryString,false, page, within, type); 
+		textAnnoMap = this.getMap(query,queryString,false, page, within, type, widthHeight); 
 		if(null != textAnnoMap){
 		    mixedCache.put(queryWithNoPageParamter, textAnnoMap);
 		    return new ServiceResponse<>(Status.OK, textAnnoMap);

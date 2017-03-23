@@ -182,12 +182,12 @@ public class TextSearchServiceImplTest {
 	Cache mockCache = mock(Cache.class);
 	when(cacheManager.getCache("textSearchCache")).thenReturn(mockCache);
 	when(mockCache.get(anyString())).thenReturn(null);
-	ServiceResponse<Map<String, Object>> serviceResponse = textSearchServiceImpl.getTextPositions(query, queryString, isW3c, page, isMixedSearch, null);
+	ServiceResponse<Map<String, Object>> serviceResponse = textSearchServiceImpl.getTextPositions(query, queryString, isW3c, page, isMixedSearch, null, null);
 	assertEquals(serviceResponse.getStatus(), Status.OK);
 	
 	
 	when(coordinateService.getJsonPayload(anyString(), anyString())).thenReturn(null);
-	serviceResponse = textSearchServiceImpl.getTextPositions(query, queryString, isW3c, page, isMixedSearch, null);
+	serviceResponse = textSearchServiceImpl.getTextPositions(query, queryString, isW3c, page, isMixedSearch, null, null);
 	assertEquals(serviceResponse.getStatus(), Status.NOT_FOUND);
 	
     }

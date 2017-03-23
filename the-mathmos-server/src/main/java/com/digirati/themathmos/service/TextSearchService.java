@@ -10,7 +10,7 @@ public interface TextSearchService {
     
     
 
-   public ServiceResponse<Map<String, Object>> getTextPositions(String query, String queryString, boolean isW3c, String page, boolean isMixedSearch, String within);
+   public ServiceResponse<Map<String, Object>> getTextPositions(String query, String queryString, boolean isW3c, String page, boolean isMixedSearch, String within, String widthHeight);
    
     
     public long getTotalHits();

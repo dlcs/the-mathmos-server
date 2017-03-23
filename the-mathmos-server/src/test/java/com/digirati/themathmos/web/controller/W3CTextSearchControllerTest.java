@@ -75,9 +75,9 @@ public class W3CTextSearchControllerTest {
 	String page = null;
 	ServiceResponse notFoundResponse = new ServiceResponse(Status.NOT_FOUND, null);
 	
-	when(textSearchService.getTextPositions(queryNotFound, "http://www.example.com/search/?q=test",true, page, false, null)).thenReturn(notFoundResponse);
+	when(textSearchService.getTextPositions(queryNotFound, "http://www.example.com/search/?q=test",true, page, false, null, null)).thenReturn(notFoundResponse);
 
-	ResponseEntity<Map<String, Object>> responseEntity = controller.searchTextGet(queryNotFound, page, request);
+	ResponseEntity<Map<String, Object>> responseEntity = controller.searchTextGet(queryNotFound, page, null, null, request);
 	assertEquals(responseEntity.getStatusCode().NOT_FOUND, HttpStatus.NOT_FOUND);
 	
 	Map<String, Object> map = new HashMap<>();
@@ -85,14 +85,14 @@ public class W3CTextSearchControllerTest {
 	ServiceResponse foundResponse = new ServiceResponse(Status.OK, map);
 	
 	String queryFound = "found";
-	when(textSearchService.getTextPositions(queryFound, "http://www.example.com/search/?q=test",true, page, false, null)).thenReturn(foundResponse);
+	when(textSearchService.getTextPositions(queryFound, "http://www.example.com/search/?q=test",true, page, false, null, null)).thenReturn(foundResponse);
 	
-	responseEntity = controller.searchTextGet(queryFound, page, request);
+	responseEntity = controller.searchTextGet(queryFound, page, null, null,request);
 	assertEquals(responseEntity.getStatusCode().OK, HttpStatus.OK);
 	
 	String queryEmpty = "";
 	try{
-	responseEntity = controller.searchTextGet(queryEmpty, page, request);
+	responseEntity = controller.searchTextGet(queryEmpty, page,null, null, request);
 	}catch (SearchQueryException sqe){
 	    assertNotNull(sqe);
 	}
@@ -133,9 +133,9 @@ public class W3CTextSearchControllerTest {
 	String page = null;
 	ServiceResponse notFoundResponse = new ServiceResponse(Status.NOT_FOUND, null);
 	
-	when(textSearchService.getTextPositions(queryNotFound, "http://www.example.com/"+within+"/w3c/text/search?q=test",true, page, false, within)).thenReturn(notFoundResponse);
+	when(textSearchService.getTextPositions(queryNotFound, "http://www.example.com/"+within+"/w3c/text/search?q=test",true, page, false, within, null)).thenReturn(notFoundResponse);
 
-	ResponseEntity<Map<String, Object>> responseEntity = controller.searchTextWithinGet(within, queryNotFound, page, withinRequest);
+	ResponseEntity<Map<String, Object>> responseEntity = controller.searchTextWithinGet(within, queryNotFound, page, null, null,withinRequest);
 	assertEquals(responseEntity.getStatusCode().NOT_FOUND, HttpStatus.NOT_FOUND);
 	
 	Map<String, Object> map = new HashMap<>();
@@ -143,14 +143,14 @@ public class W3CTextSearchControllerTest {
 	ServiceResponse foundResponse = new ServiceResponse(Status.OK, map);
 	
 	String queryFound = "found";
-	when(textSearchService.getTextPositions(queryFound, "http://www.example.com/"+within+"/w3c/text/search?q=test",true, page, false, within)).thenReturn(foundResponse);
+	when(textSearchService.getTextPositions(queryFound, "http://www.example.com/"+within+"/w3c/text/search?q=test",true, page, false, within, null)).thenReturn(foundResponse);
 	
-	responseEntity = controller.searchTextWithinGet(within, queryFound, page, withinRequest);
+	responseEntity = controller.searchTextWithinGet(within, queryFound, page, null, null,withinRequest);
 	assertEquals(responseEntity.getStatusCode().OK, HttpStatus.OK);
 	
 	String queryEmpty = "";
 	try{
-	responseEntity = controller.searchTextWithinGet(within, queryEmpty, page, withinRequest);
+	responseEntity = controller.searchTextWithinGet(within, queryEmpty, page,null, null, withinRequest);
 	}catch (SearchQueryException sqe){
 	    assertNotNull(sqe);
 	}

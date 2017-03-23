@@ -79,9 +79,9 @@ public class OATextSearchControllerTest {
 	String page = null;
 	ServiceResponse notFoundResponse = new ServiceResponse(Status.NOT_FOUND, null);
 	
-	when(textSearchService.getTextPositions(queryNotFound, "http://www.example.com/search/?q=test",false, page, false, null)).thenReturn(notFoundResponse);
+	when(textSearchService.getTextPositions(queryNotFound, "http://www.example.com/search/?q=test",false, page, false, null, null)).thenReturn(notFoundResponse);
 
-	ResponseEntity<Map<String, Object>> responseEntity = controller.searchTextOAGet(queryNotFound, page, request);
+	ResponseEntity<Map<String, Object>> responseEntity = controller.searchTextOAGet(queryNotFound, page, null, null,request);
 	assertEquals(responseEntity.getStatusCode().NOT_FOUND, HttpStatus.NOT_FOUND);
 	
 	Map<String, Object> map = new HashMap<>();
@@ -89,14 +89,14 @@ public class OATextSearchControllerTest {
 	ServiceResponse foundResponse = new ServiceResponse(Status.OK, map);
 	
 	String queryFound = "found";
-	when(textSearchService.getTextPositions(queryFound, "http://www.example.com/search/?q=test",false, page, false, null)).thenReturn(foundResponse);
+	when(textSearchService.getTextPositions(queryFound, "http://www.example.com/search/?q=test",false, page, false, null, null)).thenReturn(foundResponse);
 	
-	responseEntity = controller.searchTextOAGet(queryFound, page, request);
+	responseEntity = controller.searchTextOAGet(queryFound, page,  null, null,request);
 	assertEquals(responseEntity.getStatusCode().OK, HttpStatus.OK);
 	
 	String queryEmpty = "";
 	try{
-	responseEntity = controller.searchTextOAGet(queryEmpty, page, request);
+	responseEntity = controller.searchTextOAGet(queryEmpty, page,  null, null,request);
 	}catch (SearchQueryException sqe){
 	    assertNotNull(sqe);
 	}
@@ -137,9 +137,9 @@ public class OATextSearchControllerTest {
 	String page = null;
 	ServiceResponse notFoundResponse = new ServiceResponse(Status.NOT_FOUND, null);
 	
-	when(textSearchService.getTextPositions(queryNotFound, "http://www.example.com/"+within+"/oa/text/search?q=test",false, page, false, within)).thenReturn(notFoundResponse);
+	when(textSearchService.getTextPositions(queryNotFound, "http://www.example.com/"+within+"/oa/text/search?q=test",false, page, false, within, null)).thenReturn(notFoundResponse);
 
-	ResponseEntity<Map<String, Object>> responseEntity = controller.searchTextWithinOAGet(within,queryNotFound, page, withinRequest);
+	ResponseEntity<Map<String, Object>> responseEntity = controller.searchTextWithinOAGet(within,queryNotFound, page,null, null, withinRequest);
 	assertEquals(responseEntity.getStatusCode().NOT_FOUND, HttpStatus.NOT_FOUND);
 	
 	Map<String, Object> map = new HashMap<>();
@@ -147,14 +147,14 @@ public class OATextSearchControllerTest {
 	ServiceResponse foundResponse = new ServiceResponse(Status.OK, map);
 	
 	String queryFound = "found";
-	when(textSearchService.getTextPositions(queryFound, "http://www.example.com/"+within+"/oa/text/search?q=test",false, page, false, within)).thenReturn(foundResponse);
+	when(textSearchService.getTextPositions(queryFound, "http://www.example.com/"+within+"/oa/text/search?q=test",false, page, false, within, null)).thenReturn(foundResponse);
 	
-	responseEntity = controller.searchTextWithinOAGet(within, queryFound, page, withinRequest);
+	responseEntity = controller.searchTextWithinOAGet(within, queryFound, page,null, null, withinRequest);
 	assertEquals(responseEntity.getStatusCode().OK, HttpStatus.OK);
 	
 	String queryEmpty = "";
 	try{
-	responseEntity = controller.searchTextWithinOAGet(within, queryEmpty, page, withinRequest);
+	responseEntity = controller.searchTextWithinOAGet(within, queryEmpty, page, null,null,withinRequest);
 	}catch (SearchQueryException sqe){
 	    assertNotNull(sqe);
 	}
