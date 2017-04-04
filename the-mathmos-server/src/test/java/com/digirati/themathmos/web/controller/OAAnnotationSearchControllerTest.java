@@ -6,6 +6,8 @@ import static org.mockito.Mockito.when;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -55,7 +57,8 @@ public class OAAnnotationSearchControllerTest {
 	when(request.getRequestURL()).thenReturn(new StringBuffer("http://www.example.com/search/"));
 	when(request.getQueryString()).thenReturn("q=test");
 	
-	encodedUrl = URLEncoder.encode(encodedUrl, "UTF-8");
+	encodedUrl = Base64.getEncoder().encodeToString(encodedUrl.getBytes(StandardCharsets.UTF_8));
+	
 	
 	when(withinRequest.getRequestURL()).thenReturn(new StringBuffer("http://www.example.com/"+encodedUrl+"/oa/search"));
 	when(withinRequest.getQueryString()).thenReturn("q=test");
@@ -97,6 +100,14 @@ public class OAAnnotationSearchControllerTest {
 	}catch (SearchQueryException sqe){
 	    assertNotNull(sqe);
 	}
+	
+	when(oaAnnotationSearchService.getAnnotationPage(queryNotFound, motivation, date, user, queryString, page, "within", null)).thenReturn(notFoundResponse);
+	responseEntity = controller.searchOAGet(queryNotFound, motivation, date, user, page, request);
+	assertEquals(responseEntity.getStatusCode().NOT_FOUND, HttpStatus.NOT_FOUND);
+	
+	when(oaAnnotationSearchService.getAnnotationPage(queryNotFound, motivation, date, user, queryString, page, "within", "topic")).thenReturn(notFoundResponse);
+	responseEntity = controller.searchOAGet(queryNotFound, motivation, date, user, page, request);
+	assertEquals(responseEntity.getStatusCode().NOT_FOUND, HttpStatus.NOT_FOUND);
     }
     
     @Test
@@ -122,6 +133,11 @@ public class OAAnnotationSearchControllerTest {
 	
 	responseEntity = controller.autocompleteGet(queryFound, motivation, date, user, min, request);
 	assertEquals(responseEntity.getStatusCode().OK, HttpStatus.OK);
+	
+	when(annotationAutocompleteService.getTerms(queryNotFound, motivation,date, user, min,"http://www.example.com/search/?q=test", false, "within")).thenReturn(notFoundResponse);
+
+	responseEntity = controller.autocompleteGet(queryNotFound, motivation, date, user, min, request);
+	assertEquals(responseEntity.getStatusCode().NOT_FOUND, HttpStatus.NOT_FOUND);
     }
     
     @Test

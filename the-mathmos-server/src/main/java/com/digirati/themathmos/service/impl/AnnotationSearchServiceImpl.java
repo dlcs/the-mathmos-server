@@ -115,6 +115,7 @@ public class AnnotationSearchServiceImpl {
 	}
 
 	QueryBuilder builder = buildAllThings(query,motivation,date, user, type);
+	LOG.info(builder.toString());
 	Page<W3CSearchAnnotation> annotationPage;
 	
 	annotationPage= formQuery(builder,from,pagingSize, within);
