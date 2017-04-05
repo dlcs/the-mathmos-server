@@ -5,6 +5,7 @@ import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.*;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.log4j.Logger;
@@ -18,6 +19,7 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.springframework.cache.Cache;
+import org.springframework.cache.Cache.ValueWrapper;
 import org.springframework.cache.CacheManager;
 import org.springframework.data.elasticsearch.core.ElasticsearchTemplate;
 
@@ -31,6 +33,9 @@ public class W3CSearchServiceImpTest {
     private static final Logger LOG = Logger.getLogger(W3CSearchServiceImpTest.class);
     
     private W3CSearchServiceImpl impl;
+    
+    String queryString = "http://www.example.com/search?q=finger";
+    String queryStringWithPage = "http://www.example.com/search?q=finger&page=2";
     
     AnnotationUtils annotationUtils;
     ElasticsearchTemplate template;
@@ -55,14 +60,17 @@ public class W3CSearchServiceImpTest {
 	mixedCache = mock(Cache.class);
 	cacheManager = mock(CacheManager.class);
 	when(cacheManager.getCache(anyString())).thenReturn(mixedCache);
-	when(mixedCache.get(anyString())).thenReturn(null);
+	when(mixedCache.get(queryString)).thenReturn(null);
+	Map map = new HashMap();
+	mixedCache.put(queryStringWithPage, map);
+	//when(mixedCache.get(queryStringWithPage)).thenReturn(new ValueWrapper())
 	impl = new W3CSearchServiceImpl(annotationUtils, template, textSearchService, cacheManager);
     }
 
     @Test
     public void testGetAnnotationPage() {
 	String query= "finger";
-	String queryString = "http://www.example.com/search?q=finger";
+	
 	String page =null;
 	String within = null;
 	String type = null;
@@ -106,6 +114,11 @@ public class W3CSearchServiceImpTest {
 	
 	page = "2";
 	serviceResponse = impl.getAnnotationPage(query, queryString, page, within, type, widthHeight);
+	assertNotNull(serviceResponse);
+	assertNull(serviceResponse.getObj());
+	
+	page = "2";
+	serviceResponse = impl.getAnnotationPage(query, queryStringWithPage, page, within, type, widthHeight);
 	assertNotNull(serviceResponse);
 	assertNull(serviceResponse.getObj());
 	
