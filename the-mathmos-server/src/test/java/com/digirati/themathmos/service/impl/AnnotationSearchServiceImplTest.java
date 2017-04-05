@@ -19,6 +19,7 @@ import org.junit.Test;
 import org.springframework.cache.CacheManager;
 import org.springframework.data.elasticsearch.core.ElasticsearchTemplate;
 
+import com.digirati.themathmos.model.Parameters;
 import com.digirati.themathmos.service.TextSearchService;
 import com.digirati.themathmos.service.impl.AnnotationSearchServiceImpl;
 import com.digirati.themathmos.service.impl.AnnotationUtils;
@@ -109,46 +110,48 @@ public class AnnotationSearchServiceImplTest {
 	when(client.prepareSearch("w3cannotation")).thenReturn(builder);
 
 	
-	
-	String[] results = annotationSearchServiceImpl.getAnnotationsPage(query, motivation, date, user, queryString, isW3c, page, within, type);
+	Parameters params = new Parameters(query, motivation, date, user);
+	String[] results = annotationSearchServiceImpl.getAnnotationsPage(params, queryString, isW3c, page, within, type);
 	LOG.info(results[0]);
 	
 	motivation = "non-painting";
+	params.setMotivation(motivation);
 	
-	results = annotationSearchServiceImpl.getAnnotationsPage(query, motivation, date, user, queryString, isW3c, page, within, type);
+	results = annotationSearchServiceImpl.getAnnotationsPage(params, queryString, isW3c, page, within, type);
 	LOG.info(results);
 	
 	motivation = "non-painting non-tagging";
+	params.setMotivation(motivation);
 	try{
-	    results = annotationSearchServiceImpl.getAnnotationsPage(query, motivation, date, user, queryString, isW3c, page, within, type);
+	    results = annotationSearchServiceImpl.getAnnotationsPage(params, queryString, isW3c, page, within, type);
 	}catch (Exception e){
 	    assertNotNull(e.getMessage());
 	}
 	
 	
 	motivation = "painting";
-	
-	results = annotationSearchServiceImpl.getAnnotationsPage(query, motivation, date, user, queryString, isW3c, page, within, type);
+	params.setMotivation(motivation);
+	results = annotationSearchServiceImpl.getAnnotationsPage(params, queryString, isW3c, page, within, type);
 	LOG.info(results);
 	
 	date = "1970-06-13T12:09:56+01:00/1970-06-13T16:09:56+01:00";
 	
-	
-	results = annotationSearchServiceImpl.getAnnotationsPage(query, motivation, date, user, queryString, isW3c, page, within, type);
+	params.setDate(date);
+	results = annotationSearchServiceImpl.getAnnotationsPage(params, queryString, isW3c, page, within, type);
 	LOG.info(results);
 	
 	date = "1970-06-13T12:09:56+01:00";
-	
+	params.setDate(date);
 	try{
-	    results = annotationSearchServiceImpl.getAnnotationsPage(query, motivation, date, user, queryString, isW3c, page, within, type);
+	    results = annotationSearchServiceImpl.getAnnotationsPage(params, queryString, isW3c, page, within, type);
 	}catch (Exception e){
 	    assertNotNull(e.getMessage());
 	}
 	
 	date = "1970-06-13T12:09:5601:00/1970-06-13T16:09:56+01:00";
-	
+	params.setDate(date);
 	try{
-	    results = annotationSearchServiceImpl.getAnnotationsPage(query, motivation, date, user, queryString, isW3c, page, within, type);
+	    results = annotationSearchServiceImpl.getAnnotationsPage(params, queryString, isW3c, page, within, type);
 	}catch (Exception e){
 	    assertNotNull(e.getMessage());
 	}
@@ -156,34 +159,40 @@ public class AnnotationSearchServiceImplTest {
 	date = null;
 	motivation = null;
 	type = "topic";
-	results = annotationSearchServiceImpl.getAnnotationsPage(query, motivation, date, user, queryString, isW3c, page, within, type);
+	params.setDate(date);
+	params.setMotivation(motivation);
+	results = annotationSearchServiceImpl.getAnnotationsPage(params, queryString, isW3c, page, within, type);
 	LOG.info(results);
 	
 	type = null;
 	page ="2";
-	results = annotationSearchServiceImpl.getAnnotationsPage(query, motivation, date, user, queryString, isW3c, page, within, type);
+	results = annotationSearchServiceImpl.getAnnotationsPage(params, queryString, isW3c, page, within, type);
 	LOG.info(results);
 	
 
 	page = null;
 	user = "Frank";
-	results = annotationSearchServiceImpl.getAnnotationsPage(query, motivation, date, user, queryString, isW3c, page, within, type);
+	params.setUser(user);
+	results = annotationSearchServiceImpl.getAnnotationsPage(params, queryString, isW3c, page, within, type);
 	LOG.info(results);
 	
 	
 	user = null;
 	query = null;
 	motivation = "painting";
-	results = annotationSearchServiceImpl.getAnnotationsPage(query, motivation, date, user, queryString, isW3c, page, within, type);
+	params.setUser(user);
+	params.setQuery(query);
+	params.setMotivation(motivation);
+	results = annotationSearchServiceImpl.getAnnotationsPage(params, queryString, isW3c, page, within, type);
 	LOG.info(results);
 	
 	isW3c = false;
-	results = annotationSearchServiceImpl.getAnnotationsPage(query, motivation, date, user, queryString, isW3c, page, within, type);
+	results = annotationSearchServiceImpl.getAnnotationsPage(params, queryString, isW3c, page, within, type);
 	LOG.info(results);
 	
 	within = Base64.getEncoder().encodeToString("test".getBytes(StandardCharsets.UTF_8));
 	LOG.info(within);
-	results = annotationSearchServiceImpl.getAnnotationsPage(query, motivation, date, user, queryString, isW3c, page, within, type);
+	results = annotationSearchServiceImpl.getAnnotationsPage(params, queryString, isW3c, page, within, type);
 	LOG.info(results);
 	
 	query = "comment";
@@ -193,12 +202,16 @@ public class AnnotationSearchServiceImplTest {
 	page ="2";
 	user = "Frank";
 	isW3c = true;
+	params.setUser(user);
+	params.setQuery(query);
+	params.setMotivation(motivation);
+	params.setDate(date);
 	within = Base64.getEncoder().encodeToString("test".getBytes(StandardCharsets.UTF_8));
-	results = annotationSearchServiceImpl.getAnnotationsPage(query, motivation, date, user, queryString, isW3c, page, within, type);
+	results = annotationSearchServiceImpl.getAnnotationsPage(params, queryString, isW3c, page, within, type);
 	LOG.info(results);
 	
 	type = null;
-	results = annotationSearchServiceImpl.getAnnotationsPage(query, motivation, date, user, queryString, isW3c, page, within, type);
+	results = annotationSearchServiceImpl.getAnnotationsPage(params, queryString, isW3c, page, within, type);
 	LOG.info(results);
 	
     }

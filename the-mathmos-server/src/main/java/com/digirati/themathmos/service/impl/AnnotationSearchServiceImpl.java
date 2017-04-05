@@ -100,7 +100,7 @@ public class AnnotationSearchServiceImpl {
     * @param within {@code String} within parameter e.g. base64 encoded collection string
     * @param type {@code String} type parameter e.g. type=topic
     * @return {@code String[]} containing either the w3c or oa annotations
-    */
+    
     public String[] getAnnotationsPage(String query, String motivation, String date, String user, String queryString,
 	    boolean isW3c, String page, String within, String type)  {
     
@@ -143,7 +143,7 @@ public class AnnotationSearchServiceImpl {
 	pagingParameters = annotationUtils.getAnnotationPageParameters(annotationPage, queryString, DEFAULT_PAGING_NUMBER, totalHits);
 	return annoSearchArray;	
 	
-    }
+    }*/
    
     /**
      * Method to get annotation page form elasticsearch
@@ -338,8 +338,9 @@ public class AnnotationSearchServiceImpl {
     protected Map<String, Object> getMap(String query, String queryString, boolean isW3c, String page, String within, String type, String widthHeight) {
 	
 	
-	
-	String[] annoSearchArray  = this.getAnnotationsPage(query, null, null, null, queryString, isW3c, page, within, type);
+	Parameters params = new Parameters();
+	params.setQuery(query);
+	String[] annoSearchArray  = this.getAnnotationsPage(params, queryString, isW3c, page, within, type);
 	
 	int annoListSize = annoSearchArray.length;
 	LOG.info("annoListSize: " + annoListSize);
