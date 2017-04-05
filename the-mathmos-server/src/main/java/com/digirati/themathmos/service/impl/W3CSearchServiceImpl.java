@@ -22,15 +22,15 @@ import com.digirati.themathmos.service.W3CSearchService;
 
 
 
-@Service(W3CSearchServiceImp.W3C_SERVICE_NAME)
-public class W3CSearchServiceImp extends AnnotationSearchServiceImpl implements W3CSearchService{
-    private static final Logger LOG = Logger.getLogger(W3CSearchServiceImp.class);
+@Service(W3CSearchServiceImpl.W3C_SERVICE_NAME)
+public class W3CSearchServiceImpl extends AnnotationSearchServiceImpl implements W3CSearchService{
+    private static final Logger LOG = Logger.getLogger(W3CSearchServiceImpl.class);
  
     public static final String W3C_SERVICE_NAME = "w3cSearchServiceImpl";
        
     
     @Autowired
-    public W3CSearchServiceImp(AnnotationUtils annotationUtils,ElasticsearchTemplate template,TextSearchService textSearchService, CacheManager cacheManager ) {
+    public W3CSearchServiceImpl(AnnotationUtils annotationUtils,ElasticsearchTemplate template,TextSearchService textSearchService, CacheManager cacheManager ) {
 	super(annotationUtils, template, textSearchService, cacheManager);
     }
     
