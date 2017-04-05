@@ -97,6 +97,8 @@ public class AnnotationSearchServiceImpl {
     * @param queryString {@code String} e.g/ http://www.examples.com/search/search/oa?q=test
     * @param isW3c {@code boolean} true if w3c annotation and false if oa
     * @param page {@code String} page parameter e.g. page=2
+    * @param within {@code String} within parameter e.g. base64 encoded collection string
+    * @param type {@code String} type parameter e.g. type=topic
     * @return {@code String[]} containing either the w3c or oa annotations
     */
     public String[] getAnnotationsPage(String query, String motivation, String date, String user, String queryString,
@@ -145,10 +147,12 @@ public class AnnotationSearchServiceImpl {
    
     /**
      * Method to get annotation page form elasticsearch
-     * @param parameters {@code Parameters} e.g. q=test&motivation=paging&date=RR&user=Frank
+     * @param parameters {@code Parameters} e.g. q=test&amp;motivation=paging&amp;date=RR&amp;user=Frank
      * @param queryString {@code String} e.g/ http://www.examples.com/search/search/oa?q=test
      * @param isW3c {@code boolean} true if w3c annotation and false if oa
      * @param page {@code String} page parameter e.g. page=2
+     * @param within {@code String} within parameter e.g. base64 representation of collection nstring
+     * @param type {@code String} type parameter e.g. type=topic
      * @return {@code String[]} containing either the w3c or oa annotations
      */
      public String[] getAnnotationsPage(Parameters parameters, String queryString,
