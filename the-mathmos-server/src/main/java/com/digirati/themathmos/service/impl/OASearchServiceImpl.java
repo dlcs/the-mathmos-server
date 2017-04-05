@@ -22,15 +22,15 @@ import com.digirati.themathmos.service.TextSearchService;
 
 
 
-@Service(OASearchServiceImp.OA_SERVICE_NAME)
-public class OASearchServiceImp extends AnnotationSearchServiceImpl implements OASearchService{
-    private static final Logger LOG = Logger.getLogger(OASearchServiceImp.class);
+@Service(OASearchServiceImpl.OA_SERVICE_NAME)
+public class OASearchServiceImpl extends AnnotationSearchServiceImpl implements OASearchService{
+    private static final Logger LOG = Logger.getLogger(OASearchServiceImpl.class);
  
     public static final String OA_SERVICE_NAME = "oaSearchServiceImpl";
        
     
     @Autowired
-    public OASearchServiceImp(AnnotationUtils annotationUtils,ElasticsearchTemplate template,TextSearchService textSearchService,  CacheManager cacheManager) {
+    public OASearchServiceImpl(AnnotationUtils annotationUtils,ElasticsearchTemplate template,TextSearchService textSearchService,  CacheManager cacheManager) {
 	super(annotationUtils, template, textSearchService, cacheManager);
     }
     
