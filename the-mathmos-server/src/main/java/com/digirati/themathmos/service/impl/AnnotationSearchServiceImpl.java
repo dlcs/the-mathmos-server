@@ -161,7 +161,7 @@ public class AnnotationSearchServiceImpl {
    	
    		
    	    Map <String, Object> map = annotationUtils.getQueryMap(searchRequestBuilder.toString());
-   	    if(null != decodedWithinUrl){
+   	    if(null != decodedWithinUrl && null != map){
    		map = annotationUtils.setSource(map,decodedWithinUrl, W3C_INDEX, pagingSize);
    		searchRequestBuilderReal.setSource(map);
    	    }else{

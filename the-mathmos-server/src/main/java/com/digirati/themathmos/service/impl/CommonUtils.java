@@ -448,10 +448,16 @@ public class CommonUtils {
     }
     
     public String getQueryString(String rawJson){
-	int indexOfFirstBrace = rawJson.indexOf("{");
-	int indexOfLastBrace = rawJson.lastIndexOf("}");
-	String amendedRawJson = rawJson.substring(indexOfFirstBrace, indexOfLastBrace+1);
-	return amendedRawJson;
+	LOG.info("rawJson" + rawJson);
+	if(rawJson.indexOf("{") > -1 && rawJson.indexOf("}") > -1){
+	    int indexOfFirstBrace = rawJson.indexOf("{");
+		int indexOfLastBrace = rawJson.lastIndexOf("}");
+		String amendedRawJson = rawJson.substring(indexOfFirstBrace, indexOfLastBrace+1);
+		return amendedRawJson; 
+	}else{
+	    return "";
+	}
+	
 	//Map<String, Object> javaRootBodyMapObject  = new Gson().fromJson(rawJson, Map.class);
     }
    
@@ -460,12 +466,12 @@ public class CommonUtils {
 	String queryString = getQueryString(rawJson);
 	
 	Map<String, Object> jsonMap  = new Gson().fromJson(queryString, Map.class);
-	if(jsonMap.containsKey("from")){
+	if(null != jsonMap && jsonMap.containsKey("from")){
 	    Double fromDouble = (Double)jsonMap.get("from"); 
 	    LOG.info(fromDouble);
 	    jsonMap.put("from", removeDotZero(fromDouble));
 	}
-	if(jsonMap.containsKey("size")){
+	if(null != jsonMap && jsonMap.containsKey("size")){
 	    Double sizeDouble = (Double)jsonMap.get("size");
 	    LOG.info(sizeDouble);		
 	    jsonMap.put("size", removeDotZero(sizeDouble));

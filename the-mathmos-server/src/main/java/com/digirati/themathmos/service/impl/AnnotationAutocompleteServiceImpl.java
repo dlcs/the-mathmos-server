@@ -120,7 +120,7 @@ public class AnnotationAutocompleteServiceImpl implements AnnotationAutocomplete
    	
    		
    	    Map <String, Object> map = annotationUtils.getQueryMap(searchRequestBuilder.toString());
-   	    if(null != decodedWithinUrl){
+   	    if(null != decodedWithinUrl && null != map){
    		map = annotationUtils.setSource(map,decodedWithinUrl, index, 1);
    		searchRequestBuilderReal.setSource(map);
    	    }else{
