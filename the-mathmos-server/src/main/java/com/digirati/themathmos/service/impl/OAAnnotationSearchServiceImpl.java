@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.digirati.themathmos.model.Parameters;
 import com.digirati.themathmos.model.ServiceResponse;
 import com.digirati.themathmos.model.ServiceResponse.Status;
 import com.digirati.themathmos.model.annotation.page.PageParameters;
@@ -38,7 +39,7 @@ public class OAAnnotationSearchServiceImpl extends AnnotationSearchServiceImpl i
    
     }
     
-   
+   /*
     @Override
     @Transactional(readOnly = true, isolation = Isolation.SERIALIZABLE)
     @Cacheable(value="oaAnnotationSearchPagingCache", key="#queryString" )
@@ -64,8 +65,32 @@ public class OAAnnotationSearchServiceImpl extends AnnotationSearchServiceImpl i
 	    return new ServiceResponse<>(Status.NOT_FOUND, null); 
 	}
     }
-   
-    
+   */
+    @Override
+    @Transactional(readOnly = true, isolation = Isolation.SERIALIZABLE)
+    @Cacheable(value="oaAnnotationSearchPagingCache", key="#queryString" )
+    	
+    public ServiceResponse<Map<String, Object>> getAnnotationPage(Parameters parameters, String queryString, String page, String within, String type)  {
+	
+	
+	String[] annoSearchArray  = this.getAnnotationsPage(parameters, queryString, false, page, within, type);
+	
+	if(annoSearchArray.length == 0){
+	    return new ServiceResponse<>(Status.NOT_FOUND, null); 
+	}
+	
+	PageParameters pagingParameters = this.getPageParameters();
+
+	List<W3CAnnotation> annotationList = annotationUtils.getW3CAnnotations(annoSearchArray);
+
+	Map<String, Object> annoMap = annotationUtils.createAnnotationPage(queryString, annotationList, false, pagingParameters, (int)this.getTotalHits(), false);
+	   	
+	if(null != annoMap && !annoMap.isEmpty()){
+	    return new ServiceResponse<>(Status.OK, annoMap);
+	}else{
+	    return new ServiceResponse<>(Status.NOT_FOUND, null); 
+	}
+    }
    
 
 }

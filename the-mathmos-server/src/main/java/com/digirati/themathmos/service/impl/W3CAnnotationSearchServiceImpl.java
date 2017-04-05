@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.digirati.themathmos.model.Parameters;
 import com.digirati.themathmos.model.ServiceResponse;
 import com.digirati.themathmos.model.ServiceResponse.Status;
 import com.digirati.themathmos.model.annotation.page.PageParameters;
@@ -37,7 +38,7 @@ public class W3CAnnotationSearchServiceImpl extends AnnotationSearchServiceImpl 
     
     
     
- 
+ /*
     @Override
     @Cacheable(value = "w3cAnnotationSearchPagingCache", key = "#queryString" )
     @Transactional(readOnly = true, isolation = Isolation.SERIALIZABLE)
@@ -47,6 +48,35 @@ public class W3CAnnotationSearchServiceImpl extends AnnotationSearchServiceImpl 
 
 	String[] annoSearchArray  = this.getAnnotationsPage(query, motivation, date, user, queryString, true, page, within, type);
 	
+	
+	if(annoSearchArray.length == 0){
+	    return new ServiceResponse<>(Status.NOT_FOUND, null); 
+	}
+
+	PageParameters pagingParameters = this.getPageParameters();
+
+	List<W3CAnnotation> annotationList = annotationUtils.getW3CAnnotations(annoSearchArray);
+		
+	Map<String, Object> annoMap = annotationUtils.createAnnotationPage(queryString, annotationList, true, pagingParameters, (int)this.getTotalHits(), false);
+	   	
+	if(null != annoMap && !annoMap.isEmpty()){
+
+	    return new ServiceResponse<>(Status.OK, annoMap);
+	}else{
+	    return new ServiceResponse<>(Status.NOT_FOUND, null); 
+	}
+	
+	
+	
+    }*/
+    
+    @Override
+    @Cacheable(value = "w3cAnnotationSearchPagingCache", key = "#queryString" )
+    @Transactional(readOnly = true, isolation = Isolation.SERIALIZABLE)
+    public ServiceResponse<Map<String, Object>> getAnnotationPage(Parameters parameters, String queryString, String page, String within, String type) {
+
+  
+	String[] annoSearchArray  = this.getAnnotationsPage(parameters, queryString, true, page, within, type);	
 	
 	if(annoSearchArray.length == 0){
 	    return new ServiceResponse<>(Status.NOT_FOUND, null); 

@@ -8,17 +8,17 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.log4j.Logger;
-import org.easymock.EasyMock;
+
 import org.elasticsearch.action.ListenableActionFuture;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.action.suggest.SuggestRequestBuilder;
+
 import org.elasticsearch.action.suggest.SuggestResponse;
 
 import org.elasticsearch.client.Client;
 import org.elasticsearch.common.text.Text;
 import org.elasticsearch.search.suggest.Suggest;
-import org.elasticsearch.search.suggest.Suggest.Suggestion;
+
 
 import org.elasticsearch.search.suggest.completion.CompletionSuggestion;
 import org.elasticsearch.search.suggest.completion.CompletionSuggestion.Entry;
@@ -27,7 +27,6 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.powermock.api.easymock.PowerMock;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.springframework.data.elasticsearch.core.ElasticsearchTemplate;
@@ -82,7 +81,6 @@ public class AnnotationAutocompleteServiceImplTest {
 	ListenableActionFuture<SearchResponse> action = mock(ListenableActionFuture.class);
 	
 
-
         when(suggestRequestBuilder.execute()).thenReturn(action);
 
 	when(action.actionGet()).thenReturn(response);
@@ -108,10 +106,7 @@ public class AnnotationAutocompleteServiceImplTest {
 	when(response.getSuggest()).thenReturn(suggest);
 	when(suggest.getSuggestion("annotation_suggest")).thenReturn(suggestion);
 
-	//when(reponse.getSuggest()).thenReturn(suggest);
-	//EasyMock.expect(response.getSuggest()).andReturn(suggest);
 
-	//when(response.getSuggest()).thenReturn(suggest);
 	ServiceResponse<Map<String, Object>> serviceResponse = impl.getTerms(query, motivation, date, user, min, queryString, true, null);
 	assertNotNull(serviceResponse.getObj());
     }

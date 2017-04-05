@@ -20,6 +20,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 import com.digirati.themathmos.exception.SearchQueryException;
+import com.digirati.themathmos.model.Parameters;
 import com.digirati.themathmos.model.ServiceResponse;
 import com.digirati.themathmos.model.ServiceResponse.Status;
 import com.digirati.themathmos.service.AnnotationAutocompleteService;
@@ -78,7 +79,10 @@ public class OAAnnotationSearchControllerTest {
 	ServiceResponse notFoundResponse = new ServiceResponse(Status.NOT_FOUND, null);
 	String queryString = "http://www.example.com/search/?q=test";
 	
-	when(oaAnnotationSearchService.getAnnotationPage(queryNotFound, motivation, date, user, queryString, page, null, null)).thenReturn(notFoundResponse);
+	Parameters params = new Parameters(queryNotFound, motivation, date, user);
+	
+	//when(oaAnnotationSearchService.getAnnotationPage(queryNotFound, motivation, date, user, queryString, page, null, null)).thenReturn(notFoundResponse);
+	when(oaAnnotationSearchService.getAnnotationPage(params, queryString, page, null, null)).thenReturn(notFoundResponse);
 	ResponseEntity<Map<String, Object>> responseEntity = controller.searchOAGet(queryNotFound, motivation, date, user, page, request);
 	assertEquals(responseEntity.getStatusCode().NOT_FOUND, HttpStatus.NOT_FOUND);
 	
@@ -87,8 +91,10 @@ public class OAAnnotationSearchControllerTest {
 	ServiceResponse foundResponse = new ServiceResponse(Status.OK, map);
 	
 	String queryFound = "found";
+	params.setQuery(queryFound);
 	
-	when(oaAnnotationSearchService.getAnnotationPage(queryFound, motivation, date, user, queryString, page, null, null)).thenReturn(foundResponse);
+	//when(oaAnnotationSearchService.getAnnotationPage(queryFound, motivation, date, user, queryString, page, null, null)).thenReturn(foundResponse);
+	when(oaAnnotationSearchService.getAnnotationPage(params, queryString, page, null, null)).thenReturn(foundResponse);
 	
 	
 	responseEntity = controller.searchOAGet(queryFound, motivation, date, user, page, request);
@@ -100,12 +106,14 @@ public class OAAnnotationSearchControllerTest {
 	}catch (SearchQueryException sqe){
 	    assertNotNull(sqe);
 	}
-	
-	when(oaAnnotationSearchService.getAnnotationPage(queryNotFound, motivation, date, user, queryString, page, "within", null)).thenReturn(notFoundResponse);
+	params.setQuery(queryNotFound);
+	//when(oaAnnotationSearchService.getAnnotationPage(queryNotFound, motivation, date, user, queryString, page, "within", null)).thenReturn(notFoundResponse);
+	when(oaAnnotationSearchService.getAnnotationPage(params, queryString, page, "within", null)).thenReturn(notFoundResponse);
 	responseEntity = controller.searchOAGet(queryNotFound, motivation, date, user, page, request);
 	assertEquals(responseEntity.getStatusCode().NOT_FOUND, HttpStatus.NOT_FOUND);
 	
-	when(oaAnnotationSearchService.getAnnotationPage(queryNotFound, motivation, date, user, queryString, page, "within", "topic")).thenReturn(notFoundResponse);
+	//when(oaAnnotationSearchService.getAnnotationPage(queryNotFound, motivation, date, user, queryString, page, "within", "topic")).thenReturn(notFoundResponse);
+	when(oaAnnotationSearchService.getAnnotationPage(params, queryString, page, "within", "topic")).thenReturn(notFoundResponse);
 	responseEntity = controller.searchOAGet(queryNotFound, motivation, date, user, page, request);
 	assertEquals(responseEntity.getStatusCode().NOT_FOUND, HttpStatus.NOT_FOUND);
     }
@@ -149,9 +157,10 @@ public class OAAnnotationSearchControllerTest {
 	String page = null;
 	ServiceResponse notFoundResponse = new ServiceResponse(Status.NOT_FOUND, null);
 	String queryString = "http://www.example.com/"+encodedUrl+"/oa/search?q=test";
+	Parameters params = new Parameters(queryNotFound, motivation, date, user);
 	
-	
-	when(oaAnnotationSearchService.getAnnotationPage(queryNotFound, motivation, date, user, queryString, page, encodedUrl, null)).thenReturn(notFoundResponse);
+	//when(oaAnnotationSearchService.getAnnotationPage(queryNotFound, motivation, date, user, queryString, page, encodedUrl, null)).thenReturn(notFoundResponse);
+	when(oaAnnotationSearchService.getAnnotationPage(params, queryString, page, encodedUrl, null)).thenReturn(notFoundResponse);
 	
 
 	ResponseEntity<Map<String, Object>> responseEntity = controller.searchWithinOAGet(encodedUrl,queryNotFound, motivation, date, user, page, withinRequest);
@@ -162,8 +171,10 @@ public class OAAnnotationSearchControllerTest {
 	ServiceResponse foundResponse = new ServiceResponse(Status.OK, map);
 	
 	String queryFound = "found";
+	params.setQuery(queryFound);
 	
-	when(oaAnnotationSearchService.getAnnotationPage(queryFound, motivation, date, user, queryString, page, encodedUrl, null)).thenReturn(foundResponse);
+	//when(oaAnnotationSearchService.getAnnotationPage(queryFound, motivation, date, user, queryString, page, encodedUrl, null)).thenReturn(foundResponse);
+	when(oaAnnotationSearchService.getAnnotationPage(params, queryString, page, encodedUrl, null)).thenReturn(foundResponse);
 	
 	
 	responseEntity = controller.searchWithinOAGet(encodedUrl,queryFound, motivation, date, user, page, withinRequest);

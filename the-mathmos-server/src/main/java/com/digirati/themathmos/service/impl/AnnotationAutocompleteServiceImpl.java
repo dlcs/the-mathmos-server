@@ -18,6 +18,7 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.elasticsearch.core.ElasticsearchTemplate;
 import org.springframework.stereotype.Service;
 
+import com.digirati.themathmos.model.Parameters;
 import com.digirati.themathmos.model.ServiceResponse;
 import com.digirati.themathmos.model.ServiceResponse.Status;
 import com.digirati.themathmos.model.annotation.w3c.SuggestOption;
@@ -61,6 +62,21 @@ public class AnnotationAutocompleteServiceImpl implements AnnotationAutocomplete
 	}else{
 	    
 	    Map<String, Object> annoTermList =  annotationUtils.createAutocompleteList(options, isW3c, queryString, motivation, date,user);
+	    return new ServiceResponse<>(Status.OK, annoTermList);
+	}
+    }
+    
+    @Override
+    @Cacheable(value = "autocompleteCache", key = "#queryString.toString()+#isW3c.toString()" )
+    public ServiceResponse<Map<String, Object>> getTerms(Parameters parameters, String min, String queryString, boolean isW3c, String within) {
+    
+	List<SuggestOption> options = findSuggestionsFor(parameters.getQuery(), W3C_INDEX, within);
+	
+	if(options.isEmpty()){
+	    return new ServiceResponse<>(Status.NOT_FOUND, null);
+	}else{
+	    
+	    Map<String, Object> annoTermList =  annotationUtils.createAutocompleteList(options, isW3c, queryString, parameters.getMotivation(), parameters.getDate(),parameters.getUser());
 	    return new ServiceResponse<>(Status.OK, annoTermList);
 	}
     }

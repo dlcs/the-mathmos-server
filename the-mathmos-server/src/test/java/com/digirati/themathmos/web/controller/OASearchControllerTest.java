@@ -18,6 +18,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 import com.digirati.themathmos.exception.SearchQueryException;
+import com.digirati.themathmos.model.Parameters;
 import com.digirati.themathmos.model.ServiceResponse;
 import com.digirati.themathmos.model.ServiceResponse.Status;
 import com.digirati.themathmos.service.AnnotationAutocompleteService;
@@ -82,8 +83,10 @@ public class OASearchControllerTest {
 	String page = null;
 	ServiceResponse notFoundResponse = new ServiceResponse(Status.NOT_FOUND, null);
 	
+
+	Parameters params = new Parameters(queryNotFound, motivation, date, user);
 	when(textSearchService.getTextPositions(queryNotFound, "http://www.example.com/search/?q=test",false, page, false, null, null)).thenReturn(notFoundResponse);
-	when(oaAnnotationSearchService.getAnnotationPage(queryNotFound, motivation,date, user, "http://www.example.com/search/?q=test",page, null, null)).thenReturn(notFoundResponse);
+	when(oaAnnotationSearchService.getAnnotationPage(params, "http://www.example.com/search/?q=test",page, null, null)).thenReturn(notFoundResponse);
 	when(oaSearchService.getAnnotationPage(queryNotFound, "http://www.example.com/search/?q=test",page, null, null,null)).thenReturn(notFoundResponse);
 	
 	ResponseEntity<Map<String, Object>> responseEntity = controller.searchOAMixedGet(queryNotFound, motivation, date, user, page, null, null,request);
@@ -94,8 +97,9 @@ public class OASearchControllerTest {
 	ServiceResponse foundResponse = new ServiceResponse(Status.OK, map);
 	
 	String queryFound = "found";
+	params.setQuery(queryFound);
 	when(textSearchService.getTextPositions(queryFound, "http://www.example.com/search/?q=test",false, page, false, null, null)).thenReturn(foundResponse);	
-	when(oaAnnotationSearchService.getAnnotationPage(queryFound, motivation,date, user, "http://www.example.com/search/?q=test",page, null, null)).thenReturn(foundResponse);
+	when(oaAnnotationSearchService.getAnnotationPage(params, "http://www.example.com/search/?q=test",page, null, null)).thenReturn(foundResponse);
 	when(oaSearchService.getAnnotationPage(queryFound, "http://www.example.com/search/?q=test",page, null, null, null)).thenReturn(foundResponse);
 	
 	responseEntity = controller.searchOAMixedGet(queryFound, motivation, date, user, page, null, null, request);
@@ -147,8 +151,10 @@ public class OASearchControllerTest {
 	String page = null;
 	ServiceResponse notFoundResponse = new ServiceResponse(Status.NOT_FOUND, null);
 	
+	Parameters params = new Parameters(queryNotFound, motivation, date, user);
+	
 	when(textSearchService.getTextPositions(queryNotFound, "http://www.example.com/"+within+"/search/oa?q=test",false, page, false, within, null)).thenReturn(notFoundResponse);
-	when(oaAnnotationSearchService.getAnnotationPage(queryNotFound, motivation,date, user, "http://www.example.com/"+within+"/search/oa?q=test",page, within, null)).thenReturn(notFoundResponse);
+	when(oaAnnotationSearchService.getAnnotationPage(params, "http://www.example.com/"+within+"/search/oa?q=test",page, within, null)).thenReturn(notFoundResponse);
 	when(oaSearchService.getAnnotationPage(queryNotFound, "http://www.example.com/"+within+"/search/oa?q=test",page, within, null, null)).thenReturn(notFoundResponse);
 	
 	ResponseEntity<Map<String, Object>> responseEntity = controller.searchOAWithinMixedGet(within,queryNotFound, motivation, date, user, page, null, null, withinRequest);
@@ -159,8 +165,9 @@ public class OASearchControllerTest {
 	ServiceResponse foundResponse = new ServiceResponse(Status.OK, map);
 	
 	String queryFound = "found";
+	params.setQuery(queryFound);
 	when(textSearchService.getTextPositions(queryFound,"http://www.example.com/"+within+"/search/oa?q=test",false, page, false, within, null)).thenReturn(foundResponse);	
-	when(oaAnnotationSearchService.getAnnotationPage(queryFound, motivation,date, user, "http://www.example.com/"+within+"/search/oa?q=test",page, within, null)).thenReturn(foundResponse);
+	when(oaAnnotationSearchService.getAnnotationPage(params, "http://www.example.com/"+within+"/search/oa?q=test",page, within, null)).thenReturn(foundResponse);
 	when(oaSearchService.getAnnotationPage(queryFound, "http://www.example.com/"+within+"/search/oa?q=test",page, within, null, null)).thenReturn(foundResponse);
 	
 	responseEntity = controller.searchOAWithinMixedGet(within,queryFound, motivation, date, user, page, null, null,withinRequest);

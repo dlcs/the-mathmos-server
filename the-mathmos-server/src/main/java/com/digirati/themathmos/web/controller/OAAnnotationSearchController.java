@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.digirati.themathmos.AnnotationSearchConstants;
 import com.digirati.themathmos.exception.SearchException;
 import com.digirati.themathmos.exception.SearchQueryException;
-
+import com.digirati.themathmos.model.Parameters;
 import com.digirati.themathmos.model.ServiceResponse;
 import com.digirati.themathmos.model.ServiceResponse.Status;
 import com.digirati.themathmos.service.AnnotationAutocompleteService;
@@ -70,12 +70,16 @@ public class OAAnnotationSearchController {
 	String queryString = controllerUtility.createQueryString(request);
 	String type = null;
 	
-	if(StringUtils.isEmpty(query) && StringUtils.isEmpty(motivation) && StringUtils.isEmpty(date) && StringUtils.isEmpty(user)){
-	    throw new SearchQueryException(AnnotationSearchConstants.EMPTY_QUERY_MESSAGE);
-	}
 	
-	ServiceResponse<Map<String, Object>> serviceResponse = oaAnnotationSearchService.getAnnotationPage(query, motivation, date, user, queryString, page, null, type);
+	//ServiceResponse<Map<String, Object>> serviceResponse = oaAnnotationSearchService.getAnnotationPage(query, motivation, date, user, queryString, page, null, type);
+	Parameters params = null;
+	if(!controllerUtility.validateParameters(query, motivation, date, user)){
+	    throw new SearchQueryException(AnnotationSearchConstants.EMPTY_QUERY_MESSAGE);
+	}else{
+	    params = new Parameters(query, motivation, date, user);
+	}
 
+	ServiceResponse<Map<String, Object>> serviceResponse = oaAnnotationSearchService.getAnnotationPage(params, queryString, page, null, type);
 	Status serviceResponseStatus = serviceResponse.getStatus();
 
 	if (serviceResponseStatus.equals(Status.OK)) {
@@ -104,12 +108,21 @@ public class OAAnnotationSearchController {
 
 	String within = withinId;
 	String type = null;
+	/*
 	if(StringUtils.isEmpty(query) && StringUtils.isEmpty(motivation) && StringUtils.isEmpty(date) && StringUtils.isEmpty(user)){
 	    throw new SearchQueryException(AnnotationSearchConstants.EMPTY_QUERY_MESSAGE);
 	}
 	
 	ServiceResponse<Map<String, Object>> serviceResponse = oaAnnotationSearchService.getAnnotationPage(query, motivation, date, user, queryString, page, within, type);
-
+	*/
+	Parameters params = null;
+	if(!controllerUtility.validateParameters(query, motivation, date, user)){
+	    throw new SearchQueryException(AnnotationSearchConstants.EMPTY_QUERY_MESSAGE);
+	}else{
+	    params = new Parameters(query, motivation, date, user);
+	}
+	ServiceResponse<Map<String, Object>> serviceResponse = oaAnnotationSearchService.getAnnotationPage(params, queryString, page, within, type);
+	
 	Status serviceResponseStatus = serviceResponse.getStatus();
 
 	if (serviceResponseStatus.equals(Status.OK)) {
@@ -135,6 +148,15 @@ public class OAAnnotationSearchController {
 	String queryString = controllerUtility.createQueryString(request);
 	
 	ServiceResponse<Map<String, Object>> serviceResponse = annotationAutocompleteService.getTerms(query, motivation, date, user, min, queryString, false, null);
+	
+	
+	Parameters params = null;
+	if(!controllerUtility.validateQueryParameter(query, motivation, date, user)){
+	    throw new SearchQueryException(AnnotationSearchConstants.EMPTY_AUTOCOMPLETE_QUERY_MESSAGE);
+	}else{
+	    params = new Parameters(query, motivation, date, user);
+	}
+	
 	
 
 	Status serviceResponseStatus = serviceResponse.getStatus();
@@ -165,7 +187,17 @@ public class OAAnnotationSearchController {
 	String queryString = controllerUtility.createQueryString(request);
 
 	String within = withinId;
+	
 	ServiceResponse<Map<String, Object>> serviceResponse = annotationAutocompleteService.getTerms(query, motivation, date, user, min, queryString, false, within);
+	
+	
+	Parameters params = null;
+	if(!controllerUtility.validateQueryParameter(query, motivation, date, user)){
+	    throw new SearchQueryException(AnnotationSearchConstants.EMPTY_AUTOCOMPLETE_QUERY_MESSAGE);
+	}else{
+	    params = new Parameters(query, motivation, date, user);
+	}
+	
 	
 
 	Status serviceResponseStatus = serviceResponse.getStatus();

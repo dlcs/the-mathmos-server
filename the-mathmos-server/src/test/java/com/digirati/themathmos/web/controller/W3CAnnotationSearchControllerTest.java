@@ -17,6 +17,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 import com.digirati.themathmos.exception.SearchQueryException;
+import com.digirati.themathmos.model.Parameters;
 import com.digirati.themathmos.model.ServiceResponse;
 import com.digirati.themathmos.model.ServiceResponse.Status;
 import com.digirati.themathmos.service.AnnotationAutocompleteService;
@@ -73,8 +74,9 @@ public class W3CAnnotationSearchControllerTest {
 	String user = null;
 	String page = null;
 	ServiceResponse notFoundResponse = new ServiceResponse(Status.NOT_FOUND, null);
-	
-	when(w3cAnnotationSearchService.getAnnotationPage(queryNotFound, motivation,date, user, "http://www.example.com/search/?q=test",page, null, null)).thenReturn(notFoundResponse);
+	Parameters params = new Parameters(queryNotFound, motivation, date, user);
+	//when(w3cAnnotationSearchService.getAnnotationPage(queryNotFound, motivation,date, user, "http://www.example.com/search/?q=test",page, null, null)).thenReturn(notFoundResponse);
+	when(w3cAnnotationSearchService.getAnnotationPage(params, "http://www.example.com/search/?q=test",page, null, null)).thenReturn(notFoundResponse);
 
 	ResponseEntity<Map<String, Object>> responseEntity = controller.searchGet(queryNotFound, motivation, date, user, page, request);
 	assertEquals(responseEntity.getStatusCode().NOT_FOUND, HttpStatus.NOT_FOUND);
@@ -84,7 +86,9 @@ public class W3CAnnotationSearchControllerTest {
 	ServiceResponse foundResponse = new ServiceResponse(Status.OK, map);
 	
 	String queryFound = "found";
-	when(w3cAnnotationSearchService.getAnnotationPage(queryFound, motivation,date, user, "http://www.example.com/search/?q=test",page, null, null)).thenReturn(foundResponse);
+	params.setQuery(queryFound);
+	//when(w3cAnnotationSearchService.getAnnotationPage(queryFound, motivation,date, user, "http://www.example.com/search/?q=test",page, null, null)).thenReturn(foundResponse);
+	when(w3cAnnotationSearchService.getAnnotationPage(params, "http://www.example.com/search/?q=test",page, null, null)).thenReturn(foundResponse);
 	
 	responseEntity = controller.searchGet(queryFound, motivation, date, user, page, request);
 	assertEquals(responseEntity.getStatusCode().OK, HttpStatus.OK);
@@ -131,8 +135,10 @@ public class W3CAnnotationSearchControllerTest {
 	String user = null;
 	String page = null;
 	ServiceResponse notFoundResponse = new ServiceResponse(Status.NOT_FOUND, null);
+	Parameters params = new Parameters(queryNotFound, motivation, date, user);
 	
-	when(w3cAnnotationSearchService.getAnnotationPage(queryNotFound, motivation,date, user, "http://www.example.com/"+within+"/w3c/search?q=test",page, within, null)).thenReturn(notFoundResponse);
+	//when(w3cAnnotationSearchService.getAnnotationPage(queryNotFound, motivation,date, user, "http://www.example.com/"+within+"/w3c/search?q=test",page, within, null)).thenReturn(notFoundResponse);
+	when(w3cAnnotationSearchService.getAnnotationPage(params, "http://www.example.com/"+within+"/w3c/search?q=test",page, within, null)).thenReturn(notFoundResponse);
 
 	ResponseEntity<Map<String, Object>> responseEntity = controller.searchWithinGet(within,queryNotFound, motivation, date, user, page, withinRequest);
 	assertEquals(responseEntity.getStatusCode().NOT_FOUND, HttpStatus.NOT_FOUND);
@@ -142,7 +148,9 @@ public class W3CAnnotationSearchControllerTest {
 	ServiceResponse foundResponse = new ServiceResponse(Status.OK, map);
 	
 	String queryFound = "found";
-	when(w3cAnnotationSearchService.getAnnotationPage(queryFound, motivation,date, user, "http://www.example.com/"+within+"/w3c/search?q=test",page, within, null)).thenReturn(foundResponse);
+	params.setQuery(queryFound);
+	//when(w3cAnnotationSearchService.getAnnotationPage(queryFound, motivation,date, user, "http://www.example.com/"+within+"/w3c/search?q=test",page, within, null)).thenReturn(foundResponse);
+	when(w3cAnnotationSearchService.getAnnotationPage(params, "http://www.example.com/"+within+"/w3c/search?q=test",page, within, null)).thenReturn(foundResponse);
 	
 	responseEntity = controller.searchWithinGet(within,queryFound, motivation, date, user, page, withinRequest);
 	assertEquals(responseEntity.getStatusCode().OK, HttpStatus.OK);

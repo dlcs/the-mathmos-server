@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.digirati.themathmos.AnnotationSearchConstants;
 import com.digirati.themathmos.exception.SearchException;
 import com.digirati.themathmos.exception.SearchQueryException;
+import com.digirati.themathmos.model.Parameters;
 import com.digirati.themathmos.model.ServiceResponse;
 import com.digirati.themathmos.model.ServiceResponse.Status;
 import com.digirati.themathmos.service.AnnotationAutocompleteService;
@@ -65,11 +66,23 @@ public class W3CAnnotationSearchController {
 	    HttpServletRequest request){
 	String queryString = controllerUtility.createQueryString(request);
 	String type = null;
-	if(StringUtils.isEmpty(query) && StringUtils.isEmpty(motivation) && StringUtils.isEmpty(date) && StringUtils.isEmpty(user)){
+	
+	
+	/*if(StringUtils.isEmpty(query) && StringUtils.isEmpty(motivation) && StringUtils.isEmpty(date) && StringUtils.isEmpty(user)){
 	    throw new SearchQueryException(AnnotationSearchConstants.EMPTY_QUERY_MESSAGE);
 	}
 	
 	ServiceResponse<Map<String, Object>> serviceResponse = w3cAnnotationSearchService.getAnnotationPage(query, motivation, date, user, queryString, page, null, type);
+	*/
+	Parameters params = null;
+	if(!controllerUtility.validateParameters(query, motivation, date, user)){
+	    throw new SearchQueryException(AnnotationSearchConstants.EMPTY_QUERY_MESSAGE);
+	}else{
+	    params = new Parameters(query, motivation, date, user);
+	}
+	ServiceResponse<Map<String, Object>> serviceResponse = w3cAnnotationSearchService.getAnnotationPage(params, queryString, page, null, type);
+	
+	
 	Status serviceResponseStatus = serviceResponse.getStatus();
 
 	if (serviceResponseStatus.equals(Status.OK)) {
@@ -96,11 +109,23 @@ public class W3CAnnotationSearchController {
 	String queryString = controllerUtility.createQueryString(request);
 	String within = withinId;
 	String type = null;
+	
+	/*
 	if(StringUtils.isEmpty(query) && StringUtils.isEmpty(motivation) && StringUtils.isEmpty(date) && StringUtils.isEmpty(user)){
 	    throw new SearchQueryException(AnnotationSearchConstants.EMPTY_QUERY_MESSAGE);
 	}
 	
 	ServiceResponse<Map<String, Object>> serviceResponse = w3cAnnotationSearchService.getAnnotationPage(query, motivation, date, user, queryString, page, within, type);
+	*/
+	Parameters params = null;
+	if(!controllerUtility.validateParameters(query, motivation, date, user)){
+	    throw new SearchQueryException(AnnotationSearchConstants.EMPTY_QUERY_MESSAGE);
+	}else{
+	    params = new Parameters(query, motivation, date, user);
+	}
+	ServiceResponse<Map<String, Object>> serviceResponse = w3cAnnotationSearchService.getAnnotationPage(params, queryString, page, within, type);
+	
+	
 	Status serviceResponseStatus = serviceResponse.getStatus();
 
 	if (serviceResponseStatus.equals(Status.OK)) {

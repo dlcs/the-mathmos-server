@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.digirati.themathmos.AnnotationSearchConstants;
 import com.digirati.themathmos.exception.SearchException;
 import com.digirati.themathmos.exception.SearchQueryException;
+import com.digirati.themathmos.model.Parameters;
 import com.digirati.themathmos.model.ServiceResponse;
 import com.digirati.themathmos.model.ServiceResponse.Status;
 import com.digirati.themathmos.service.AnnotationAutocompleteService;
@@ -86,10 +87,17 @@ public class OASearchController {
 	if(!StringUtils.isEmpty(width) && !StringUtils.isEmpty(height)){
 	    widthHeight = width+"|" + height;
 	}
-	if(StringUtils.isEmpty(query) && StringUtils.isEmpty(motivation) && StringUtils.isEmpty(date) && StringUtils.isEmpty(user)){
+	/*if(StringUtils.isEmpty(query) && StringUtils.isEmpty(motivation) && StringUtils.isEmpty(date) && StringUtils.isEmpty(user)){
 	    throw new SearchQueryException(AnnotationSearchConstants.EMPTY_QUERY_MESSAGE);	    
-	}
+	}*/
 	ServiceResponse<Map<String, Object>> serviceResponse;
+	
+	Parameters params = null;
+	if(!controllerUtility.validateParameters(query, motivation, date, user)){
+	    throw new SearchQueryException(AnnotationSearchConstants.EMPTY_QUERY_MESSAGE);
+	}else{
+	    params = new Parameters(query, motivation, date, user);
+	}
 	
 	if(StringUtils.isEmpty(motivation) && StringUtils.isEmpty(date) && StringUtils.isEmpty(user)){
 	    serviceResponse = oaSearchService.getAnnotationPage(query, queryString, page, null, type, widthHeight);	    
@@ -97,7 +105,7 @@ public class OASearchController {
 	    if(AnnotationSearchConstants.PAINTING_MOTIVATION.equals(motivation)){
 		serviceResponse = textSearchService.getTextPositions(query, queryString, false, page, false, null, widthHeight);
 	    }else if(motivation.indexOf(AnnotationSearchConstants.PAINTING_MOTIVATION) < 0){		
-		serviceResponse = oaAnnotationSearchService.getAnnotationPage(query, motivation, date, user, queryString, page, null, type); 
+		serviceResponse = oaAnnotationSearchService.getAnnotationPage(params, queryString, page, null, type); 
 	    }else{
 		serviceResponse = oaSearchService.getAnnotationPage(query, queryString, page, null, type, widthHeight);
 	    }
@@ -139,10 +147,17 @@ public class OASearchController {
 	}
 	String queryString = controllerUtility.createQueryString(request);
 	
-	if(StringUtils.isEmpty(query) && StringUtils.isEmpty(motivation) && StringUtils.isEmpty(date) && StringUtils.isEmpty(user)){
+	/*if(StringUtils.isEmpty(query) && StringUtils.isEmpty(motivation) && StringUtils.isEmpty(date) && StringUtils.isEmpty(user)){
 	    throw new SearchQueryException(AnnotationSearchConstants.EMPTY_QUERY_MESSAGE);	    
-	}
+	}*/
 	ServiceResponse<Map<String, Object>> serviceResponse;
+	
+	Parameters params = null;
+	if(!controllerUtility.validateParameters(query, motivation, date, user)){
+	    throw new SearchQueryException(AnnotationSearchConstants.EMPTY_QUERY_MESSAGE);
+	}else{
+	    params = new Parameters(query, motivation, date, user);
+	}
 	
 	if(StringUtils.isEmpty(motivation) && StringUtils.isEmpty(date) && StringUtils.isEmpty(user)){
 	    serviceResponse = oaSearchService.getAnnotationPage(query, queryString, page, within, type, widthHeight);	    
@@ -150,7 +165,7 @@ public class OASearchController {
 	    if(AnnotationSearchConstants.PAINTING_MOTIVATION.equals(motivation)){
 		serviceResponse = textSearchService.getTextPositions(query, queryString, false, page, false, within, widthHeight);
 	    }else if(motivation.indexOf(AnnotationSearchConstants.PAINTING_MOTIVATION) < 0){		
-		serviceResponse = oaAnnotationSearchService.getAnnotationPage(query, motivation, date, user, queryString, page, within, type); 
+		serviceResponse = oaAnnotationSearchService.getAnnotationPage(params, queryString, page, within, type); 
 	    }else{
 		serviceResponse = oaSearchService.getAnnotationPage(query, queryString, page, within, type, widthHeight);
 	    }

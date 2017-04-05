@@ -30,6 +30,7 @@ import org.springframework.stereotype.Service;
 import com.digirati.themathmos.AnnotationSearchConstants;
 import com.digirati.themathmos.exception.SearchQueryException;
 import com.digirati.themathmos.mapper.W3CSearchAnnotationMapper;
+import com.digirati.themathmos.model.Parameters;
 import com.digirati.themathmos.model.ServiceResponse;
 import com.digirati.themathmos.model.W3CSearchAnnotation;
 import com.digirati.themathmos.model.annotation.page.PageParameters;
@@ -142,6 +143,58 @@ public class AnnotationSearchServiceImpl {
 	
     }
    
+    /**
+     * Method to get annotation page form elasticsearch
+     * @param parameters {@code Parameters} e.g. q=test&motivation=paging&date=RR&user=Frank
+     * @param queryString {@code String} e.g/ http://www.examples.com/search/search/oa?q=test
+     * @param isW3c {@code boolean} true if w3c annotation and false if oa
+     * @param page {@code String} page parameter e.g. page=2
+     * @return {@code String[]} containing either the w3c or oa annotations
+     */
+     public String[] getAnnotationsPage(Parameters parameters, String queryString,
+ 	    boolean isW3c, String page, String within, String type)  {
+     
+ 	totalHits = 0;
+ 	
+ 	pagingParameters = null;
+ 	
+ 	int pagingSize = DEFAULT_PAGING_NUMBER;
+ 	int from = DEFAULT_STARTING_PAGING_NUMBER;
+ 	
+ 	//TODO validate that pagenumber is int and is in expected range.
+ 	if(!StringUtils.isEmpty(page)){
+ 	    Integer pagingInteger =  Integer.parseInt(page);	    
+ 	    from = (pagingInteger.intValue()-1) * pagingSize;
+ 	}
+
+ 	QueryBuilder builder = buildAllThings(parameters.getQuery(),parameters.getMotivation(),parameters.getDate(), parameters.getUser(), type);
+ 	LOG.info(builder.toString());
+ 	Page<W3CSearchAnnotation> annotationPage;
+ 	
+ 	annotationPage= formQuery(builder,from,pagingSize, within);
+ 	
+ 	if(null == annotationPage){
+ 	    return new String[0];
+ 	}
+ 	String[] annoSearchArray = new String[annotationPage.getNumberOfElements()];
+ 	
+ 	LOG.info(String.format("Our paged search returned [%s] items ", annotationPage.getNumberOfElements()));
+ 	int count = 0;
+ 	for (W3CSearchAnnotation w3CAnnotation : annotationPage) {
+ 	    String jsonLd;
+ 	    if (isW3c) {
+ 		jsonLd = w3CAnnotation.getW3cJsonLd();
+ 	    } else {
+ 		jsonLd = w3CAnnotation.getOaJsonLd();
+ 	    }
+ 	    annoSearchArray[count] = jsonLd;
+ 	    count++;
+ 	}
+ 	pagingParameters = annotationUtils.getAnnotationPageParameters(annotationPage, queryString, DEFAULT_PAGING_NUMBER, totalHits);
+ 	return annoSearchArray;	
+ 	
+     }
+    
     
     private Page<W3CSearchAnnotation> formQuery(QueryBuilder queryBuilder,int pageNumber, int pagingSize, String within){
    	Pageable pageable  = new PageRequest(pageNumber, pagingSize);
