@@ -175,15 +175,7 @@ public class W3CTextSearchController {
     }
     
     
-    public static void main (String args[]){
-	
-	byte[] test = "http://wellcomelibrary.org/iiif/b22346521/manifest".getBytes();
-	System.out.println(new String(test));
-	
-	test = Base64.getEncoder().encode(test);
-	
-	System.out.println(new String(test));
-    }
+ 
     
   
 

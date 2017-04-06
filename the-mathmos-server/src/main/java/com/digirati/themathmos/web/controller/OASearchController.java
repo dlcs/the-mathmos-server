@@ -87,16 +87,12 @@ public class OASearchController {
 	if(!StringUtils.isEmpty(width) && !StringUtils.isEmpty(height)){
 	    widthHeight = width+"|" + height;
 	}
-	/*if(StringUtils.isEmpty(query) && StringUtils.isEmpty(motivation) && StringUtils.isEmpty(date) && StringUtils.isEmpty(user)){
-	    throw new SearchQueryException(AnnotationSearchConstants.EMPTY_QUERY_MESSAGE);	    
-	}*/
+
 	ServiceResponse<Map<String, Object>> serviceResponse;
 	
-	Parameters params = null;
+	
 	if(!controllerUtility.validateParameters(query, motivation, date, user)){
 	    throw new SearchQueryException(AnnotationSearchConstants.EMPTY_QUERY_MESSAGE);
-	}else{
-	    params = new Parameters(query, motivation, date, user);
 	}
 	
 	if(StringUtils.isEmpty(motivation) && StringUtils.isEmpty(date) && StringUtils.isEmpty(user)){
@@ -105,7 +101,7 @@ public class OASearchController {
 	    if(AnnotationSearchConstants.PAINTING_MOTIVATION.equals(motivation)){
 		serviceResponse = textSearchService.getTextPositions(query, queryString, false, page, false, null, widthHeight);
 	    }else if(motivation.indexOf(AnnotationSearchConstants.PAINTING_MOTIVATION) < 0){		
-		serviceResponse = oaAnnotationSearchService.getAnnotationPage(params, queryString, page, null, type); 
+		serviceResponse = oaAnnotationSearchService.getAnnotationPage(new Parameters(query, motivation, date, user), queryString, page, null, type); 
 	    }else{
 		serviceResponse = oaSearchService.getAnnotationPage(query, queryString, page, null, type, widthHeight);
 	    }
@@ -146,17 +142,11 @@ public class OASearchController {
 	    widthHeight = width+"|" + height;
 	}
 	String queryString = controllerUtility.createQueryString(request);
-	
-	/*if(StringUtils.isEmpty(query) && StringUtils.isEmpty(motivation) && StringUtils.isEmpty(date) && StringUtils.isEmpty(user)){
-	    throw new SearchQueryException(AnnotationSearchConstants.EMPTY_QUERY_MESSAGE);	    
-	}*/
+
 	ServiceResponse<Map<String, Object>> serviceResponse;
 	
-	Parameters params = null;
 	if(!controllerUtility.validateParameters(query, motivation, date, user)){
 	    throw new SearchQueryException(AnnotationSearchConstants.EMPTY_QUERY_MESSAGE);
-	}else{
-	    params = new Parameters(query, motivation, date, user);
 	}
 	
 	if(StringUtils.isEmpty(motivation) && StringUtils.isEmpty(date) && StringUtils.isEmpty(user)){
@@ -165,7 +155,7 @@ public class OASearchController {
 	    if(AnnotationSearchConstants.PAINTING_MOTIVATION.equals(motivation)){
 		serviceResponse = textSearchService.getTextPositions(query, queryString, false, page, false, within, widthHeight);
 	    }else if(motivation.indexOf(AnnotationSearchConstants.PAINTING_MOTIVATION) < 0){		
-		serviceResponse = oaAnnotationSearchService.getAnnotationPage(params, queryString, page, within, type); 
+		serviceResponse = oaAnnotationSearchService.getAnnotationPage(new Parameters(query, motivation, date, user), queryString, page, within, type); 
 	    }else{
 		serviceResponse = oaSearchService.getAnnotationPage(query, queryString, page, within, type, widthHeight);
 	    }

@@ -67,20 +67,11 @@ public class W3CAnnotationSearchController {
 	String queryString = controllerUtility.createQueryString(request);
 	String type = null;
 	
-	
-	/*if(StringUtils.isEmpty(query) && StringUtils.isEmpty(motivation) && StringUtils.isEmpty(date) && StringUtils.isEmpty(user)){
-	    throw new SearchQueryException(AnnotationSearchConstants.EMPTY_QUERY_MESSAGE);
-	}
-	
-	ServiceResponse<Map<String, Object>> serviceResponse = w3cAnnotationSearchService.getAnnotationPage(query, motivation, date, user, queryString, page, null, type);
-	*/
-	Parameters params = null;
+
 	if(!controllerUtility.validateParameters(query, motivation, date, user)){
 	    throw new SearchQueryException(AnnotationSearchConstants.EMPTY_QUERY_MESSAGE);
-	}else{
-	    params = new Parameters(query, motivation, date, user);
 	}
-	ServiceResponse<Map<String, Object>> serviceResponse = w3cAnnotationSearchService.getAnnotationPage(params, queryString, page, null, type);
+	ServiceResponse<Map<String, Object>> serviceResponse = w3cAnnotationSearchService.getAnnotationPage(new Parameters(query, motivation, date, user), queryString, page, null, type);
 	
 	
 	Status serviceResponseStatus = serviceResponse.getStatus();
@@ -110,20 +101,10 @@ public class W3CAnnotationSearchController {
 	String within = withinId;
 	String type = null;
 	
-	/*
-	if(StringUtils.isEmpty(query) && StringUtils.isEmpty(motivation) && StringUtils.isEmpty(date) && StringUtils.isEmpty(user)){
-	    throw new SearchQueryException(AnnotationSearchConstants.EMPTY_QUERY_MESSAGE);
-	}
-	
-	ServiceResponse<Map<String, Object>> serviceResponse = w3cAnnotationSearchService.getAnnotationPage(query, motivation, date, user, queryString, page, within, type);
-	*/
-	Parameters params = null;
 	if(!controllerUtility.validateParameters(query, motivation, date, user)){
 	    throw new SearchQueryException(AnnotationSearchConstants.EMPTY_QUERY_MESSAGE);
-	}else{
-	    params = new Parameters(query, motivation, date, user);
 	}
-	ServiceResponse<Map<String, Object>> serviceResponse = w3cAnnotationSearchService.getAnnotationPage(params, queryString, page, within, type);
+	ServiceResponse<Map<String, Object>> serviceResponse = w3cAnnotationSearchService.getAnnotationPage(new Parameters(query, motivation, date, user), queryString, page, within, type);
 	
 	
 	Status serviceResponseStatus = serviceResponse.getStatus();

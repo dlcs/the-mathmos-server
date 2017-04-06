@@ -72,14 +72,12 @@ public class OAAnnotationSearchController {
 	
 	
 	//ServiceResponse<Map<String, Object>> serviceResponse = oaAnnotationSearchService.getAnnotationPage(query, motivation, date, user, queryString, page, null, type);
-	Parameters params = null;
+	
 	if(!controllerUtility.validateParameters(query, motivation, date, user)){
 	    throw new SearchQueryException(AnnotationSearchConstants.EMPTY_QUERY_MESSAGE);
-	}else{
-	    params = new Parameters(query, motivation, date, user);
 	}
 
-	ServiceResponse<Map<String, Object>> serviceResponse = oaAnnotationSearchService.getAnnotationPage(params, queryString, page, null, type);
+	ServiceResponse<Map<String, Object>> serviceResponse = oaAnnotationSearchService.getAnnotationPage(new Parameters(query, motivation, date, user), queryString, page, null, type);
 	Status serviceResponseStatus = serviceResponse.getStatus();
 
 	if (serviceResponseStatus.equals(Status.OK)) {
@@ -115,13 +113,11 @@ public class OAAnnotationSearchController {
 	
 	ServiceResponse<Map<String, Object>> serviceResponse = oaAnnotationSearchService.getAnnotationPage(query, motivation, date, user, queryString, page, within, type);
 	*/
-	Parameters params = null;
+	
 	if(!controllerUtility.validateParameters(query, motivation, date, user)){
 	    throw new SearchQueryException(AnnotationSearchConstants.EMPTY_QUERY_MESSAGE);
-	}else{
-	    params = new Parameters(query, motivation, date, user);
 	}
-	ServiceResponse<Map<String, Object>> serviceResponse = oaAnnotationSearchService.getAnnotationPage(params, queryString, page, within, type);
+	ServiceResponse<Map<String, Object>> serviceResponse = oaAnnotationSearchService.getAnnotationPage(new Parameters(query, motivation, date, user), queryString, page, within, type);
 	
 	Status serviceResponseStatus = serviceResponse.getStatus();
 
@@ -147,17 +143,12 @@ public class OAAnnotationSearchController {
 	
 	String queryString = controllerUtility.createQueryString(request);
 	
-	ServiceResponse<Map<String, Object>> serviceResponse = annotationAutocompleteService.getTerms(query, motivation, date, user, min, queryString, false, null);
-	
-	
-	Parameters params = null;
 	if(!controllerUtility.validateQueryParameter(query, motivation, date, user)){
 	    throw new SearchQueryException(AnnotationSearchConstants.EMPTY_AUTOCOMPLETE_QUERY_MESSAGE);
-	}else{
-	    params = new Parameters(query, motivation, date, user);
 	}
 	
-	
+	ServiceResponse<Map<String, Object>> serviceResponse = annotationAutocompleteService.getTerms(query, motivation, date, user, min, queryString, false, null);
+
 
 	Status serviceResponseStatus = serviceResponse.getStatus();
 
@@ -188,16 +179,11 @@ public class OAAnnotationSearchController {
 
 	String within = withinId;
 	
-	ServiceResponse<Map<String, Object>> serviceResponse = annotationAutocompleteService.getTerms(query, motivation, date, user, min, queryString, false, within);
-	
-	
-	Parameters params = null;
 	if(!controllerUtility.validateQueryParameter(query, motivation, date, user)){
 	    throw new SearchQueryException(AnnotationSearchConstants.EMPTY_AUTOCOMPLETE_QUERY_MESSAGE);
-	}else{
-	    params = new Parameters(query, motivation, date, user);
 	}
 	
+	ServiceResponse<Map<String, Object>> serviceResponse = annotationAutocompleteService.getTerms(query, motivation, date, user, min, queryString, false, within);
 	
 
 	Status serviceResponseStatus = serviceResponse.getStatus();
