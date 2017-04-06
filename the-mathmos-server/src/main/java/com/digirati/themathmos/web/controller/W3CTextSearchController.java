@@ -1,8 +1,6 @@
 package com.digirati.themathmos.web.controller;
 
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
-import java.util.Base64;
+
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
@@ -65,7 +63,7 @@ public class W3CTextSearchController {
 	    @RequestParam(value = AnnotationSearchConstants.PARAM_FIELD_WIDTH, required = false) String width,
 	    @RequestParam(value = AnnotationSearchConstants.PARAM_FIELD_HEIGHT, required = false) String height,
 	    HttpServletRequest request) {
-	//TODO implement xy parameters here to pass back to Text Server. 
+
 	String queryString = controllerUtility.createQueryString(request);
 	String widthHeight = null;
 	if(!StringUtils.isEmpty(width) && !StringUtils.isEmpty(height)){
@@ -98,7 +96,7 @@ public class W3CTextSearchController {
 	    @RequestParam(value = AnnotationSearchConstants.PARAM_FIELD_WIDTH, required = false) String width,
 	    @RequestParam(value = AnnotationSearchConstants.PARAM_FIELD_HEIGHT, required = false) String height,
 	    HttpServletRequest request) {
-	//TODO implement xy parameters here to pass back to Text Server. 
+
 	String queryString = controllerUtility.createQueryString(request);
 	String within = withinId;
 	

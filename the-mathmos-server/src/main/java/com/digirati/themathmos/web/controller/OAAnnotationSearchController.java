@@ -4,7 +4,6 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -69,10 +68,7 @@ public class OAAnnotationSearchController {
 	
 	String queryString = controllerUtility.createQueryString(request);
 	String type = null;
-	
-	
-	//ServiceResponse<Map<String, Object>> serviceResponse = oaAnnotationSearchService.getAnnotationPage(query, motivation, date, user, queryString, page, null, type);
-	
+		
 	if(!controllerUtility.validateParameters(query, motivation, date, user)){
 	    throw new SearchQueryException(AnnotationSearchConstants.EMPTY_QUERY_MESSAGE);
 	}
@@ -106,14 +102,7 @@ public class OAAnnotationSearchController {
 
 	String within = withinId;
 	String type = null;
-	/*
-	if(StringUtils.isEmpty(query) && StringUtils.isEmpty(motivation) && StringUtils.isEmpty(date) && StringUtils.isEmpty(user)){
-	    throw new SearchQueryException(AnnotationSearchConstants.EMPTY_QUERY_MESSAGE);
-	}
-	
-	ServiceResponse<Map<String, Object>> serviceResponse = oaAnnotationSearchService.getAnnotationPage(query, motivation, date, user, queryString, page, within, type);
-	*/
-	
+
 	if(!controllerUtility.validateParameters(query, motivation, date, user)){
 	    throw new SearchQueryException(AnnotationSearchConstants.EMPTY_QUERY_MESSAGE);
 	}
@@ -143,7 +132,7 @@ public class OAAnnotationSearchController {
 	
 	String queryString = controllerUtility.createQueryString(request);
 	
-	if(!controllerUtility.validateQueryParameter(query, motivation, date, user)){
+	if(!controllerUtility.validateQueryParameter(query)){
 	    throw new SearchQueryException(AnnotationSearchConstants.EMPTY_AUTOCOMPLETE_QUERY_MESSAGE);
 	}
 	
@@ -179,7 +168,7 @@ public class OAAnnotationSearchController {
 
 	String within = withinId;
 	
-	if(!controllerUtility.validateQueryParameter(query, motivation, date, user)){
+	if(!controllerUtility.validateQueryParameter(query)){
 	    throw new SearchQueryException(AnnotationSearchConstants.EMPTY_AUTOCOMPLETE_QUERY_MESSAGE);
 	}
 	

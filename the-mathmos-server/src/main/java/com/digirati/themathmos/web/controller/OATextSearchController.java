@@ -61,7 +61,7 @@ public class OATextSearchController{
 	    @RequestParam(value = AnnotationSearchConstants.PARAM_FIELD_WIDTH, required = false) String width,
 	    @RequestParam(value = AnnotationSearchConstants.PARAM_FIELD_HEIGHT, required = false) String height,
 	    HttpServletRequest request) {
-	//TODO implement xy parameters here to pass back to Text Server. 
+
 	String queryString = controllerUtility.createQueryString(request);
 	String widthHeight = null;
 	if(!StringUtils.isEmpty(width) && !StringUtils.isEmpty(height)){
@@ -94,7 +94,7 @@ public class OATextSearchController{
 	    @RequestParam(value = AnnotationSearchConstants.PARAM_FIELD_WIDTH, required = false) String width,
 	    @RequestParam(value = AnnotationSearchConstants.PARAM_FIELD_HEIGHT, required = false) String height,
 	    HttpServletRequest request) {
-	//TODO implement xy parameters here to pass back to Text Server. 
+
 	String queryString = controllerUtility.createQueryString(request);
 	String within = withinId;
 	String widthHeight = null;

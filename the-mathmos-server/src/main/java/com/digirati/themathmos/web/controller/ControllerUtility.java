@@ -30,7 +30,7 @@ public class ControllerUtility {
 	}
     }
   
-    protected boolean validateQueryParameter(String query, String motivation, String date, String user){
+    protected boolean validateQueryParameter(String query){
 
    	if(StringUtils.isEmpty(query)){
    	    return false;
