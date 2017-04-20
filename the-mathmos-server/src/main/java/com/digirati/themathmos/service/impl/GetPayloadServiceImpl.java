@@ -11,13 +11,14 @@ import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.log4j.Logger;
 import org.springframework.stereotype.Service;
 
+import com.digirati.themathmos.exception.CoordinatePayloadException;
 import com.digirati.themathmos.service.GetPayloadService;
 
 @Service(GetPayloadServiceImpl.SERVICE_NAME)
 public class GetPayloadServiceImpl implements GetPayloadService{
     
     
-    private final static Logger LOG = Logger.getLogger(GetPayloadServiceImpl.class);
+    private static final Logger LOG = Logger.getLogger(GetPayloadServiceImpl.class);
     
     public static final String SERVICE_NAME = "getPayloadServiceImpl";
     
@@ -30,23 +31,22 @@ public class GetPayloadServiceImpl implements GetPayloadService{
     
     @Override
     public String getJsonPayload(String url, String payload){
-    
+	
         try {
             HttpPost request = new HttpPost(url);
           
-            StringEntity params =new StringEntity(payload);
+            StringEntity params = new StringEntity(payload);
             LOG.info(payload);
             request.addHeader("content-type", "application/json; charset=utf-8");
             request.setEntity(params);
             HttpResponse response = httpClient.execute(request);
     
             if (response.getStatusLine().getStatusCode() != 200) {
-                throw new RuntimeException("Failed : HTTP error code : "
+                throw new CoordinatePayloadException("Failed : HTTP error code : "
                         + response.getStatusLine().getStatusCode());
             }
-
-            BufferedReader br = new BufferedReader(new InputStreamReader(
-                    (response.getEntity().getContent())));
+            InputStreamReader isr = new InputStreamReader(response.getEntity().getContent());
+            BufferedReader br = new BufferedReader(isr);
             StringBuilder sb = new StringBuilder();
 
             String line;
@@ -54,9 +54,12 @@ public class GetPayloadServiceImpl implements GetPayloadService{
             while ((line = br.readLine()) != null) {
                 sb.append(line);
             }
+            
+            isr.close();
             LOG.info("JsonPayload from getJsonPayload is " + sb.toString());
             return sb.toString();
           
+            
            
             // handle response here...
         }catch (Exception ex) {

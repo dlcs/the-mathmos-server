@@ -6,6 +6,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -27,15 +28,13 @@ import com.google.gson.internal.LinkedTreeMap;
 @Service(AnnotationUtils.SERVICE_NAME)
 public class AnnotationUtils extends CommonUtils{
     
-    private final static Logger LOG = Logger.getLogger(AnnotationUtils.class);
+    private static final Logger LOG = Logger.getLogger(AnnotationUtils.class);
    
     public static final String SERVICE_NAME = "AnnotationUtils";  
     
     
     private static final String OA_SEARCH_TERMLIST = "search:TermList";
-    private static final String OA_TERMSLIST = "terms";
-    private static final String CONTEXT = "@context";
-    
+ 
    
     
     
@@ -47,29 +46,37 @@ public class AnnotationUtils extends CommonUtils{
     
    
 
-    public Map<String,Object> createAnnotationPage(String query, List<W3CAnnotation> annoList, boolean isW3c,PageParameters pageParams, long totalHits){
-	    
-	if(null == annoList || annoList.isEmpty()){
+    public Map<String, Object> createAnnotationPage(String query, List<W3CAnnotation> annoList, boolean isW3c,
+	    PageParameters pageParams, int totalHits, boolean isMixedSearch) {
+
+	if (null == annoList || annoList.isEmpty()) {
 	    return null;
 	}
-	
-	    Map<String, Object> root = null;
-	    if(AnnotationSearchServiceImpl.DEFAULT_PAGING_NUMBER <= totalHits){
-		root = this.buildAnnotationPageHead(query, isW3c, pageParams);
-	    }else{
-		root = this.buildAnnotationListHead(query, isW3c);
-	    }
-	   
-	    List resources  = this.getResources(root, isW3c);
-	  
-	    
-	    //forEach result in the search get the annotation from the database and populate resource element.
-	    for(W3CAnnotation w3CAnnotation:annoList){
-		resources.add(w3CAnnotation.getJsonMap());
-	    }
 
-	    return root;
+	Map<String, Object> root;
 	
+	if(isMixedSearch){
+	    root = new LinkedHashMap<>();
+	    this.setResources(root, isW3c);	    
+	}else{
+	    if (AnnotationSearchServiceImpl.DEFAULT_PAGING_NUMBER <= totalHits) {
+		root = this.buildAnnotationPageHead(query, isW3c, pageParams);
+	    } else {
+		root = this.buildAnnotationListHead(query, isW3c);
+	    } 
+	}
+	
+
+	List resources = this.getResources(root, isW3c);
+
+	// forEach result in the search get the annotation from the database and
+	// populate resource element.
+	for (W3CAnnotation w3CAnnotation : annoList) {
+	    resources.add(w3CAnnotation.getJsonMap());
+	}
+
+	return root;
+
     }
     
   
@@ -96,9 +103,11 @@ public class AnnotationUtils extends CommonUtils{
 		String optionText = option.getText();
 		optionRoot.put("match",optionText );
 
-		
 		optionRoot.put("url",getSearchQueryFromAutocompleteQuery(queryString, optionText) );
-		resources.add(optionRoot);
+		
+		if(!resources.contains(optionRoot)){
+		    resources.add(optionRoot);  
+		}
 	    }
 
 	    LOG.info("resources are " + JsonUtils.toString(root));
@@ -118,7 +127,7 @@ public class AnnotationUtils extends CommonUtils{
     private String getSearchQueryFromAutocompleteQuery(String query, String optionText){
 	
 	String searchQuery = query;
-	searchQuery = query.replace("/autocomplete?","/search?");
+	searchQuery = searchQuery.replace("autocomplete","search");
 	
 	String tidyQuery = removeParametersAutocompleteQuery(searchQuery,AUTOCOMPLETE_IGNORE_PARAMETERS);
 	String encodedOptionText = optionText;
@@ -132,23 +141,7 @@ public class AnnotationUtils extends CommonUtils{
 	return tidyQuery.replaceAll("q=[^&]+","q="+encodedOptionText);
     }
     
-    /**
-     * Method to remove any ignored parameters from the query strings
-     * @param query
-     * @param paramsToRemove
-     * @return
-     */
-    private String removeParametersAutocompleteQuery(String query, String[] paramsToRemove){
-	
-	String tidyQuery = query;
-	for (String param:paramsToRemove){
-	    tidyQuery = tidyQuery.replaceAll("[&?]"+param+ "=[^&]+","");
-	}
-	if(!tidyQuery.contains("?")){
-	    tidyQuery = tidyQuery.replaceFirst("[&]","?");
-	}
-	return tidyQuery;
-    } 
+    
    
     
    
@@ -220,7 +213,7 @@ public class AnnotationUtils extends CommonUtils{
    	    }
    	    return annoList;
    	}
-   	return new ArrayList<W3CAnnotation>();
+   	return new ArrayList<>();
     }
     
     public String convertSpecialCharacters(String input){
@@ -232,7 +225,7 @@ public class AnnotationUtils extends CommonUtils{
 	    for (String replacement : inputList) {
 		
 		String start = replacement.toLowerCase().substring(0, replacement.indexOf(":"));
-		String tidyQuery = null;
+		String tidyQuery;
 		if(ArrayUtils.contains(SCHEMES, start)){
 		    tidyQuery = "(\"" +replacement + "\")";
 		}else{
@@ -249,7 +242,37 @@ public class AnnotationUtils extends CommonUtils{
        
     
     
-   
+    public int[] getPageParams(Map<String, Object> root, boolean isW3c){
+	Map map;
+	String total;
+
+	List resources = getResources(root, isW3c);
+   	
+	if(null != resources){
+	    LOG.info("resourcesSize in getPageParams" + resources.size());
+	}
+   	
+	String startIndex;
+	int[] pageParams = new int[2];
+	if(isW3c){
+   	    map = (LinkedHashMap) root.get(W3C_WITHIN_IS_PART_OF); 
+   	    total = (String) map.get(W3C_WITHIN_AS_TOTALITEMS);
+   	}else{
+   	    map = (LinkedHashMap) root.get(OA_WITHIN);
+   	    total = (String) map.get(OA_WITHIN_TOTAL);
+   	}
+	pageParams[0] =  Integer.parseInt(total);
+   	
+   	if (isW3c) {
+   	    startIndex = (String)root.get(W3C_STARTINDEX);
+	} else {
+	    startIndex = (String)root.get(OA_STARTINDEX);
+	}
+   	pageParams[1] = Integer.parseInt(startIndex); 
+   		 
+   	
+   	return pageParams;
+    }
    
    
  

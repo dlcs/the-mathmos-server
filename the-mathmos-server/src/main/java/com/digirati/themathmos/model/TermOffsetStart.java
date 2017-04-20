@@ -5,6 +5,17 @@ public class TermOffsetStart {
     private String term;
     private int start;
     
+    public TermOffsetStart(){
+	//use this for testing
+    }
+    
+    public TermOffsetStart(String term, int start){
+	this.term = term;
+	this.start = start;
+    }
+    
+   
+    
     
     public int getStart() {
 	return start;

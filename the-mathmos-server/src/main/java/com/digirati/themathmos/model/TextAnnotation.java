@@ -1,7 +1,9 @@
 package com.digirati.themathmos.model;
 
 import org.springframework.data.annotation.Id;
+import org.springframework.data.elasticsearch.annotations.CompletionField;
 import org.springframework.data.elasticsearch.annotations.Document;
+import org.springframework.data.elasticsearch.core.completion.Completion;
 
 
 
@@ -16,8 +18,8 @@ public class TextAnnotation {
 	private String text;
     	
 
-    	//@CompletionField (payloads = false)
-    	//private Completion suggest;
+    	@CompletionField (payloads = false)
+    	private Completion suggest;
 
 
 	public String getId() {
@@ -46,13 +48,13 @@ public class TextAnnotation {
 	}
 
 	
-	//public Completion getSuggest() {
-	//    return suggest;
-	//}
+	public Completion getSuggest() {
+	    return suggest;
+	}
 
-	//public void setSuggest(Completion suggest) {
-	//    this.suggest = suggest;
-	//}
+	public void setSuggest(Completion suggest) {
+	    this.suggest = suggest;
+	}
 
 	
     	

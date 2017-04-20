@@ -9,11 +9,26 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.log4j.Logger;
+import org.elasticsearch.common.io.stream.BytesStreamOutput;
+import org.elasticsearch.common.lucene.BytesRefs;
+import org.elasticsearch.common.text.Text;
+import org.elasticsearch.common.xcontent.XContentBuilder;
+import org.elasticsearch.common.xcontent.XContentFactory;
+import org.elasticsearch.common.xcontent.XContentParser;
+import org.elasticsearch.rest.action.admin.indices.analyze.RestAnalyzeAction.Fields;
+import org.elasticsearch.search.suggest.Suggest;
+import org.elasticsearch.search.suggest.Suggest.Suggestion;
+import org.elasticsearch.search.suggest.Suggest.Suggestion.Entry;
+import org.elasticsearch.search.suggest.Suggest.Suggestion.Entry.Option;
+import org.elasticsearch.search.suggest.completion.CompletionSuggestion;
+import org.elasticsearch.transport.netty.ChannelBufferStreamInput;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -30,7 +45,7 @@ import com.digirati.themathmos.service.impl.TextUtils;
 
 public class TextUtilsTest {
 
-    private final static Logger LOG = Logger.getLogger(TextUtilsTest.class);
+    private static final Logger LOG = Logger.getLogger(TextUtilsTest.class);
     TextUtils textUtils;
     
     private ResourceLoader resourceLoader;
@@ -45,13 +60,11 @@ public class TextUtilsTest {
 	resourceLoader = new DefaultResourceLoader();
 	textUtils = new TextUtils();
     }
-    
-    
-    
-    
+     
 
     @Test
     public void testSortPositionsForMultiwordPhrase() {
+	
 	String query = "fox brown";
 	List positions = new ArrayList();
 	List<TermWithTermOffsets> termWithOffsetsList = new ArrayList<>();
@@ -124,7 +137,7 @@ public class TextUtilsTest {
 	
 	positions = textUtils.sortPositionsForMultiwordPhrase(termWithOffsetsList, offsetMap, positionsList);
 	assertTrue(positions.size() == 3);
-	LOG.info(positions);
+	LOG.info("positions " + positions);
 	
 	TermWithTermOffsets three =  new TermWithTermOffsets();
 	three.setTerm("laughs");
@@ -167,27 +180,20 @@ public class TextUtilsTest {
 	
 	textUtils.workThoughOffsets(termWithOffsetsList);
 	
-	
-	
-	
 	positionsList = new ArrayList<>();
 	
 	positions= textUtils.sortPositionsForMultiwordPhrase(termWithOffsetsList, offsetMap, positionsList);
 	assertTrue(positions.size() == 2);
-	LOG.info(positions);
+	LOG.info("positions " + positions);
     }
     
     @Test
     public void testCoordinates() throws IOException{
-	String coordinates = getFileContents("test_coordinates_1.json");
-	
-	
+			
 	String id1 = "https://dlcs.io/iiif-img/2/1/6b33280a-d28f-4773-be0d-05bd364c745e";		
 	String id2 = "https://dlcs.io/iiif-img/50/1/000214ef-74f3-4ec2-9a5f-3b79f50fc500";
 	String id3 = "https://dlcs.io/iiif-img/50/1/000214ef-74f3-4ec2-9a5f-3b79f50fc505";
-	
-	
-	
+
 	String query = "test me out for a long";
 	
 	Map <String, List<Positions>> positionMap = new HashMap<>();
@@ -215,14 +221,10 @@ public class TextUtilsTest {
 
 	positionMap.put(id2, positionList2);
 	
-	
 	List<Positions> positionList3 = new ArrayList<>();
 	Positions pos31 = new Positions(10, 10);
 	positionList3.add(pos31);
 	positionMap.put(id3, positionList3);
-	
-	
-	
 	
 	Map<String, Map<String, TermOffsetStart>> termPositionMap = new HashMap<>();
 	
@@ -264,20 +266,44 @@ public class TextUtilsTest {
 	termOffsetMap1.put("12", termOffsetStart12);
 	termOffsetMap1.put("13", termOffsetStart13);
 	termOffsetMap1.put("14", termOffsetStart14);
-	
-	
+		
 	String queryString = "http://www.google.com?q=test";
-	
-	//Map<String,Object>  map1 =textUtils.createCoordinateAnnotation(query, coordinates, false, positionMap, termPositionMap ,queryString, 10, new PageParameters());
-	//LOG.info(map1.toString());
-	
+
 	String coordinates2 = getFileContents("test_coordinates_2.json");
-	Map<String,Object>  map =textUtils.createCoordinateAnnotation(query, coordinates2, false, positionMap, termPositionMap ,queryString, 10, new PageParameters());
+	
+	
+	Map<String,Object>  map = textUtils.createCoordinateAnnotation(query, coordinates2, true, positionMap, termPositionMap, queryString, new PageParameters(), true);
+	//Map<String,Object>  map =textUtils.createCoordinateAnnotation(params,coordinates2, positionMap, termPositionMap , //10,
+	//	new PageParameters());
 	LOG.info(map.toString());
 	
     }
     
     
+    @Test
+    public void testsetESSource(){
+	
+	Map <String, Object> map = textUtils.setESSource(0, 10, "bacon", new String[]{"body", "target", "bodyURI", "targetURI" }, "phrase");
+	LOG.info(map.toString());
+	
+	String within = "http://wellcomelibrary.org/service/collections/collections/digukmhl/";
+	map = textUtils.setSource(map,within, "text_index", 1);
+   	LOG.info(map.toString());
+   	
+	
+    }
+    
+    @Test
+    public void testGettingSourceString(){
+	String test = "search {\"from\" : 0,\"size\" : 10, \"query\" : { \"bool\" : {\"must\" : [ { \"multi_match\" : { \"query\" : \"bacon\",\"fields\" : [ \"body\", \"target\", \"bodyURI\", \"targetURI\" ],\"type\" :\"phrase\"}}, {\"query_string\" : {\"query\" : \"tagging\",\"fields\" : [ \"motivations\" ] }} ]} },\"post_filter\" : {\"bool\" : { }}}";
+	String jsonString = textUtils.getQueryString(test);
+	LOG.info(jsonString);
+	
+	Map <String, Object>jsonMap = textUtils.getQueryMap(jsonString);
+	
+	
+	LOG.info(jsonMap.toString());
+    }
     
     
     static String readFile(String path, Charset encoding) throws IOException {
@@ -313,5 +339,30 @@ public class TextUtilsTest {
 	
 	return offsetPositionMap;
     }
+    
+   
+    @Test
+    public void testThis(){
+	
+	
+	CompletionSuggestion.Entry.Option option = new CompletionSuggestion.Entry.Option(new Text("someText"), 1.3f, null);
+	
+        CompletionSuggestion.Entry entry = new CompletionSuggestion.Entry(new Text("bacon"), 0, 5);
+        entry.addOption(option);
+        CompletionSuggestion suggestion = new CompletionSuggestion("annotation_suggest", 5);
+        suggestion.addTerm(entry);
+        List<Suggestion<? extends Entry<? extends Option>>> suggestions = new ArrayList<>();
+        suggestions.add(suggestion);
+        Suggest suggest = new Suggest(suggestions); 
+        
+        LOG.info(suggest.toString());
+        
+        
+        
+    }
+ 
+    
+   
+    
 
 }

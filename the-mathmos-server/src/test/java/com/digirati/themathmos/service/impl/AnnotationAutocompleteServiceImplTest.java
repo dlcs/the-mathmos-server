@@ -7,22 +7,26 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import org.easymock.EasyMock;
+import org.apache.log4j.Logger;
+
 import org.elasticsearch.action.ListenableActionFuture;
-import org.elasticsearch.action.suggest.SuggestRequestBuilder;
+import org.elasticsearch.action.search.SearchRequestBuilder;
+import org.elasticsearch.action.search.SearchResponse;
+
 import org.elasticsearch.action.suggest.SuggestResponse;
 
 import org.elasticsearch.client.Client;
 import org.elasticsearch.common.text.Text;
 import org.elasticsearch.search.suggest.Suggest;
-import org.elasticsearch.search.suggest.Suggest.Suggestion;
-import org.elasticsearch.search.suggest.Suggest.Suggestion.Entry;
-import org.elasticsearch.search.suggest.Suggest.Suggestion.Entry.Option;
+
+
+import org.elasticsearch.search.suggest.completion.CompletionSuggestion;
+import org.elasticsearch.search.suggest.completion.CompletionSuggestion.Entry;
+import org.elasticsearch.search.suggest.completion.CompletionSuggestion.Entry.Option;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.powermock.api.easymock.PowerMock;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.springframework.data.elasticsearch.core.ElasticsearchTemplate;
@@ -36,6 +40,8 @@ import com.digirati.themathmos.service.impl.AnnotationUtils;
 @RunWith(PowerMockRunner.class)
 @PrepareForTest(SuggestResponse.class)
 public class AnnotationAutocompleteServiceImplTest {
+    
+    private static final Logger LOG = Logger.getLogger(AnnotationAutocompleteServiceImplTest.class);
     AnnotationAutocompleteServiceImpl impl;
     
     private ElasticsearchTemplate template;
@@ -50,8 +56,6 @@ public class AnnotationAutocompleteServiceImplTest {
     @Before
     public void setUp() throws Exception {
 	
-	
-	
 	template = mock(ElasticsearchTemplate.class);
 	annotationUtils = new AnnotationUtils();
 	client = mock(Client.class);
@@ -61,20 +65,20 @@ public class AnnotationAutocompleteServiceImplTest {
 
     @Test
     public void testGetTerms() {
-	String query = null;
+	String query = "fingers";
 	String motivation = null;
 	String date = null;
 	String user = null;
 	String min = null;
-	String queryString = null;
+	String queryString = "http://www.example.com/search?q=fingers";
 	
-	SuggestResponse response = PowerMock.createMock(SuggestResponse.class);
-	SuggestRequestBuilder suggestRequestBuilder = mock(SuggestRequestBuilder.class);
+	SearchResponse response = mock(SearchResponse.class);
+	SearchRequestBuilder suggestRequestBuilder = mock(SearchRequestBuilder.class);
 	
-	when(client.prepareSuggest(anyString())).thenReturn(suggestRequestBuilder);
+	when(client.prepareSearch(anyString())).thenReturn(suggestRequestBuilder);
 	when(suggestRequestBuilder.addSuggestion(anyObject())).thenReturn(suggestRequestBuilder);
 	
-	ListenableActionFuture<SuggestResponse> action = mock(ListenableActionFuture.class);
+	ListenableActionFuture<SearchResponse> action = mock(ListenableActionFuture.class);
 	
 
         when(suggestRequestBuilder.execute()).thenReturn(action);
@@ -82,24 +86,29 @@ public class AnnotationAutocompleteServiceImplTest {
 	when(action.actionGet()).thenReturn(response);
 	
 	
-	List<Suggestion<? extends Entry<? extends Option>>> suggestions = new ArrayList<>();
-	Suggestion suggestion = new Suggestion();
-	Text text = new Text("fingers");
+	List<CompletionSuggestion> suggestions = new ArrayList<>();
+	CompletionSuggestion suggestion = mock(CompletionSuggestion.class);
+	Text text = new Text(query);
 	
 	Entry entry = new Entry(text, 1,2);
-	Option option = new Option();
+	Option option = new Option(text,(float)1, null);
+	
 	entry.addOption(option);
 	suggestion.addTerm(entry);
+
+	List<Entry> entries = new ArrayList<>();
+	entries.add(entry);
+	when(suggestion.getEntries()).thenReturn(entries);
 	suggestions.add(suggestion);
-	//Suggest suggest = new Suggest(suggestions);
+	
 	
 	Suggest suggest = mock(Suggest.class);
+	when(response.getSuggest()).thenReturn(suggest);
+	when(suggest.getSuggestion("annotation_suggest")).thenReturn(suggestion);
 
-	//when(reponse.getSuggest()).thenReturn(suggest);
-	EasyMock.expect(response.getSuggest()).andReturn(suggest);
 
-	//when(response.getSuggest()).thenReturn(suggest);
-	//ServiceResponse<Map<String, Object>> serviceResponse = impl.getTerms(query, motivation, date, user, min, queryString, true);
+	ServiceResponse<Map<String, Object>> serviceResponse = impl.getTerms(query, motivation, date, user, min, queryString, true, null);
+	assertNotNull(serviceResponse.getObj());
     }
 
    

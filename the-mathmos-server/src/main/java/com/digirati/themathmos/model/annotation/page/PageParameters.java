@@ -6,6 +6,8 @@ public class PageParameters {
     private String firstPageNumber;
     private String lastPageNumber;
     private String nextPageNumber;
+    private int nextPage = 0;
+    private int lastPage = 0;
     private String previousPageNumber;
     private String startIndex;
     
@@ -44,6 +46,18 @@ public class PageParameters {
     }
     public void setStartIndex(String startIndex) {
 	this.startIndex = startIndex;
+    }
+    public int getNextPage() {
+	return nextPage;
+    }
+    public void setNextPage(int nextPage) {
+	this.nextPage = nextPage;
+    }
+    public int getLastPage() {
+	return lastPage;
+    }
+    public void setLastPage(int lastPage) {
+	this.lastPage = lastPage;
     }
 
 }

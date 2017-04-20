@@ -9,9 +9,12 @@ import org.elasticsearch.client.Client;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.springframework.cache.CacheManager;
 import org.springframework.data.elasticsearch.core.ElasticsearchTemplate;
 
+import com.digirati.themathmos.model.Parameters;
 import com.digirati.themathmos.model.ServiceResponse;
+import com.digirati.themathmos.service.TextSearchService;
 import com.digirati.themathmos.service.impl.AnnotationUtils;
 import com.digirati.themathmos.service.impl.OAAnnotationSearchServiceImpl;
 
@@ -22,6 +25,8 @@ public class OAAnnotationSearchServiceImplTest {
     ElasticsearchTemplate template;
     Client client;
     SearchQueryUtils searchQueryUtils;
+    private TextSearchService textSearchService;
+    private CacheManager cacheManager;
 
     @BeforeClass
     public static void setUpBeforeClass() throws Exception {
@@ -33,7 +38,10 @@ public class OAAnnotationSearchServiceImplTest {
 	searchQueryUtils = new SearchQueryUtils();
 	template = mock(ElasticsearchTemplate.class);
 	client = mock(Client.class);
-	impl = new OAAnnotationSearchServiceImpl(annotationUtils, template);
+	when(template.getClient()).thenReturn(client);
+	textSearchService = mock(TextSearchService.class);
+	cacheManager = mock(CacheManager.class);
+	impl = new OAAnnotationSearchServiceImpl(annotationUtils, template, textSearchService, cacheManager);
     }
 
     @Test
@@ -48,7 +56,10 @@ public class OAAnnotationSearchServiceImplTest {
 	when(template.getClient()).thenReturn(client);
 	long totalHits = 10;
 	searchQueryUtils.setUpBuilder(totalHits, client);
-	ServiceResponse<Map<String, Object>> response = impl.getAnnotationPage(query, motivation, date, user, queryString, page);
+	
+	Parameters params = new Parameters(query, motivation, date, user);
+	
+	ServiceResponse<Map<String, Object>> response = impl.getAnnotationPage(params, queryString, page, null, null);
 	assertEquals(ServiceResponse.Status.NOT_FOUND,response.getStatus());
 	
 	

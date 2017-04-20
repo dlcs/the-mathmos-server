@@ -9,6 +9,7 @@ import java.util.Collection;
 import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.log4j.Logger;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHitField;
@@ -22,19 +23,24 @@ import com.fasterxml.jackson.core.JsonEncoding;
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonGenerator;
 
+/** If we are in the TextSearchServiceImpl formQuery method and not using
+ * searchRequestBuilder.setFetchSource(false);
+ * then remove all of below.
+ */
 public class TextSearchAnnotationMapper extends DefaultResultMapper {
 
-    // If we are in the TextSearchServiceImpl formQuery method and not using
-    // searchRequestBuilder.setFetchSource(false);
-    // then remove all of below.
+    
+    private static final Logger LOG = Logger.getLogger(TextSearchAnnotationMapper.class);
+    
 
     @Override
     public <T> Page<T> mapResults(SearchResponse response, Class<T> clazz, Pageable pageable) {
 	long totalHits = response.getHits().totalHits();
-	List<T> results = new ArrayList<T>();
+	LOG.info("total hits in mapResults are :" + totalHits);
+	List<T> results = new ArrayList<>();
 	for (SearchHit hit : response.getHits()) {
 	    if (hit != null) {
-		T result = null;
+		T result;
 		if (StringUtils.isNotBlank(hit.sourceAsString())) {
 		    result = mapEntity(hit.sourceAsString(), clazz);
 		} else {
@@ -45,7 +51,7 @@ public class TextSearchAnnotationMapper extends DefaultResultMapper {
 		results.add(result);
 	    }
 	}
-	return new PageImpl<T>(results, pageable, totalHits);
+	return new PageImpl<>(results, pageable, totalHits);
     }
 
     private <T> T mapEntity(Collection<SearchHitField> values, Class<T> clazz) {
@@ -73,12 +79,15 @@ public class TextSearchAnnotationMapper extends DefaultResultMapper {
 	    generator.flush();
 	    return new String(stream.toByteArray(), Charset.forName("UTF-8"));
 	} catch (IOException e) {
+	    LOG.error("IOException in buildJSONFromFields ", e);
 	    return null;
 	}
     }
 
-    // vastly changed method from the one in defaultResultMapper. Mappingcontext
-    // was always null do we were never getting the _id field contents when we has no _source in the results
+    /*
+     * vastly changed method from the one in defaultResultMapper. Mappingcontext
+     *was always null do we were never getting the _id field contents when we has no _source in the results
+     */
     private <T> void setPersistentEntityId(T result, String id, Class<T> clazz) {
 	if (clazz.isAnnotationPresent(Document.class)) {
 	    Method setter;
@@ -87,16 +96,14 @@ public class TextSearchAnnotationMapper extends DefaultResultMapper {
 		if (setter != null) {
 		    try {
 			setter.invoke(result, id);
-		    } catch (Throwable t) {
-			t.printStackTrace();
+		    } catch (Exception t) {
+			LOG.error("Exception in setPersistentEntityId trying to invoke setter", t);
 		    }
 		}
 	    } catch (NoSuchMethodException e) {
-		// TODO Auto-generated catch block
-		e.printStackTrace();
+		LOG.error("NoSuchMethodException in setPersistentEntityId ", e);
 	    } catch (SecurityException e) {
-		// TODO Auto-generated catch block
-		e.printStackTrace();
+		LOG.error("SecurityException in setPersistentEntityId ", e);
 	    }
 
 	}

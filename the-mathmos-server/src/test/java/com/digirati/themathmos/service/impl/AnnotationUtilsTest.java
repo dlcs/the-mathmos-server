@@ -23,7 +23,7 @@ import com.google.gson.internal.LinkedTreeMap;
 public class AnnotationUtilsTest {
     
     private AnnotationUtils annotationUtils;
-    private final static Logger LOG = Logger.getLogger(AnnotationUtilsTest.class);
+    private static final Logger LOG = Logger.getLogger(AnnotationUtilsTest.class);
 
     @BeforeClass
     public static void setUpBeforeClass() throws Exception {
@@ -58,8 +58,8 @@ public class AnnotationUtilsTest {
 	pageParams.setPreviousPageNumber(null);
 	pageParams.setStartIndex("0");
 	
-	long totalHits = 11;
-	Map<String,Object> json = annotationUtils.createAnnotationPage(query, annoList, isW3c, pageParams, totalHits);
+	int totalHits = 11;
+	Map<String,Object> json = annotationUtils.createAnnotationPage(query, annoList, isW3c, pageParams, totalHits, false);
 	
 	LOG.info(json);
 	
@@ -73,7 +73,7 @@ public class AnnotationUtilsTest {
 	
 	//test w3c change
 	isW3c = false;
-	json = annotationUtils.createAnnotationPage(query, annoList, isW3c, pageParams, totalHits);
+	json = annotationUtils.createAnnotationPage(query, annoList, isW3c, pageParams, totalHits, false);
 	assertFalse("http://www.w3.org/ns/anno.jsonld".equals(json.get("@context")));
 	assertTrue("sc:AnnotationList".equals(json.get("@type")));
 	assertTrue("2".equals(json.get("next")));

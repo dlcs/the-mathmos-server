@@ -4,7 +4,7 @@ import java.util.Map;
 
 public abstract class AbstractAnnotation {
 
-   private String id;
+    private String id;
     private Map<String, Object> jsonMap;
    
     public String getId() {

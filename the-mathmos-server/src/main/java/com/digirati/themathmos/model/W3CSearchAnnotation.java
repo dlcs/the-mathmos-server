@@ -42,6 +42,9 @@ public class W3CSearchAnnotation {
     	private List <String> targetURI;
     	
     	@Field(type = FieldType.String, analyzer = "whitespace")
+    	private List <String> uri;
+    	
+    	@Field(type = FieldType.String, analyzer = "whitespace")
     	private List <String> bodyURI;
     	
     	private List <String> xywh;
@@ -52,7 +55,7 @@ public class W3CSearchAnnotation {
     	@Field( type = FieldType.String, index = FieldIndex.no)
     	private String oaJsonLd;
     	
-    	@CompletionField (payloads = false)
+    	@CompletionField (payloads = true)
     	private Completion suggest;
 
 
@@ -136,6 +139,14 @@ public class W3CSearchAnnotation {
 
 	public void setTargetURI(List <String> targetURI) {
 	    this.targetURI = targetURI;
+	}
+	
+	public List <String> getURI() {
+	    return uri;
+	}
+
+	public void setURI(List <String> URI) {
+	    this.uri = URI;
 	}
 
 	public List <String> getBodyURI() {

@@ -2,7 +2,7 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<artifactId>the-mathmos-server</artifactId>
-	<version>1.0.0</version>
+	<version>1.0.0-SNAPSHOT</version>
 	<packaging>war</packaging>
 	<name>The Mathmos Server</name>
 
@@ -18,7 +18,7 @@
 	</properties>
 
 	<build>
-		<finalName>the-mathmos-server</finalName>
+		<finalName>mathmos-server</finalName>
 		<plugins>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
@@ -103,7 +103,6 @@
 			<version>${gson-version}</version>
 			<scope>compile</scope>
 		</dependency>
-
 		<!-- Web Dependencies -->
 		<dependency>
 			<groupId>javax.servlet</groupId>
@@ -135,6 +134,11 @@
 		</dependency>
 		<dependency>
 			<groupId>org.springframework</groupId>
+			<artifactId>spring-context-support</artifactId>
+			<version>${spring-framework-version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework</groupId>
 			<artifactId>spring-web</artifactId>
 			<version>${spring-framework-version}</version>
 		</dependency>
@@ -148,13 +152,17 @@
 			<artifactId>spring-jdbc</artifactId>
 			<version>${spring-framework-version}</version>
 		</dependency>
-
 		<dependency>
 			<groupId>org.springframework.data</groupId>
 			<artifactId>spring-data-elasticsearch</artifactId>
 			<version>${spring-data-elasticsearch-version}</version>
+		</dependency>		
+		<!-- Ehcache Dependencies -->
+		<dependency>
+			<groupId>net.sf.ehcache</groupId>
+			<artifactId>ehcache</artifactId>
+			<version>2.9.0</version>
 		</dependency>
-
 		<!-- Apache Commons Dependencies -->
 		<dependency>
 			<groupId>org.apache.commons</groupId>
