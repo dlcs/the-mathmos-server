@@ -64,6 +64,9 @@ Configuration of [pygar](pygar) and [barbarella](barbarella)  is achieved throug
 ```
 ```
 -Dbarbarella-aws-consumer.properties=file:/path/to/file.properties
+
+The location of the coordinate service needs to be set in the classpath for the mathmos server
+-Dtext.server.coordinate.url=http://wherever.the.coordinate.server.exists
 ```
 
 
