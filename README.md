@@ -27,10 +27,10 @@ mvn clean package install -U
 
 
 ### Configuration
-The location of the coordinate service needs to be provided to the JVM as a parameter:
+The location of the coordinate service and the cluster nodes need to be provided to the JVM as a parameter:
 
--Dtext.server.coordinate.url=http://wherever.the.coordinate.server.exists
-
+-Dtext.server.coordinate.url="http://wherever.the.coordinate.server.exists" 
+-Dcluster.nodes="localhost:9300"
 
 ## Built With
 
