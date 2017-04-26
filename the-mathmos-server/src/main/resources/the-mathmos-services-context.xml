@@ -18,7 +18,7 @@
 	
 	<context:property-placeholder location="classpath://application.properties" />
 	
-	<elasticsearch:transport-client id="client" cluster-nodes="localhost:9300"/>
+	<elasticsearch:transport-client id="client" cluster-nodes="${cluster.nodes}"/>
 	 
     <bean name="elasticsearchTemplate" class="org.springframework.data.elasticsearch.core.ElasticsearchTemplate">
         <constructor-arg name="client" ref="client"/>
