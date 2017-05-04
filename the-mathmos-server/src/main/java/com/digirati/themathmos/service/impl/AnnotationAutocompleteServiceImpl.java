@@ -18,6 +18,7 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.elasticsearch.core.ElasticsearchTemplate;
 import org.springframework.stereotype.Service;
 
+import com.digirati.themathmos.AnnotationSearchConstants;
 import com.digirati.themathmos.model.Parameters;
 import com.digirati.themathmos.model.ServiceResponse;
 import com.digirati.themathmos.model.ServiceResponse.Status;
@@ -32,7 +33,7 @@ public class AnnotationAutocompleteServiceImpl implements AnnotationAutocomplete
     
     public static final String SERVICE_NAME = "annotationAutocompleteServiceImpl";
     
-    private static final String TEXT_INDEX = "text_index";
+    private static final String TEXT_INDEX = AnnotationSearchConstants.TEXT_INDEX_NAME;
     private static final String W3C_INDEX = "w3cannotation";
     
     public static final int MAX_NUMBER_OF_HITS_RETURNED = 1000;

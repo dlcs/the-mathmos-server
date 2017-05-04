@@ -66,7 +66,7 @@ public class AnnotationUtilsTest {
 	assertTrue("http://iiif.io/api/presentation/2#AnnotationList".equals(json.get("@type")));
 	assertTrue("http://www.w3.org/ns/anno.jsonld".equals(json.get("@context")));
 	assertTrue("http://www.example.com/q=test".equals(json.get("@id")));
-	assertTrue("2".equals(json.get("next")));
+	//assertTrue("2".equals(json.get("next")));
 	
 	assertFalse("http://www.example.com/q=test".equals(json.get("dcterms:isPartOf")));
 	
@@ -76,7 +76,7 @@ public class AnnotationUtilsTest {
 	json = annotationUtils.createAnnotationPage(query, annoList, isW3c, pageParams, totalHits, false);
 	assertFalse("http://www.w3.org/ns/anno.jsonld".equals(json.get("@context")));
 	assertTrue("sc:AnnotationList".equals(json.get("@type")));
-	assertTrue("2".equals(json.get("next")));
+	//assertTrue("2".equals(json.get("next")));
 	LOG.info(json);
     }
     
@@ -185,6 +185,12 @@ public class AnnotationUtilsTest {
 	LOG.info(input);
 	LOG.info(output);
 	assertEquals(output, "(\"http://www.emaple.com/ferd/lgg/\") trt\\:ttttt");
+	
+	
+	input = "https://omeka.dlcs-ida.org/s/ida/page/topics//virtual:person/ros+king";
+	output = annotationUtils.convertSpecialCharacters(input);
+	LOG.info(input);
+	LOG.info(output);
     }
     
     

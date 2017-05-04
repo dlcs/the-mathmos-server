@@ -7,20 +7,21 @@ import org.springframework.data.elasticsearch.core.completion.Completion;
 
 
 
-@Document(indexName="text_index", type="text")
+@Document( indexName="text_index", type="text")
 public class TextAnnotation {
     
 
     
 	@Id
     	private String id;
+	
+	private String imageId;
     	
 	private String text;
-    	
-
-    	@CompletionField (payloads = false)
+	
+	@CompletionField (payloads = true)
     	private Completion suggest;
-
+    	
 
 	public String getId() {
 	    return id;
@@ -31,6 +32,14 @@ public class TextAnnotation {
 	}
     	
 
+	public String getImageId() {
+	    return imageId;
+	}
+
+	public void setImageId(String imageId) {
+	    this.imageId = imageId;
+	}
+
 	public String getText() {
 	    return text;
 	}
@@ -40,14 +49,6 @@ public class TextAnnotation {
 	}
 	
 	
-    	
-    	@Override
-	public String toString() {
-		return "Text [(" + getId() + ")]";
-		
-	}
-
-	
 	public Completion getSuggest() {
 	    return suggest;
 	}
@@ -55,8 +56,13 @@ public class TextAnnotation {
 	public void setSuggest(Completion suggest) {
 	    this.suggest = suggest;
 	}
-
 	
-    	
+	
+    	@Override
+	public String toString() {
+		return "Text [(" + getId() + "),(" + getImageId() + "),(" + getText() + "),(" + getSuggest().getInput() + ")]";
+		
+	}
+	
 
 }

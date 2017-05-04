@@ -99,7 +99,7 @@ public class AnnotationUtils extends CommonUtils{
 	    
 	    //forEach result in the search get the annotation from the database and populate resource element.
 	    for(SuggestOption option:options){
-		Map<String, Object> optionRoot = new HashMap<>();
+		Map<String, Object> optionRoot = new LinkedTreeMap<>();
 		String optionText = option.getText();
 		optionRoot.put("match",optionText );
 
@@ -151,7 +151,7 @@ public class AnnotationUtils extends CommonUtils{
     protected Map<String, Object> buildAutoCompleteHead(String query, boolean isW3c,String motivation, String date, String user) {
 	
 
-	Map<String, Object> root = new HashMap<>();
+	Map<String, Object> root = new LinkedTreeMap<>();
 	if(isW3c){
 	    root.put(CONTEXT, WC3CONTEXT_PATH);
 	}else{
@@ -218,28 +218,30 @@ public class AnnotationUtils extends CommonUtils{
     
     public String convertSpecialCharacters(String input){
 
-	 String returnInput = input;
+	String returnInput = input;
 	if(null != input && input.contains(":")){
 	   
 	    List<String> inputList = getListFromSpaceSeparatedTerms(input);
 	    for (String replacement : inputList) {
-		
-		String start = replacement.toLowerCase().substring(0, replacement.indexOf(":"));
-		String tidyQuery;
-		if(ArrayUtils.contains(SCHEMES, start)){
-		    tidyQuery = "(\"" +replacement + "\")";
-		}else{
-		    tidyQuery = replacement.replaceAll(":", "\\\\:");
+		if(replacement.contains(":")){
+		    String start = replacement.toLowerCase().substring(0, replacement.indexOf(":"));
+		  
+		    String tidyQuery;
+		    if(ArrayUtils.contains(SCHEMES, start)){
+			tidyQuery = "(\"" +replacement + "\")";
+		    }else{
+			tidyQuery = replacement.replaceAll(":", "\\\\:");
+		    }
+		    returnInput = returnInput.replace(replacement, tidyQuery); 
 		}
-		returnInput = returnInput.replace(replacement, tidyQuery);
 	    }
 	}else{
 	    return input;
 	}
-   	
+  	
 	return returnInput;
-       }
-       
+      }
+    
     
     
     public int[] getPageParams(Map<String, Object> root, boolean isW3c){
