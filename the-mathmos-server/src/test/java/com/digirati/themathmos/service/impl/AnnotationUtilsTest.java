@@ -83,7 +83,7 @@ public class AnnotationUtilsTest {
     @Test
     public void testCreateAutocompleteList() {
 	
-	String w3cContext = "http://www.w3.org/ns/anno.jsonld";
+	String w3cContext = "http://iiif.io/api/search/1/context.json";
 	
 	List <SuggestOption> options = new ArrayList<SuggestOption>();
 	SuggestOption suggestOption = new SuggestOption("tested");
@@ -147,7 +147,7 @@ public class AnnotationUtilsTest {
 	id = (String)json.get("@id");
 	assertEquals(id,"http://www.example.com/autocomplete?q=test");
 	context  = (String)json.get("@context");
-	assertNotEquals(context,w3cContext);
+	assertEquals(context,w3cContext);
 	
 	motivation = "commenting tagging";
 	user = "frank";
@@ -158,7 +158,7 @@ public class AnnotationUtilsTest {
 	id = (String)json.get("@id");
 	assertEquals(id,"http://www.example.com/autocomplete?q=test");
 	context  = (String)json.get("@context");
-	assertNotEquals(context,w3cContext);
+	assertEquals(context,w3cContext);
 	ignoredList = (ArrayList<String>)json.get("ignored");
 	assertTrue(ignoredList.contains("motivation"));
 	assertTrue(ignoredList.contains("date"));
