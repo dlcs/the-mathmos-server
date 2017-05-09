@@ -5,7 +5,6 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -60,9 +59,9 @@ public class AnnotationUtils extends CommonUtils{
 	    this.setResources(root, isW3c);	    
 	}else{
 	    if (AnnotationSearchServiceImpl.DEFAULT_PAGING_NUMBER <= totalHits) {
-		root = this.buildAnnotationPageHead(query, isW3c, pageParams);
+		root = this.buildAnnotationPageHead(query, isW3c, pageParams, false);
 	    } else {
-		root = this.buildAnnotationListHead(query, isW3c);
+		root = this.buildAnnotationListHead(query, isW3c, false);
 	    } 
 	}
 	

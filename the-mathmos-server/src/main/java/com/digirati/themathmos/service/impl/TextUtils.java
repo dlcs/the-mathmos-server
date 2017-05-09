@@ -132,7 +132,7 @@ public class TextUtils extends CommonUtils {
 	Map<String, Object> root;
 
 	
-	root = this.buildAnnotationPageHead(queryString, isW3c, pageParams);	   
+	root = this.buildAnnotationPageHead(queryString, isW3c, pageParams, true);	   
 	
 
 	List<Map> resources = this.getResources(root,isW3c);
@@ -592,19 +592,12 @@ public class TextUtils extends CommonUtils {
     public void setHits(boolean isW3c, Map<String, Object> hitMap, List<String> annotationsList, String query,
 	    String[] beforeAfter) {
 
-	if (isW3c) {
-	    hitMap.put("type", "http://iiif.io/api/search/1#Hit");
-	    hitMap.put("http://iiif.io/api/search/1#refines", annotationsList);
-	    hitMap.put("http://iiif.io/api/search/1#match", query);
-	    hitMap.put("http://iiif.io/api/search/1#before", beforeAfter[0]);
-	    hitMap.put("http://iiif.io/api/search/1#after", beforeAfter[1]);
-	} else {
 	    hitMap.put("@type", "search:Hit");
 	    hitMap.put("annotations", annotationsList);
 	    hitMap.put("match", query);
 	    hitMap.put("before", beforeAfter[0]);
 	    hitMap.put("after", beforeAfter[1]);
-	}
+	
     }
     
     
