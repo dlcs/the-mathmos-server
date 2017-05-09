@@ -86,16 +86,9 @@ public class AnnotationUtils extends CommonUtils{
 	}
 	try{
 	 
-	    Map<String, Object> root = this.buildAutoCompleteHead(queryString, isW3c,motivation, date,user);
-	    List resources ;
-	    if (isW3c){
-		LinkedTreeMap map = (LinkedTreeMap)root.get(FULL_HAS_TERMLIST);
-		resources = (List)map.get(W3C_RESOURCELIST);
-	    }else{
-		resources = (List)root.get(OA_TERMSLIST);
-	    }
-	    
-	    
+	    Map<String, Object> root = this.buildAutoCompleteHead(queryString,motivation, date,user);
+	    List resources = (List)root.get(OA_TERMSLIST);
+	    	    
 	    //forEach result in the search get the annotation from the database and populate resource element.
 	    for(SuggestOption option:options){
 		Map<String, Object> optionRoot = new LinkedTreeMap<>();
@@ -147,23 +140,19 @@ public class AnnotationUtils extends CommonUtils{
     
     
     @SuppressWarnings("unchecked") 
-    protected Map<String, Object> buildAutoCompleteHead(String query, boolean isW3c,String motivation, String date, String user) {
+    protected Map<String, Object> buildAutoCompleteHead(String query, String motivation, String date, String user) {
 	
 
 	Map<String, Object> root = new LinkedTreeMap<>();
-	if(isW3c){
-	    root.put(CONTEXT, WC3CONTEXT_PATH);
-	}else{
-	    root.put(CONTEXT, SEARCHCONTEXT_PATH);
-	}
+
+	root.put(CONTEXT, SEARCHCONTEXT_PATH);
+	
 	String queryWithRemovedIgnoredParamters = removeParametersAutocompleteQuery(query,AUTOCOMPLETE_IGNORE_PARAMETERS);
 	root.put(ROOT_ID, queryWithRemovedIgnoredParamters);
 	
-	if(isW3c){
-	    root.put(ROOT_TYPE, FULL_HAS_TERMLIST);
-	}else{
-	    root.put(ROOT_TYPE, OA_SEARCH_TERMLIST);
-	}
+
+	root.put(ROOT_TYPE, OA_SEARCH_TERMLIST);
+	
 	if(!StringUtils.isEmpty(motivation) || !StringUtils.isEmpty(date) || !StringUtils.isEmpty(user)){
 	    List ignored = new ArrayList();
 	    if(!StringUtils.isEmpty(motivation)){
@@ -180,14 +169,8 @@ public class AnnotationUtils extends CommonUtils{
 
 	List resources = new ArrayList();
 	
-	if(isW3c){
-	   LinkedTreeMap map = new LinkedTreeMap();
-	   root.put(FULL_HAS_TERMLIST, map);
-	   map.put(W3C_RESOURCELIST, resources);
-	   
-	}else{
-	    root.put(OA_TERMSLIST, resources); 
-	}
+	root.put(OA_TERMSLIST, resources); 
+	
 
 	return root;
     }
