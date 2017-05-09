@@ -94,6 +94,7 @@ When we indexed users we pulled data from any top level **creator** field.
 #### date
 
  Singular or multiple (space separated) dates can be queried
+ 
 `/search/oa/search?date=1985-05-01T00:00:00+00:00/1986-05-01T00:00:00+00:00`
 
 `/search/oa/search?date=1985-05-01T00:00:00+00:00/1986-05-01T00:00:00+00:00 1995-05-01T00:00:00+00:00/1996-05-01T00:00:00+00:00`
@@ -114,7 +115,7 @@ show as non-paged annotation lists. Worth noting that paging will only handle 10
 
 
 
-#### width**/**height
+#### width/height
 
 For text searches, we may need to scale our results. We can pass the width and height parameters to the coordinate service so that the resulting coordinates are scaled. Should no width/height parameters be passed then the coordinate service should deal with scaling. 
 
