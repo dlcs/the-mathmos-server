@@ -74,7 +74,9 @@ This will search for the phrase 'bacon sandwich' as written, and will not pull b
 Singular or multiple (space separated) motivations can be queried, and we can also search for a non-motivation. If searching for a non-motivation, only one is allowed.
 
 `/search/oa/search?motivation=painting`
+
 `/search/oa/search?motivation=painting tagging`
+
 `/search/oa/search?motivation=non-painting`
 
 When we indexed annotations for motivation we pulled data from any top level **motivation** or resource **purpose** fields. We index the w3c form of an annotation, and this may have motivations that are oa specific. These are usually prefixed by  oa:. We remove this when we index an item so e.g. oa:painting, which has no w3c equivalent is indexed with painting.  
@@ -84,6 +86,7 @@ When we indexed annotations for motivation we pulled data from any top level **m
  singular or multiple (space separated) users can be queried
 
 `/search/oa/search?user=sarah`
+
 `/search/oa/search?user=sarah dave`
 
 When we indexed users we pulled data from any top level **creator** field.
