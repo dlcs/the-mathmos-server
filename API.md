@@ -13,18 +13,18 @@ These are:
 
 #### Annotations only:
 
-    /search/**oa**/search
-    /search/**w3c**/search
+    /search/oa/search
+    /search/w3c/search
 
 #### Text only:
 
-    /search/**oa**/text/search
-    /search/**w3c**/text/search
+    /search/oa/text/search
+    /search/w3c/text/search
 
 #### Both text and annotations:
 
-    /search/search/**oa**
-    /search/search/**w3c**
+    /search/search/oa
+    /search/search/w3c
 
 ###  Autocomplete
 
@@ -33,22 +33,22 @@ These are:
 #### Annotations only:
 
 ```
-/search/**oa**/autocomplete
-/search/**w3c**/autocomplete
+/search/oa/autocomplete
+/search/w3c/autocomplete
 ```
 
 #### Text only:
 
 ```
-/search/**oa**/text/autocomplete
-/search/**w3c**/text/autocomplete
+/search/oa/text/autocomplete
+/search/w3c/text/autocomplete
 ```
 
 #### Both text and annotations:
 
 ```
-/search/autocomplete/**oa**
-/search/autocomplete/**w3c**
+/search/autocomplete/oa
+/search/autocomplete/w3c
 ```
 
 
