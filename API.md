@@ -94,7 +94,7 @@ When we indexed users we pulled data from any top level **creator** field.
 #### date
 
  Singular or multiple (space separated) dates can be queried
- 
+
 `/search/oa/search?date=1985-05-01T00:00:00+00:00/1986-05-01T00:00:00+00:00`
 
 `/search/oa/search?date=1985-05-01T00:00:00+00:00/1986-05-01T00:00:00+00:00 1995-05-01T00:00:00+00:00/1996-05-01T00:00:00+00:00`
@@ -251,135 +251,41 @@ This search result illustrates what happens when we have 2 annotations for one s
 
 At present we do not allow searching that spans image boundaries, as we do not index images with this in mind. In our hit we show 10 words **before** and the 10 words **after** the **match**. We also only show lowercase words for the hit.
 
-`http://localhost:8080/search/oa/text/search?q=the%20school`
 
-    {
-      "@context": "http://iiif.io/api/presentation/2/context.json",
-      "@id": "http://localhost:8080/search/oa/text/search?q=the%20school",
-      "@type": "sc:AnnotationList",
-      "resources": [
-        {
-          "@id": "http://localhost:8080/search/oa/text/search/searchResultlysVzHgG384,358,126,9",
-          "@type": "oa:Annotation",
-          "motivation": "sc:painting",
-          "resource": {
-            "@type": "cnt:ContentAsText",
-            "chars": "the school"
-          },
-          "on": "https://dlcs.io/iiif-img/wellcome/1/9af6302a-0654-4e28-9097-1710b7e9b105#xywh=384,358,126,9"
-        },
-        {
-          "@id": "http://localhost:8080/search/oa/text/search/searchResultORwOiaWl823,366,36,5",
-          "@type": "oa:Annotation",
-          "motivation": "sc:painting",
-          "resource": {
-            "@type": "cnt:ContentAsText",
-            "chars": "the"
-          },
-          "on": "https://dlcs.io/iiif-img/wellcome/1/6cfda09d-a43f-4822-882d-5f49addc4aeb#xywh=823,366,36,5"
-        },
-        {
-          "@id": "http://localhost:8080/search/oa/text/search/searchResultAWlLxLJJ293,383,67,5",
-          "@type": "oa:Annotation",
-          "motivation": "sc:painting",
-          "resource": {
-            "@type": "cnt:ContentAsText",
-            "chars": "school"
-          },
-          "on": "https://dlcs.io/iiif-img/wellcome/1/6cfda09d-a43f-4822-882d-5f49addc4aeb#xywh=293,383,67,5"
-        },
-        {
-          "@id": "http://localhost:8080/search/oa/text/search/searchResultUKxQhzqr445,567,108,7",
-          "@type": "oa:Annotation",
-          "motivation": "sc:painting",
-          "resource": {
-            "@type": "cnt:ContentAsText",
-            "chars": "the school"
-          },
-          "on": "https://dlcs.io/iiif-img/wellcome/1/60b4559e-de53-41ef-88d7-c79ea7fe5e91#xywh=445,567,108,7"
-        },
-        {
-          "@id": "http://localhost:8080/search/oa/text/search/searchResultciEDJpJL194,672,140,10",
-          "@type": "oa:Annotation",
-          "motivation": "sc:painting",
-          "resource": {
-            "@type": "cnt:ContentAsText",
-            "chars": "the school"
-          },
-          "on": "https://dlcs.io/iiif-img/wellcome/1/824aec5e-0d31-4f46-bf9b-6a69001db209#xywh=194,672,140,10"
-        }
-      ],
-      "hits": [
-        {
-          "@type": "search:Hit",
-          "annotations": [
-            "http://localhost:8080/search/oa/text/search/searchResultlysVzHgG384,358,126,9"
-          ],
-          "match": "the school",
-          "before": "1 and the eev archdeacon farrar 2 these authors and ",
-          "after": " represented by them are by no means inclined to"
-        },
-        {
-          "@type": "search:Hit",
-          "annotations": [
-            "http://localhost:8080/search/oa/text/search/searchResultORwOiaWl823,366,36,5",
-            "http://localhost:8080/search/oa/text/search/searchResultAWlLxLJJ293,383,67,5"
-          ],
-          "match": "the school",
-          "before": "on the practice of medicine and on clinical medicine in ",
-          "after": " of medicine edinburgh edinburgh oliver and boyd tweeddale court"
-        },
-        {
-          "@type": "search:Hit",
-          "annotations": [
-            "http://localhost:8080/search/oa/text/search/searchResultUKxQhzqr445,567,108,7"
-          ],
-          "match": "the school",
-          "before": "institution established in england for the education of deaf mutes ",
-          "after": " founded by him in edinburgh has been kept up"
-        },
-        {
-          "@type": "search:Hit",
-          "annotations": [
-            "http://localhost:8080/search/oa/text/search/searchResultciEDJpJL194,672,140,10"
-          ],
-          "match": "the school",
-          "before": "of being at school again brings back with painful vividness ",
-          "after": " feelings and before him who is drowning every event"
-        }
-      ]
-    }
 ### Text-only Search Request:
 
-`http://localhost:8080/search/oa/text/search?q=normal%20school`
+`http://localhost:8080/search/oa/text/search?q=fifty%20frame`
 
 ### Text-only Search Response:
 
     {
-      "@context": "http://iiif.io/api/presentation/2/context.json",
-      "@id": "http://localhost:8080/search/oa/text/search?q=normal%20school",
+      "@context": [
+        "http://iiif.io/api/presentation/2/context.json",
+        "http://iiif.io/api/search/1/context.json"
+      ],
+      "@id": "http://localhost:8080/search/search/oa?q=fifty%20frame",
       "@type": "sc:AnnotationList",
       "resources": [
         {
-          "@id": "http://localhost:8080/search/oa/text/search/searchResultptHZuiXE259,245,188,11",
+          "@id": "http://localhost:8080/search/search/oa/searchResulthNbQmoDS654,278,109,10",
           "@type": "oa:Annotation",
           "motivation": "sc:painting",
           "resource": {
             "@type": "cnt:ContentAsText",
-            "chars": "normal school"
+            "chars": "fifty frame"
           },
-          "on": "https://dlcs.io/iiif-img/wellcome/1/25de8ede-0164-4551-9ce8-3b282fb4d590#xywh=259,245,188,11"
+          "on": "https://presley.dlcs-ida.org/iiif/idatest01/_roll_M-1011_145_cvs-31-33/canvas/c31#xywh=654,278,109,10"
         }
       ],
       "hits": [
         {
           "@type": "search:Hit",
           "annotations": [
-            "http://localhost:8080/search/oa/text/search/searchResultptHZuiXE259,245,188,11"
+            "http://localhost:8080/search/search/oa/searchResulthNbQmoDS654,278,109,10"
           ],
-          "match": "normal school",
-          "before": "english by mr h w brown teacher in the state ",
-          "after": " worcester mass u.s.a besides treating of the development of"
+          "match": "fifty frame",
+          "before": "enrolled during the last year the agency consists of about ",
+          "after": " and concrete buildings this agenoy and school is situated"
         }
       ]
     }
