@@ -137,7 +137,7 @@ public class TextUtils extends CommonUtils {
 
 	List<Map> resources = this.getResources(root,isW3c);
 	
-	this.setHits(root, isW3c);
+	this.setHits(root);
 	
 	List images = (List) javaRootBodyMapObject.get(IMAGESLIST);
 	
@@ -160,7 +160,7 @@ public class TextUtils extends CommonUtils {
 	    Object phraseObject = image.get(PHRASES);
 	   
 	    
-	    List<Map<String, Object>> hitList = this.getHits(root, isW3c);
+	    List<Map<String, Object>> hitList = this.getHits(root);
 	    
 	    if (phraseObject instanceof ArrayList) {
 		List phraseObjectList = (ArrayList) image.get(PHRASES);

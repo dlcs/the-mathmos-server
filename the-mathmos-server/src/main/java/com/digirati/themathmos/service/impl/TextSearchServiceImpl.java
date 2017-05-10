@@ -230,10 +230,10 @@ public class TextSearchServiceImpl implements TextSearchService {
 	}
 	
 	
-	Map<String, Object> offsetPayloadMap = //textUtils.createOffsetPayload(termWithOffsetsMap, width, height,
-		//offsetPositionMap);
+	Map<String, Object> offsetPayloadMap = textUtils.createOffsetPayload(termWithOffsetsMap, width, height,
+		offsetPositionMap, canvasImageMap);
 	//textUtils.createOffsetPayload(termWithOffsetsMap,"1024", "768", offsetPositionMap);
-	textUtils.createOffsetPayload(termWithOffsetsMap,"1024", "768", offsetPositionMap, canvasImageMap);
+	//textUtils.createOffsetPayload(termWithOffsetsMap,"1024", "768", offsetPositionMap, canvasImageMap);
 
 	String payload = new Gson().toJson(offsetPayloadMap);
 	LOG.info("payload "+ payload);

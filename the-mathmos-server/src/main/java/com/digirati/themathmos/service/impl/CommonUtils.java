@@ -97,29 +97,14 @@ public class CommonUtils {
 	}
     }
 
-    protected void setHits(Map<String, Object> root, boolean isW3c) {
+    protected void setHits(Map<String, Object> root) {
 	root.put(OA_HITS, new ArrayList());
 	
     }
 
-    protected List getHits(Map<String, Object> root, boolean isW3c) {
+    protected List getHits(Map<String, Object> root) {
 	List hits = (List) root.get(OA_HITS);
 	return hits;
-    }
-
-    protected void setContextIdType(Map<String, Object> root, boolean isW3c, String query) {
-	if (isW3c) {
-	    root.put(CONTEXT, WC3CONTEXT_PATH);
-	} else {
-	    root.put(CONTEXT, PRESENTATIONCONTEXT_PATH);
-	}
-
-	root.put(ROOT_ID, query);
-	if (isW3c) {
-	    root.put(ROOT_TYPE, FULL_ANNOTATIONLIST);
-	} else {
-	    root.put(ROOT_TYPE, OA_ANNOTATIONLIST);
-	}
     }
 
 
@@ -213,35 +198,7 @@ public class CommonUtils {
 	return new ArrayList<>();
     }
 
-    public String[] getBeforeAndAfterFromText(Text fragment) {
-
-	String textString = fragment.string();
-
-	int lastIndexOfStartEm = textString.lastIndexOf("<em>");
-	int lastIndexOfEndEm = textString.lastIndexOf("</em>");
-
-	String[] startEnd = new String[2];
-	startEnd[0] = textString.substring(0, lastIndexOfStartEm);
-	startEnd[1] = textString.substring(lastIndexOfEndEm + 5, textString.length());
-
-	return startEnd;
-    }
-
-    public String getCoordinatesFromSource(String source, String textString) {
-
-	int lastIndexOfStartEm = textString.lastIndexOf("<em>");
-	int lastIndexOfEndEm = textString.lastIndexOf("</em>");
-
-	String[] startEnd = new String[2];
-	startEnd[0] = textString.substring(0, lastIndexOfStartEm);
-	startEnd[1] = textString.substring(lastIndexOfEndEm + 5, textString.length());
-
-	int indexOfStart = source.indexOf(startEnd[0]) + startEnd[0].length();
-	int indexOfEnd = source.indexOf(startEnd[1]);
-	return indexOfStart + "|" + indexOfEnd;
-    }
-
-    
+ 
     
     /**
      * Method to get the before and after text surrounding the query term(s).
