@@ -403,23 +403,22 @@ public class AnnotationSearchServiceImpl {
     
     private Map<String, Object> createResources(boolean isPageable,boolean isW3c,String queryString, ServiceResponse<Map<String, Object>> textAnnoMap, Map<String, Object> annoMap, PageParameters textPagingParamters){
 	
-	Map<String, Object> root = createHead(isPageable,queryString, isW3c, textPagingParamters);
+	Map<String, Object> root = createHead(isPageable,queryString, isW3c, textPagingParamters, textAnnoMap);
 	
 	if(null != textAnnoMap && null != textAnnoMap.getObj()){
 	    
 	    if(isW3c){
 		Map map = (LinkedHashMap) textAnnoMap.getObj().get(CommonUtils.FULL_HAS_ANNOTATIONS);
 		List textResources = (List)map.get(CommonUtils.W3C_RESOURCELIST);
-		Map hitMap = (LinkedHashMap) textAnnoMap.getObj().get(CommonUtils.FULL_HAS_HITLIST);
-		List textHits = (List)hitMap.get(CommonUtils.W3C_RESOURCELIST);
-		    
+
+		List textHits = (List)textAnnoMap.getObj().get(CommonUtils.OA_HITS);
+				    
 		Map mapForResources = new LinkedHashMap<>();
 		root.put(CommonUtils.FULL_HAS_ANNOTATIONS, mapForResources);
 		mapForResources.put(CommonUtils.W3C_RESOURCELIST, textResources);
-		    
-		Map mapForHits = new LinkedHashMap<>();
-		root.put(CommonUtils.FULL_HAS_HITLIST, mapForHits);
-		mapForHits.put(CommonUtils.W3C_RESOURCELIST, textHits);
+		
+		root.put(CommonUtils.OA_HITS, textHits);
+
     	    	
 	    }else{
 		List textResources = (List)textAnnoMap.getObj().get(CommonUtils.OA_RESOURCELIST);
@@ -460,18 +459,18 @@ public class AnnotationSearchServiceImpl {
 	return  root;
     }
     
-    private Map<String, Object> createHead(boolean isPageable, String queryString, boolean isW3c, PageParameters textPagingParamters){
+    
+    private Map<String, Object> createHead(boolean isPageable, String queryString, boolean isW3c, PageParameters textPagingParamters,ServiceResponse<Map<String, Object>> textAnnoMap ){
 	Map<String, Object> root;
+	boolean isText = null != textAnnoMap && null != textAnnoMap.getObj();
 	if(isPageable){
-	    root = annotationUtils.buildAnnotationPageHead(queryString, isW3c, textPagingParamters);
+	    
+	    root = annotationUtils.buildAnnotationPageHead(queryString, isW3c, textPagingParamters, isText);
 	}else{
-	    root = annotationUtils.buildAnnotationListHead(queryString, isW3c);
+	    root = annotationUtils.buildAnnotationListHead(queryString, isW3c, isText);
 	} 
 	return root;
     }
-    
-    
-    
     
     
     	

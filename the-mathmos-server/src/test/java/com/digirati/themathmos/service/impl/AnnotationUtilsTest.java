@@ -66,7 +66,7 @@ public class AnnotationUtilsTest {
 	assertTrue("http://iiif.io/api/presentation/2#AnnotationList".equals(json.get("@type")));
 	assertTrue("http://www.w3.org/ns/anno.jsonld".equals(json.get("@context")));
 	assertTrue("http://www.example.com/q=test".equals(json.get("@id")));
-	assertTrue("2".equals(json.get("next")));
+	//assertTrue("2".equals(json.get("next")));
 	
 	assertFalse("http://www.example.com/q=test".equals(json.get("dcterms:isPartOf")));
 	
@@ -76,14 +76,14 @@ public class AnnotationUtilsTest {
 	json = annotationUtils.createAnnotationPage(query, annoList, isW3c, pageParams, totalHits, false);
 	assertFalse("http://www.w3.org/ns/anno.jsonld".equals(json.get("@context")));
 	assertTrue("sc:AnnotationList".equals(json.get("@type")));
-	assertTrue("2".equals(json.get("next")));
+	//assertTrue("2".equals(json.get("next")));
 	LOG.info(json);
     }
     
     @Test
     public void testCreateAutocompleteList() {
 	
-	String w3cContext = "http://www.w3.org/ns/anno.jsonld";
+	String w3cContext = "http://iiif.io/api/search/1/context.json";
 	
 	List <SuggestOption> options = new ArrayList<SuggestOption>();
 	SuggestOption suggestOption = new SuggestOption("tested");
@@ -147,7 +147,7 @@ public class AnnotationUtilsTest {
 	id = (String)json.get("@id");
 	assertEquals(id,"http://www.example.com/autocomplete?q=test");
 	context  = (String)json.get("@context");
-	assertNotEquals(context,w3cContext);
+	assertEquals(context,w3cContext);
 	
 	motivation = "commenting tagging";
 	user = "frank";
@@ -158,7 +158,7 @@ public class AnnotationUtilsTest {
 	id = (String)json.get("@id");
 	assertEquals(id,"http://www.example.com/autocomplete?q=test");
 	context  = (String)json.get("@context");
-	assertNotEquals(context,w3cContext);
+	assertEquals(context,w3cContext);
 	ignoredList = (ArrayList<String>)json.get("ignored");
 	assertTrue(ignoredList.contains("motivation"));
 	assertTrue(ignoredList.contains("date"));
@@ -185,6 +185,12 @@ public class AnnotationUtilsTest {
 	LOG.info(input);
 	LOG.info(output);
 	assertEquals(output, "(\"http://www.emaple.com/ferd/lgg/\") trt\\:ttttt");
+	
+	
+	input = "https://omeka.dlcs-ida.org/s/ida/page/topics//virtual:person/ros+king";
+	output = annotationUtils.convertSpecialCharacters(input);
+	LOG.info(input);
+	LOG.info(output);
     }
     
     

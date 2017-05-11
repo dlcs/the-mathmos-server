@@ -193,7 +193,12 @@ public class TextUtilsTest {
 	String id1 = "https://dlcs.io/iiif-img/2/1/6b33280a-d28f-4773-be0d-05bd364c745e";		
 	String id2 = "https://dlcs.io/iiif-img/50/1/000214ef-74f3-4ec2-9a5f-3b79f50fc500";
 	String id3 = "https://dlcs.io/iiif-img/50/1/000214ef-74f3-4ec2-9a5f-3b79f50fc505";
+	Map<String,String> imageCanvasMap = new HashMap<>();
 
+	imageCanvasMap.put(id1, id1);
+	imageCanvasMap.put(id2, id2);
+	imageCanvasMap.put(id3, id3);
+	
 	String query = "test me out for a long";
 	
 	Map <String, List<Positions>> positionMap = new HashMap<>();
@@ -272,7 +277,7 @@ public class TextUtilsTest {
 	String coordinates2 = getFileContents("test_coordinates_2.json");
 	
 	
-	Map<String,Object>  map = textUtils.createCoordinateAnnotation(query, coordinates2, true, positionMap, termPositionMap, queryString, new PageParameters(), true);
+	Map<String,Object>  map = textUtils.createCoordinateAnnotation(query, coordinates2, true, positionMap, termPositionMap, queryString, new PageParameters(), true, imageCanvasMap);
 	//Map<String,Object>  map =textUtils.createCoordinateAnnotation(params,coordinates2, positionMap, termPositionMap , //10,
 	//	new PageParameters());
 	LOG.info(map.toString());

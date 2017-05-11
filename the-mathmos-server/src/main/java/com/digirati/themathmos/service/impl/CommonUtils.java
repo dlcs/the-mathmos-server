@@ -3,7 +3,6 @@ package com.digirati.themathmos.service.impl;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Base64;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -26,6 +25,8 @@ public class CommonUtils {
     protected static final String FULL_LAYER = "http://iiif.io/api/presentation/2#Layer";
 
     protected static final String PRESENTATIONCONTEXT_PATH = "http://iiif.io/api/presentation/2/context.json";
+    
+    
     protected static final String SEARCHCONTEXT_PATH = "http://iiif.io/api/search/1/context.json";
 
     protected static final String FULL_HAS_ANNOTATIONS = "http://iiif.io/api/presentation/2#hasAnnotations";
@@ -96,33 +97,33 @@ public class CommonUtils {
 	}
     }
 
-    protected void setHits(Map<String, Object> root, boolean isW3c) {
-	List hits = new ArrayList();
-	if (isW3c) {
-	    Map map = new LinkedHashMap<>();
-	    root.put(FULL_HAS_HITLIST, map);
-	    map.put(W3C_RESOURCELIST, hits);
-	} else {
-	    root.put(OA_HITS, hits);
-	}
+    protected void setHits(Map<String, Object> root) {
+	root.put(OA_HITS, new ArrayList());
+	
     }
 
-    protected List getHits(Map<String, Object> root, boolean isW3c) {
-	List hits;
-	if (isW3c) {
-	    Map map = (LinkedHashMap) root.get(FULL_HAS_HITLIST);
-	    hits = (List) map.get(W3C_RESOURCELIST);
-	} else {
-	    hits = (List) root.get(OA_HITS);
-	}
+    protected List getHits(Map<String, Object> root) {
+	List hits = (List) root.get(OA_HITS);
 	return hits;
     }
 
-    protected void setContextIdType(Map<String, Object> root, boolean isW3c, String query) {
-	if (isW3c) {
-	    root.put(CONTEXT, WC3CONTEXT_PATH);
+
+    protected void setContextIdType(Map<String, Object> root, boolean isW3c, String query, boolean isText) {
+	if (isText) {
+	    List resources = new ArrayList();
+	    if (isW3c) {
+		resources.add(WC3CONTEXT_PATH);
+	    } else {
+		resources.add(PRESENTATIONCONTEXT_PATH);
+	    }
+	    resources.add(SEARCHCONTEXT_PATH);
+	    root.put(CONTEXT, resources); 
 	} else {
-	    root.put(CONTEXT, PRESENTATIONCONTEXT_PATH);
+	    if (isW3c) {
+		root.put(CONTEXT, WC3CONTEXT_PATH);
+	    } else {
+		root.put(CONTEXT, PRESENTATIONCONTEXT_PATH);
+	    }
 	}
 
 	root.put(ROOT_ID, query);
@@ -133,16 +134,17 @@ public class CommonUtils {
 	}
     }
 
-
-    protected Map<String, Object> buildAnnotationListHead(String query, boolean isW3c) {
+    protected Map<String, Object> buildAnnotationListHead(String query, boolean isW3c, boolean isText) {
 	Map<String, Object> root = new LinkedHashMap<>();
-	setContextIdType(root, isW3c, query);
+	setContextIdType(root, isW3c, query, isText);
 	setResources(root, isW3c);
 	return root;
     }
 
+   
+    
     @SuppressWarnings("unchecked")
-    protected Map<String, Object> buildAnnotationPageHead(String query, boolean isW3c, PageParameters pagingParams) {
+    protected Map<String, Object> buildAnnotationPageHead(String query, boolean isW3c, PageParameters pagingParams, boolean isText) {
 	String total = pagingParams.getTotalElements();
 	String first = pagingParams.getFirstPageNumber();
 	String last = pagingParams.getLastPageNumber();
@@ -152,7 +154,7 @@ public class CommonUtils {
 
 	Map<String, Object> root = new LinkedHashMap<>();
 
-	setContextIdType(root, isW3c, query);
+	setContextIdType(root, isW3c, query,isText);
 
 	Map withinMap = new LinkedHashMap();
 	if (isW3c) {
@@ -196,35 +198,7 @@ public class CommonUtils {
 	return new ArrayList<>();
     }
 
-    public String[] getBeforeAndAfterFromText(Text fragment) {
-
-	String textString = fragment.string();
-
-	int lastIndexOfStartEm = textString.lastIndexOf("<em>");
-	int lastIndexOfEndEm = textString.lastIndexOf("</em>");
-
-	String[] startEnd = new String[2];
-	startEnd[0] = textString.substring(0, lastIndexOfStartEm);
-	startEnd[1] = textString.substring(lastIndexOfEndEm + 5, textString.length());
-
-	return startEnd;
-    }
-
-    public String getCoordinatesFromSource(String source, String textString) {
-
-	int lastIndexOfStartEm = textString.lastIndexOf("<em>");
-	int lastIndexOfEndEm = textString.lastIndexOf("</em>");
-
-	String[] startEnd = new String[2];
-	startEnd[0] = textString.substring(0, lastIndexOfStartEm);
-	startEnd[1] = textString.substring(lastIndexOfEndEm + 5, textString.length());
-
-	int indexOfStart = source.indexOf(startEnd[0]) + startEnd[0].length();
-	int indexOfEnd = source.indexOf(startEnd[1]);
-	return indexOfStart + "|" + indexOfEnd;
-    }
-
-    
+ 
     
     /**
      * Method to get the before and after text surrounding the query term(s).

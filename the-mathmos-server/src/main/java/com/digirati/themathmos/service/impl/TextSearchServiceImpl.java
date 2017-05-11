@@ -73,7 +73,7 @@ public class TextSearchServiceImpl implements TextSearchService {
     private static final String TOKENS_FIELD_NAME = "tokens";
     private static final String START_OFFSET_FIELD_NAME = "start_offset";
     
-    private static final String INDEX_FIELD_NAME = "text_index";
+    private static final String INDEX_FIELD_NAME = AnnotationSearchConstants.TEXT_INDEX_NAME;
     
     private PageParameters pagingParameters = null;
     
@@ -203,8 +203,10 @@ public class TextSearchServiceImpl implements TextSearchService {
 	    Integer pagingInteger = Integer.parseInt(page);
 	    from = (pagingInteger.intValue() - 1) * pagingSize;
 	}
-
-
+	
+	Map<String,String> imageCanvasMap = new HashMap<>();
+	Map<String,String> canvasImageMap = new HashMap<>();
+	
 	Page<TextAnnotation> annotationPage = formQuery(queryBuilder, from, pagingSize, within);
 
 	LOG.info("total pages "+annotationPage.getTotalPages());
@@ -212,8 +214,9 @@ public class TextSearchServiceImpl implements TextSearchService {
 	Map<String, List<TermWithTermOffsets>> termWithOffsetsMap = new HashMap<>();
 	Map<String, Map<String, TermOffsetStart>> termPositionsMap = new HashMap<>();
 	Map<String, Map<String, String>> offsetPositionMap = new HashMap<>();
+	
 
-	extractTermOffsetsFromPage(termWithOffsetsMap, annotationPage, query, termPositionsMap, offsetPositionMap);
+	extractTermOffsetsFromPage(termWithOffsetsMap, annotationPage, query, termPositionsMap, offsetPositionMap, imageCanvasMap, canvasImageMap);
 
 	LOG.info("termWithOffsetsMap "+ termWithOffsetsMap.toString());
 	LOG.info("termPositionsMap "+ termPositionsMap.toString());
@@ -227,10 +230,10 @@ public class TextSearchServiceImpl implements TextSearchService {
 	}
 	
 	
-	Map<String, Object> offsetPayloadMap = //textUtils.createOffsetPayload(termWithOffsetsMap, width, height,
-		//offsetPositionMap);
-	textUtils.createOffsetPayload(termWithOffsetsMap,"1024", "768",
-		offsetPositionMap);
+	Map<String, Object> offsetPayloadMap = textUtils.createOffsetPayload(termWithOffsetsMap, width, height,
+		offsetPositionMap, canvasImageMap);
+	//textUtils.createOffsetPayload(termWithOffsetsMap,"1024", "768", offsetPositionMap);
+	//textUtils.createOffsetPayload(termWithOffsetsMap,"1024", "768", offsetPositionMap, canvasImageMap);
 
 	String payload = new Gson().toJson(offsetPayloadMap);
 	LOG.info("payload "+ payload);
@@ -250,7 +253,7 @@ public class TextSearchServiceImpl implements TextSearchService {
 	    Map<String, Object> textMap = textUtils.createCoordinateAnnotation(query, coordinatePayload,
 	  isW3c, positionMap, termPositionsMap, queryString, 
 		    pagingParameters,
-		    isMixedSearch);
+		    isMixedSearch,imageCanvasMap);
 	  
 	    if (null != textMap && !textMap.isEmpty()) {
 		textUtils.amendPagingParameters(textMap, pagingParameters, isW3c);
@@ -268,7 +271,7 @@ public class TextSearchServiceImpl implements TextSearchService {
      * @param page {@code Page} whose content is a {@code List} of {@code TextAnnotation} objects, from which we get the ids.
      * @return {@code MultiTermVectorsResponse} containing all the term vectors in the matched text.
      */
-    private MultiTermVectorsResponse getMultiTermVectorResponse(Page<TextAnnotation> page) {
+    private MultiTermVectorsResponse getMultiTermVectorResponse(Page<TextAnnotation> page, Map<String,String> imageCanvasMap, Map<String,String> canvasImageMap) {
 
 	List<TextAnnotation> textPage = page.getContent();
 	
@@ -276,7 +279,10 @@ public class TextSearchServiceImpl implements TextSearchService {
 	int count = 0;
 	for (TextAnnotation textResult : textPage) {
 	    String id = textResult.getId();
-	    LOG.info("getMultiTermVectorResponse id of textAnotation is " + id);
+	    String imageId = textResult.getImageId();
+	    imageCanvasMap.put(imageId, id);
+	    canvasImageMap.put(id, imageId);
+	    LOG.info("getMultiTermVectorResponse id of textAnotation is " + id + "imageId is  "+ imageId);
 	    if(null != id){
 		idArray[count] = id;
 		count++;
@@ -310,7 +316,8 @@ public class TextSearchServiceImpl implements TextSearchService {
 	searchRequestBuilder.setQuery(queryBuilder);
 	searchRequestBuilder.setFrom(from);
 	searchRequestBuilder.setSize(pagingSize);
-	searchRequestBuilder.setFetchSource(false);
+	searchRequestBuilder.addField("imageId");
+	//searchRequestBuilder.setFetchSource(false);
 	
 	if(null != within){
    	    String decodedWithinUrl =  textUtils.decodeWithinUrl(within); 
@@ -474,9 +481,10 @@ public class TextSearchServiceImpl implements TextSearchService {
      * @param offsetPositionMap {@code Map} containing key = start offset of a term in text with value = {@code String} position.
      */
     private void extractTermOffsetsFromPage(Map<String, List<TermWithTermOffsets>> termWithOffsetsMap,
-	    Page<TextAnnotation> page, String query, Map<String, Map<String, TermOffsetStart>> termPositionsMap, Map<String,Map <String,String>> offsetPositionMap) {
+	    Page<TextAnnotation> page, String query, Map<String, Map<String, TermOffsetStart>> termPositionsMap, Map<String,Map <String,String>> offsetPositionMap,
+	    Map<String,String> imageCanvasMap,  Map<String,String> canvasImageMap) {
 
-	MultiTermVectorsResponse response = getMultiTermVectorResponse(page);
+	MultiTermVectorsResponse response = getMultiTermVectorResponse(page, imageCanvasMap, canvasImageMap);
 
 	if (null != response) {
 	    MultiTermVectorsItemResponse[] itemResponseArray = response.getResponses();
@@ -485,6 +493,7 @@ public class TextSearchServiceImpl implements TextSearchService {
 	    for (MultiTermVectorsItemResponse itemReponse : itemResponseArray) {
 		
 		String imageId = itemReponse.getId();
+		
 		LOG.info("itemResponse id is " + imageId);
 
 		XContentBuilder builder;

@@ -79,7 +79,24 @@ public class TextUtils extends CommonUtils {
 
     }
 
-    
+    public Map<String, Object> createOffsetPayload(Map<String, List<TermWithTermOffsets>> termWithOffsetsMap,
+	    String width, String height, Map<String, Map<String, String>> offsetPositionMap, Map<String, String> canvasImageMap) {
+
+	if (null == termWithOffsetsMap || termWithOffsetsMap.isEmpty()) {
+	    return null;
+	}
+
+	Map<String, Object> root = buildImageListHead();
+
+	List<Map<String, Object>> imageList = createImages(termWithOffsetsMap, width, height, offsetPositionMap, canvasImageMap);
+
+	List<Map<String, Object>> images = (List<Map<String, Object>>) root.get(IMAGESLIST);
+
+	images.addAll(imageList);
+
+	return root;
+
+    }
     
    
    
@@ -98,7 +115,7 @@ public class TextUtils extends CommonUtils {
     public Map<String, Object> createCoordinateAnnotation(String query, String coordinatePayload,
 	   boolean isW3c, Map<String, List<Positions>> positionMap,
 	    Map<String, Map<String, TermOffsetStart>> termPositionMap, String queryString,
-	    PageParameters pageParams, boolean isMixedSearch) {
+	    PageParameters pageParams, boolean isMixedSearch, Map<String,String> imageCanvasMap) {
 
 	if (null == coordinatePayload) {
 	    return null;
@@ -115,12 +132,12 @@ public class TextUtils extends CommonUtils {
 	Map<String, Object> root;
 
 	
-	root = this.buildAnnotationPageHead(queryString, isW3c, pageParams);	   
+	root = this.buildAnnotationPageHead(queryString, isW3c, pageParams, true);	   
 	
 
 	List<Map> resources = this.getResources(root,isW3c);
 	
-	this.setHits(root, isW3c);
+	this.setHits(root);
 	
 	List images = (List) javaRootBodyMapObject.get(IMAGESLIST);
 	
@@ -129,7 +146,11 @@ public class TextUtils extends CommonUtils {
 	    Map<String, Object> image = (Map<String, Object>) object;
 	    
 	    //pull out the image id 
-	    String id = (String) image.get("image_uri");
+	    
+	    
+	    
+	    String imageId = (String) image.get("image_uri");
+	    String id = imageCanvasMap.get(imageId);
 
 	    //map for storing xywh keys against resource urls
 	    Map <String, String>annoURLMap = new HashMap<>();
@@ -139,7 +160,7 @@ public class TextUtils extends CommonUtils {
 	    Object phraseObject = image.get(PHRASES);
 	   
 	    
-	    List<Map<String, Object>> hitList = this.getHits(root, isW3c);
+	    List<Map<String, Object>> hitList = this.getHits(root);
 	    
 	    if (phraseObject instanceof ArrayList) {
 		List phraseObjectList = (ArrayList) image.get(PHRASES);
@@ -334,6 +355,83 @@ public class TextUtils extends CommonUtils {
     }
     
     
+    /**
+     * Method to populate the positionMap,(key is the image id {@code String} and value is a list of {@code Position} objects) and create a 
+     * json payload to send to the text server (Starsky).
+     * This is of the form:
+     *<pre>
+     * 
+     * {@code
+     *{
+     *    'images': [
+     *    {
+     *	    'imageURI' : <uri>,
+     *	    'positions' : [ [25, 31], 100,110], // list of integers or integer arrays * representing ordinal character positions within text for image
+     *	    'width' : 1024, // height and width of image to be presented
+     *	    'height' : 768 // text server scales from stored boxes
+     *    } 
+     *  ]
+     *}
+     *}
+     *</pre>
+     * @param termWithOffsetsMap {@code Map} containing image ids as keys and a List of their {@code TermWithTermOffsets} as values.
+     * @param width {@code String} The width to scale the coordinates from Starsky.
+     * @param height {@code String}  The height to scale the coordinates from Starsky.
+     * @param offsetPositionMap {@code Map} containing {@code String}  keys with image id and a {@code Map}
+     * @return {@code List} - representing the json payload to send to Starsky. 
+     * 
+     */
+    public List<Map<String, Object>> createImages(Map<String, List<TermWithTermOffsets>> termWithOffsetsMap,
+	    String width, String height, Map<String, Map<String, String>> offsetPositionMap, Map<String,String> canvasImageMap) {
+
+	List<Map<String, Object>> realRoot = new ArrayList<>();
+
+	Map<String, List<Positions>> imagePositionsMap = new HashMap<>();
+
+	Set<String> keySet = termWithOffsetsMap.keySet();
+	for (String canvasId : keySet) {
+	    Map<String, Object> root = new HashMap<>();
+	    List<TermWithTermOffsets> termWithOffsetsList = termWithOffsetsMap.get(canvasId);
+
+	    List<Object> positions = new ArrayList<>();
+
+	    Map<String, String> startMap = offsetPositionMap.get(canvasId);
+
+	    List<Positions> positionsList = new ArrayList<>();
+
+	    if (termWithOffsetsList.size() == 1) {
+		List<TermOffsetsWithPosition> offsets = termWithOffsetsList.get(0).getOffsets();
+		for (TermOffsetsWithPosition offset : offsets) {
+		    positions.add(offset.getStart());
+		    Positions positionObject = new Positions(offset.getPosition(), offset.getPosition());
+		    positionsList.add(positionObject);
+		}
+
+	    } else {
+		positions = sortPositionsForMultiwordPhrase(termWithOffsetsList, startMap, positionsList);
+
+	    }
+	    
+	    String imageURL = canvasImageMap.get(canvasId);
+	    
+	    imagePositionsMap.put(canvasId, positionsList);
+	   
+	    root.put("imageURI", imageURL);
+	    root.put("positions", positions);
+	    if(!StringUtils.isEmpty(width)){
+		root.put("width", width);
+	    }
+	    if(!StringUtils.isEmpty(height)){
+		root.put("height", height);
+	    }
+
+	    realRoot.add(root);
+	}
+
+	setPositionsMap(imagePositionsMap);
+
+	return realRoot;
+    }
     
     
     
@@ -494,19 +592,12 @@ public class TextUtils extends CommonUtils {
     public void setHits(boolean isW3c, Map<String, Object> hitMap, List<String> annotationsList, String query,
 	    String[] beforeAfter) {
 
-	if (isW3c) {
-	    hitMap.put("type", "http://iiif.io/api/search/1#Hit");
-	    hitMap.put("http://iiif.io/api/search/1#refines", annotationsList);
-	    hitMap.put("http://iiif.io/api/search/1#match", query);
-	    hitMap.put("http://iiif.io/api/search/1#before", beforeAfter[0]);
-	    hitMap.put("http://iiif.io/api/search/1#after", beforeAfter[1]);
-	} else {
 	    hitMap.put("@type", "search:Hit");
 	    hitMap.put("annotations", annotationsList);
 	    hitMap.put("match", query);
 	    hitMap.put("before", beforeAfter[0]);
 	    hitMap.put("after", beforeAfter[1]);
-	}
+	
     }
     
     

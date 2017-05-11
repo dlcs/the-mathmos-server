@@ -214,6 +214,26 @@ public class AnnotationSearchServiceImplTest {
 	results = annotationSearchServiceImpl.getAnnotationsPage(params, queryString, isW3c, page, within, type);
 	LOG.info(results);
 	
+	
+	query = "https://omeka.dlcs-ida.org/s/ida/page/topics//virtual:person/ros+king";
+	motivation = null;
+	date = null;
+	type = null;
+	page = null;
+	user = null;
+	isW3c = true;
+	params.setUser(user);
+	params.setQuery(query);
+	params.setMotivation(motivation);
+	params.setDate(date);
+	within = Base64.getEncoder().encodeToString("test".getBytes(StandardCharsets.UTF_8));
+	results = annotationSearchServiceImpl.getAnnotationsPage(params, queryString, isW3c, page, within, type);
+	LOG.info(results);
+	
+	
+	
+	
+	
     }
     
     

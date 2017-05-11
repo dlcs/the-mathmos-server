@@ -15,8 +15,10 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.log4j.Logger;
@@ -48,8 +50,9 @@ import org.elasticsearch.action.termvectors.TermVectorsRequest.Flag;
 import org.elasticsearch.action.termvectors.TermVectorsResponse;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.search.SearchHit;
+import org.elasticsearch.search.SearchHitField;
 import org.elasticsearch.search.SearchHits;
-
+import org.elasticsearch.search.internal.InternalSearchHitField;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -132,6 +135,12 @@ public class TextSearchServiceImplTest {
 	SearchHit hit = mock(SearchHit.class);
 	hits[0] = hit;
 	when(hit.getId()).thenReturn("3");
+	Map <String, SearchHitField> hitMap = new HashMap<>();
+	List values = new ArrayList<>();
+	values.add("3");
+	SearchHitField shf = new InternalSearchHitField("imageId", values);
+	hitMap.put("imageId",shf);
+	when(hit.getFields()).thenReturn(hitMap);
 	when(searchHits.iterator()).thenReturn(Iterators.forArray(hits));
 	
 	when(hit.getSourceAsString()).thenReturn(null);

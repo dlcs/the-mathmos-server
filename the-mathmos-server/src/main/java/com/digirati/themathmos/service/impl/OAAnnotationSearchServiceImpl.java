@@ -39,33 +39,7 @@ public class OAAnnotationSearchServiceImpl extends AnnotationSearchServiceImpl i
    
     }
     
-   /*
-    @Override
-    @Transactional(readOnly = true, isolation = Isolation.SERIALIZABLE)
-    @Cacheable(value="oaAnnotationSearchPagingCache", key="#queryString" )
-    	
-    public ServiceResponse<Map<String, Object>> getAnnotationPage(String query, String motivation, String date, String user, String queryString, String page, String within, String type)  {
-	
-	
-	String[] annoSearchArray  = this.getAnnotationsPage(query, motivation, date, user, queryString, false, page, within, type);
-	
-	if(annoSearchArray.length == 0){
-	    return new ServiceResponse<>(Status.NOT_FOUND, null); 
-	}
-	
-	PageParameters pagingParameters = this.getPageParameters();
-
-	List<W3CAnnotation> annotationList = annotationUtils.getW3CAnnotations(annoSearchArray);
-
-	Map<String, Object> annoMap = annotationUtils.createAnnotationPage(queryString, annotationList, false, pagingParameters, (int)this.getTotalHits(), false);
-	   	
-	if(null != annoMap && !annoMap.isEmpty()){
-	    return new ServiceResponse<>(Status.OK, annoMap);
-	}else{
-	    return new ServiceResponse<>(Status.NOT_FOUND, null); 
-	}
-    }
-   */
+  
     @Override
     @Transactional(readOnly = true, isolation = Isolation.SERIALIZABLE)
     @Cacheable(value="oaAnnotationSearchPagingCache", key="#queryString" )

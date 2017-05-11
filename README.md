@@ -32,6 +32,9 @@ The location of the coordinate service and the cluster nodes need to be provided
 -Dtext.server.coordinate.url="http://wherever.the.coordinate.server.exists" 
 -Dcluster.nodes="localhost:9300"
 
+### API
+Please read [API.md](API.md) for details on how Mathmmos works.
+
 ## Built With
 
 * [Spring Framework](https://projects.spring.io/spring-framework/)
