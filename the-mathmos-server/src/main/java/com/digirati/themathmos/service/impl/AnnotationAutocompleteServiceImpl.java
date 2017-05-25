@@ -11,6 +11,8 @@ import org.apache.log4j.Logger;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.Client;
+import org.elasticsearch.index.query.QueryBuilder;
+import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.suggest.completion.CompletionSuggestion;
 import org.elasticsearch.search.suggest.completion.CompletionSuggestionBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -126,12 +128,23 @@ public class AnnotationAutocompleteServiceImpl implements AnnotationAutocomplete
 	LOG.info(completionSuggestionBuilder.toString());
 	
 	// need a new SearchRequestBuilder or the source does not change
-   	SearchRequestBuilder searchRequestBuilderReal  = client.prepareSearch(index);	
+   	//SearchRequestBuilder searchRequestBuilderReal  = client.prepareSearch(index);	
 	SearchRequestBuilder searchRequestBuilder  = client.prepareSearch(index);
+	
+	if(null != within && TEXT_INDEX.equals(index)){
+	    String decodedWithinUrl = annotationUtils.decodeWithinUrl(within); 
+	    if(null != decodedWithinUrl){
+		QueryBuilder queryBuilder = QueryBuilders.matchQuery("manifestId", decodedWithinUrl);
+		searchRequestBuilder.setQuery(queryBuilder);
+	    }
+	    
+	}
+	
    	searchRequestBuilder.addSuggestion(completionSuggestionBuilder);
    	searchRequestBuilder.setSize(1);
    	searchRequestBuilder.setFetchSource(false);
    	
+   	/*
    	if(null != within){
    	    String decodedWithinUrl =  annotationUtils.decodeWithinUrl(within); 
    	
@@ -151,7 +164,11 @@ public class AnnotationAutocompleteServiceImpl implements AnnotationAutocomplete
    	
    	SearchResponse searchResponse = searchRequestBuilderReal.execute()
    		.actionGet();
+   	*/
+   	LOG.info("doSearch query "+ searchRequestBuilder.toString());
    	
+   	SearchResponse searchResponse = searchRequestBuilder.execute()
+   		.actionGet();
    	
 	CompletionSuggestion compSuggestion = searchResponse.getSuggest().getSuggestion("annotation_suggest");
 
