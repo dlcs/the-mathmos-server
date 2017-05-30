@@ -1,6 +1,7 @@
 package com.digirati.themathmos.service.impl;
 
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -622,7 +623,12 @@ public class TextUtils extends CommonUtils {
     
     
     
-    
+    public static void main(String[] args){
+	
+	byte[] encodedBytes = Base64.getEncoder().encode("http://localhost:8000/iiif/x/667f6125-89fa-44da-998e-0888be904f9f/manifest".getBytes());
+	System.out.println("encodedBytes " + new String(encodedBytes));
+	
+    }
     
    
     

@@ -21,6 +21,7 @@ import org.elasticsearch.client.Client;
 import org.elasticsearch.common.xcontent.ToXContent;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.common.xcontent.XContentFactory;
+import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -193,7 +194,13 @@ public class TextSearchServiceImpl implements TextSearchService {
     private Map<String, Object> getTextMap(String query, String queryString, boolean isW3c, String page, boolean isMixedSearch, String within, String widthHeight) {
    
 	totalHits = 0;
-	QueryBuilder queryBuilder = buildQuery(query);
+	QueryBuilder queryBuilder;
+	if(null != within){
+	    queryBuilder = buildQuery(query, within); 
+	    
+	}else{
+	    queryBuilder = buildQuery(query);
+	}
 
 	int pagingSize = DEFAULT_TEXT_PAGING_NUMBER;
 	int from = DEFAULT_STARTING_PAGING_NUMBER;
@@ -310,7 +317,7 @@ public class TextSearchServiceImpl implements TextSearchService {
 	Pageable pageable = new PageRequest(from, pagingSize);
 
 	TextSearchAnnotationMapper resultsMapper = new TextSearchAnnotationMapper();
-	SearchRequestBuilder searchRequestBuilderReal  = client.prepareSearch(INDEX_FIELD_NAME);
+	//SearchRequestBuilder searchRequestBuilderReal  = client.prepareSearch(INDEX_FIELD_NAME);
 
 	SearchRequestBuilder searchRequestBuilder = client.prepareSearch(INDEX_FIELD_NAME);
 	searchRequestBuilder.setQuery(queryBuilder);
@@ -319,7 +326,7 @@ public class TextSearchServiceImpl implements TextSearchService {
 	searchRequestBuilder.addField("imageId");
 	//searchRequestBuilder.setFetchSource(false);
 	
-	if(null != within){
+	/*if(null != within){
    	    String decodedWithinUrl =  textUtils.decodeWithinUrl(within); 
    	
    		
@@ -333,7 +340,7 @@ public class TextSearchServiceImpl implements TextSearchService {
    	  
    	}else{
    	    searchRequestBuilderReal = searchRequestBuilder;
-   	}
+   	}*/
 
 		
 	LOG.info("doSearch query " + searchRequestBuilder.toString());
@@ -358,7 +365,28 @@ public class TextSearchServiceImpl implements TextSearchService {
 	return QueryBuilders.matchPhraseQuery(TEXT_FIELD_NAME, query);
     }
 
-    
+    /**
+     * Method to build a matchPhraseQuery {@code QueryBuilder}
+     * @param query - The {@code String} query e.g. turnips
+     * @param within - The {@code String} base64 encoded within String
+     * @return {@code QueryBuilder}
+     */
+    private QueryBuilder buildQuery(String query, String within) {
+	String decodedWithinUrl = textUtils.decodeWithinUrl(within); 
+	if(null != decodedWithinUrl){
+	    BoolQueryBuilder must = QueryBuilders.boolQuery();
+	    QueryBuilder builder = QueryBuilders.matchPhraseQuery(TEXT_FIELD_NAME, query);
+	    must.must(QueryBuilders.matchQuery("manifestId", decodedWithinUrl));
+	    must.must(builder);
+	    return must;
+	    
+	}else{
+	    LOG.info("Unable to decode the within "+ within);
+	    return null;
+	}
+	
+	
+    }
     /**
      * Method to create a {@code MultiTermVectorsRequest} by building up a series of {@code TermVectorsRequest} and adding them to a {@code MultiTermVectorsRequest}. 
      * Send this request to elasticsearch and return either null or a {@code MultiTermVectorsResponse}
