@@ -6,8 +6,11 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -75,7 +78,10 @@ public class OATextSearchController{
 	Status serviceResponseStatus = serviceResponse.getStatus();
 
 	if (serviceResponseStatus.equals(Status.OK)) {
-	     return ResponseEntity.ok(serviceResponse.getObj());
+	     //return ResponseEntity.ok(serviceResponse.getObj());
+	     HttpHeaders responseHeaders = new HttpHeaders();
+		    responseHeaders.setAccessControlAllowOrigin("*");
+		    return  new ResponseEntity(serviceResponse.getObj(), responseHeaders,  HttpStatus.OK);
 	}
 
 	if (serviceResponseStatus.equals(Status.NOT_FOUND)) {
@@ -109,7 +115,10 @@ public class OATextSearchController{
 	Status serviceResponseStatus = serviceResponse.getStatus();
 
 	if (serviceResponseStatus.equals(Status.OK)) {
-	     return ResponseEntity.ok(serviceResponse.getObj());
+	     //return ResponseEntity.ok(serviceResponse.getObj());
+	    HttpHeaders responseHeaders = new HttpHeaders();
+	    responseHeaders.setAccessControlAllowOrigin("*");
+	    return  new ResponseEntity(serviceResponse.getObj(), responseHeaders,  HttpStatus.OK);
 	}
 
 	if (serviceResponseStatus.equals(Status.NOT_FOUND)) {
@@ -133,7 +142,10 @@ public class OATextSearchController{
 	Status serviceResponseStatus = serviceResponse.getStatus();
 
 	if (serviceResponseStatus.equals(Status.OK)) {
-	     return ResponseEntity.ok(serviceResponse.getObj());
+	    // return ResponseEntity.ok(serviceResponse.getObj());
+	    HttpHeaders responseHeaders = new HttpHeaders();
+	    responseHeaders.setAccessControlAllowOrigin("*");
+	    return  new ResponseEntity(serviceResponse.getObj(), responseHeaders,  HttpStatus.OK);
 	}
 
 	if (serviceResponseStatus.equals(Status.NOT_FOUND)) {
@@ -158,7 +170,9 @@ public class OATextSearchController{
 	Status serviceResponseStatus = serviceResponse.getStatus();
 
 	if (serviceResponseStatus.equals(Status.OK)) {
-	     return ResponseEntity.ok(serviceResponse.getObj());
+	    HttpHeaders responseHeaders = new HttpHeaders();
+	    responseHeaders.setAccessControlAllowOrigin("*");
+	    return  new ResponseEntity(serviceResponse.getObj(), responseHeaders,  HttpStatus.OK);
 	}
 
 	if (serviceResponseStatus.equals(Status.NOT_FOUND)) {
