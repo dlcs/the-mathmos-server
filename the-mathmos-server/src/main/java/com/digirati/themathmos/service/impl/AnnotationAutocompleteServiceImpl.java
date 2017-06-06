@@ -6,13 +6,12 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.log4j.Logger;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.Client;
-import org.elasticsearch.index.query.QueryBuilder;
-import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.suggest.completion.CompletionSuggestion;
 import org.elasticsearch.search.suggest.completion.CompletionSuggestionBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -118,79 +117,89 @@ public class AnnotationAutocompleteServiceImpl implements AnnotationAutocomplete
 	}	
     }
    
-    public List <SuggestOption>  findSuggestionsFor(String suggestRequest, String index,  String within)  {
-	CompletionSuggestionBuilder  completionSuggestionBuilder = new CompletionSuggestionBuilder("annotation_suggest");
-	
+    public List<SuggestOption> findSuggestionsFor(String suggestRequest, String index, String within) {
+	CompletionSuggestionBuilder completionSuggestionBuilder = new CompletionSuggestionBuilder("annotation_suggest");
+
 	completionSuggestionBuilder.text(suggestRequest);
 	completionSuggestionBuilder.field("suggest");
 	completionSuggestionBuilder.size(MAX_NUMBER_OF_HITS_RETURNED);
-			
-	LOG.info(completionSuggestionBuilder.toString());
-	
-	// need a new SearchRequestBuilder or the source does not change
-   	//SearchRequestBuilder searchRequestBuilderReal  = client.prepareSearch(index);	
-	SearchRequestBuilder searchRequestBuilder  = client.prepareSearch(index);
-	
-	if(null != within && TEXT_INDEX.equals(index)){
-	    String decodedWithinUrl = annotationUtils.decodeWithinUrl(within); 
-	    if(null != decodedWithinUrl){
-		QueryBuilder queryBuilder = QueryBuilders.matchQuery("manifestId", decodedWithinUrl);
-		searchRequestBuilder.setQuery(queryBuilder);
-	    }
-	    
-	}
-	
-   	searchRequestBuilder.addSuggestion(completionSuggestionBuilder);
-   	searchRequestBuilder.setSize(1);
-   	searchRequestBuilder.setFetchSource(false);
-   	
-   	/*
-   	if(null != within){
-   	    String decodedWithinUrl =  annotationUtils.decodeWithinUrl(within); 
-   	
-   		
-   	    Map <String, Object> map = annotationUtils.getQueryMap(searchRequestBuilder.toString());
-   	    if(null != decodedWithinUrl && null != map){
-   		map = annotationUtils.setSource(map,decodedWithinUrl, index, 1);
-   		searchRequestBuilderReal.setSource(map);
-   	    }else{
-   	   	LOG.error("Unable to find match to within");
-   	    }
-   	}else{
-   	    searchRequestBuilderReal = searchRequestBuilder;
-   	}
 
-   	LOG.info("doSearch query "+ searchRequestBuilderReal.toString());
-   	
-   	SearchResponse searchResponse = searchRequestBuilderReal.execute()
-   		.actionGet();
-   	*/
-   	LOG.info("doSearch query "+ searchRequestBuilder.toString());
-   	
-   	SearchResponse searchResponse = searchRequestBuilder.execute()
-   		.actionGet();
-   	
+	LOG.info(completionSuggestionBuilder.toString());
+
+	// need a new SearchRequestBuilder or the source does not change
+	// SearchRequestBuilder searchRequestBuilderReal =
+	// client.prepareSearch(index);
+	SearchRequestBuilder searchRequestBuilder = client.prepareSearch(index);
+	String decodedWithinUrl = null;
+	if (null != within && TEXT_INDEX.equals(index)) {
+	    decodedWithinUrl = annotationUtils.decodeWithinUrl(within);
+	}
+	LOG.info("decodedWithinUrl :" + decodedWithinUrl);
+
+	searchRequestBuilder.addSuggestion(completionSuggestionBuilder);
+	searchRequestBuilder.setSize(1);
+	searchRequestBuilder.setFetchSource(false);
+
+	/*
+	 * if(null != within){ String decodedWithinUrl =
+	 * annotationUtils.decodeWithinUrl(within);
+	 * 
+	 * 
+	 * Map <String, Object> map =
+	 * annotationUtils.getQueryMap(searchRequestBuilder.toString()); if(null
+	 * != decodedWithinUrl && null != map){ map =
+	 * annotationUtils.setSource(map,decodedWithinUrl, index, 1);
+	 * searchRequestBuilderReal.setSource(map); }else{
+	 * LOG.error("Unable to find match to within"); } }else{
+	 * searchRequestBuilderReal = searchRequestBuilder; }
+	 * 
+	 * LOG.info("doSearch query "+ searchRequestBuilderReal.toString());
+	 * 
+	 * SearchResponse searchResponse = searchRequestBuilderReal.execute()
+	 * .actionGet();
+	 */
+	LOG.info("doSearch query " + searchRequestBuilder.toString());
+
+	SearchResponse searchResponse = searchRequestBuilder.execute().actionGet();
+
 	CompletionSuggestion compSuggestion = searchResponse.getSuggest().getSuggestion("annotation_suggest");
 
-        List<CompletionSuggestion.Entry> entryList = compSuggestion.getEntries();
-        
-        List <SuggestOption> options = new ArrayList<>();
-        if(entryList != null) {
-            CompletionSuggestion.Entry entry = entryList.get(0);
-            List<CompletionSuggestion.Entry.Option> csEntryOptions =entry.getOptions();
-            if(null != csEntryOptions && !csEntryOptions.isEmpty())  {
-        	Iterator <? extends  CompletionSuggestion.Entry.Option> iter = csEntryOptions.iterator();
-        	while (iter.hasNext()) {
-        	    CompletionSuggestion.Entry.Option next = iter.next();
-        	    SuggestOption option = new SuggestOption(next.getText().string());
-        	    LOG.info("option " + option.getText());
-        	    options.add(option); 
-        	}  
-           }
-        }
-	
- 
-       return options;
+	List<CompletionSuggestion.Entry> entryList = compSuggestion.getEntries();
+
+	List<SuggestOption> options = new ArrayList<>();
+
+	if (entryList != null) {
+	    CompletionSuggestion.Entry entry = entryList.get(0);
+	    List<CompletionSuggestion.Entry.Option> csEntryOptions = entry.getOptions();
+	    if (null != csEntryOptions && !csEntryOptions.isEmpty()) {
+		Iterator<? extends CompletionSuggestion.Entry.Option> iter = csEntryOptions.iterator();
+		while (iter.hasNext()) {
+		    CompletionSuggestion.Entry.Option next = iter.next();
+		    SuggestOption option = new SuggestOption(next.getText().string());
+		    
+		    // if not null then we are looking for manifestIds within
+		    // the payload
+		    if (null == decodedWithinUrl) {
+			options.add(option);
+			LOG.info("option " + option.getText());
+		    } else {
+
+			Map<String, Object> payloadMap = next.getPayloadAsMap();
+			if (null != payloadMap && payloadMap.containsKey("uri")) {
+
+			    List<String> payloadSet = (List) payloadMap.get("uri");
+			   
+			    if (null != payloadSet && payloadSet.contains(decodedWithinUrl)) {
+				options.add(option);
+				LOG.info("option " + option.getText());
+			    }
+			}
+		    }
+		}
+	    }
+	}
+
+	return options;
     }
     
    

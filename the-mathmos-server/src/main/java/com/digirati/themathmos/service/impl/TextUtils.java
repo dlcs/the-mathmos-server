@@ -626,8 +626,16 @@ public class TextUtils extends CommonUtils {
     public static void main(String[] args){
 	
 	byte[] encodedBytes = Base64.getEncoder().encode("http://localhost:8000/iiif/x/667f6125-89fa-44da-998e-0888be904f9f/manifest".getBytes());
-	System.out.println("encodedBytes " + new String(encodedBytes));
+	LOG.info("http://localhost:8000/iiif/x/667f6125-89fa-44da-998e-0888be904f9f/manifest : encodedBytes " + new String(encodedBytes));
 	
+	encodedBytes = Base64.getEncoder().encode("http://localhost:8000/iiif/x/667f6125-89fa-44da-998e-0888be904f9f/canvas/0".getBytes());
+	LOG.info("http://localhost:8000/iiif/x/667f6125-89fa-44da-998e-0888be904f9f/canvas/0 : encodedBytes " + new String(encodedBytes));
+	
+	encodedBytes = Base64.getEncoder().encode("http://localhost:8000/iiif/x/86e22fc7-89ba-42f5-82af-9c0c292f28e2/manifest".getBytes());
+	LOG.info("http://localhost:8000/iiif/x/86e22fc7-89ba-42f5-82af-9c0c292f28e2/manifest : encodedBytes " + new String(encodedBytes));
+	
+	encodedBytes = Base64.getEncoder().encode("http://localhost:8000/iiif/x/86e22fc7-89ba-42f5-82af-9c0c292f28e1/manifest".getBytes());
+	LOG.info("http://localhost:8000/iiif/x/86e22fc7-89ba-42f5-82af-9c0c292f28e1/manifest : encodedBytes " + new String(encodedBytes));
     }
     
    
