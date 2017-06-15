@@ -15,7 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.digirati.themathmos.model.ServiceResponse;
 import com.digirati.themathmos.model.ServiceResponse.Status;
-
+import com.digirati.themathmos.model.annotation.page.PageParameters;
 import com.digirati.themathmos.service.OASearchService;
 import com.digirati.themathmos.service.TextSearchService;
 
@@ -101,12 +101,15 @@ public class OASearchServiceImpl extends AnnotationSearchServiceImpl implements 
 		    mixedCache.put(queryWithNoPageParamter, textAnnoMap);
 		    return new ServiceResponse<>(Status.OK, textAnnoMap);
 		}else{
-		    return new ServiceResponse<>(Status.NOT_FOUND, null);
+		    Map <String, Object> emptyMap = annotationUtils.returnEmptyResultSet(queryString,false, new PageParameters(),true);
+		    return new ServiceResponse<>(Status.OK, emptyMap);
+		    //return new ServiceResponse<>(Status.NOT_FOUND, null);
 		}
 	    }
 	}
-	
-	return new ServiceResponse<>(Status.NOT_FOUND, null);
+	Map <String, Object> emptyMap = annotationUtils.returnEmptyResultSet(queryString,false, new PageParameters(),true);
+	return new ServiceResponse<>(Status.OK, emptyMap);
+	//return new ServiceResponse<>(Status.NOT_FOUND, null);
 
     }
     

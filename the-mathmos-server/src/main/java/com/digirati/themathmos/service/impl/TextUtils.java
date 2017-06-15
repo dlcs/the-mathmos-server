@@ -628,8 +628,8 @@ public class TextUtils extends CommonUtils {
 	byte[] encodedBytes = Base64.getEncoder().encode("http://localhost:8000/iiif/x/667f6125-89fa-44da-998e-0888be904f9f/manifest".getBytes());
 	LOG.info("http://localhost:8000/iiif/x/667f6125-89fa-44da-998e-0888be904f9f/manifest : encodedBytes " + new String(encodedBytes));
 	
-	encodedBytes = Base64.getEncoder().encode("http://localhost:8000/iiif/x/667f6125-89fa-44da-998e-0888be904f9f/canvas/0".getBytes());
-	LOG.info("http://localhost:8000/iiif/x/667f6125-89fa-44da-998e-0888be904f9f/canvas/0 : encodedBytes " + new String(encodedBytes));
+	encodedBytes = Base64.getEncoder().encode("https://presley.dlcs-ida.org/iiif/x/a72e7576-8c96-44d5-b164-1133c999c636/manifest".getBytes());
+	LOG.info("https://presley.dlcs-ida.org/iiif/x/a72e7576-8c96-44d5-b164-1133c999c636/manifest : encodedBytes " + new String(encodedBytes));
 	
 	encodedBytes = Base64.getEncoder().encode("http://localhost:8000/iiif/x/86e22fc7-89ba-42f5-82af-9c0c292f28e2/manifest".getBytes());
 	LOG.info("http://localhost:8000/iiif/x/86e22fc7-89ba-42f5-82af-9c0c292f28e2/manifest : encodedBytes " + new String(encodedBytes));

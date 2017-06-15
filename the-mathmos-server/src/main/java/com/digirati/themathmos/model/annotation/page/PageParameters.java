@@ -2,21 +2,25 @@ package com.digirati.themathmos.model.annotation.page;
 
 public class PageParameters {
     
-    private String totalElements;
+    private int total;
+    //private String totalElements;
     private String firstPageNumber;
     private String lastPageNumber;
     private String nextPageNumber;
     private int nextPage = 0;
     private int lastPage = 0;
     private String previousPageNumber;
-    private String startIndex;
+    private String startIndexString;
     
-    public String getTotalElements() {
-	return totalElements;
+    private int startIndex;
+    
+    public int getTotal() {
+	return total;
     }
-    public void setTotalElements(String totalElements) {
-	this.totalElements = totalElements;
+    public void setTotal(int total) {
+	this.total = total;
     }
+ 
     public String getFirstPageNumber() {
 	return firstPageNumber;
     }
@@ -41,10 +45,10 @@ public class PageParameters {
     public void setPreviousPageNumber(String previousPageNumber) {
 	this.previousPageNumber = previousPageNumber;
     }
-    public String getStartIndex() {
+    public int getStartIndex() {
 	return startIndex;
     }
-    public void setStartIndex(String startIndex) {
+    public void setStartIndex(int startIndex) {
 	this.startIndex = startIndex;
     }
     public int getNextPage() {
@@ -58,6 +62,18 @@ public class PageParameters {
     }
     public void setLastPage(int lastPage) {
 	this.lastPage = lastPage;
+    }
+    public String getStartIndexString() {
+	return startIndexString;
+    }
+    public void setStartIndexString(String startIndexString) {
+	this.startIndexString = startIndexString;
+    }
+    
+    
+    @Override
+    public String toString(){
+	return "total:" +this.getTotal() + " startIndex:" +this.getStartIndex() + " nextPage:" + this.getNextPage() ;
     }
 
 }

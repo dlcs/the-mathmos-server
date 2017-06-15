@@ -103,6 +103,11 @@ public class TextSearchServiceImpl implements TextSearchService {
     public long getTotalHits() {
 	return totalHits;
     }
+    
+    @Override
+    public TextUtils getTextUtils(){
+	return this.textUtils;
+    }
 
 
     @Override
@@ -159,12 +164,12 @@ public class TextSearchServiceImpl implements TextSearchService {
 			    cache.put(queryWithPageParamter, otherTextMaps);
 			} else {
 			    LOG.error("No results for page "+ y + " need to get back map with no resources plus numbers ");
-			    if(isInitialSearch){				
+			    //if(isInitialSearch){				
 			    	textUtils.removeResources(textMap, isW3c);
 			    	queryWithPageParamter = queryWithNoPageParamter + (y);
 			    	cache.put(queryWithPageParamter, textMap);
 			    	return new ServiceResponse<>(Status.OK, textMap);
-			    }			    
+			    //}			    
 			}
 		    }
 		    obj = cache.get(queryWithAmendedPageParamter);

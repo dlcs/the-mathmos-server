@@ -22,8 +22,10 @@ import com.digirati.themathmos.exception.SearchQueryException;
 import com.digirati.themathmos.model.Parameters;
 import com.digirati.themathmos.model.ServiceResponse;
 import com.digirati.themathmos.model.ServiceResponse.Status;
+import com.digirati.themathmos.model.annotation.page.PageParameters;
 import com.digirati.themathmos.service.AnnotationAutocompleteService;
 import com.digirati.themathmos.service.W3CAnnotationSearchService;
+import com.digirati.themathmos.service.impl.AnnotationUtils;
 
 
 
@@ -37,12 +39,14 @@ public class W3CAnnotationSearchController {
     private W3CAnnotationSearchService w3cAnnotationSearchService;
     private AnnotationAutocompleteService annotationAutocompleteService;
     private ControllerUtility controllerUtility;
+    private AnnotationUtils annotationUtils;
     
     @Autowired
     public W3CAnnotationSearchController(W3CAnnotationSearchService w3cAnnotationSearchService, AnnotationAutocompleteService annotationAutocompleteService ) {
         this.w3cAnnotationSearchService = w3cAnnotationSearchService;
         this.annotationAutocompleteService = annotationAutocompleteService;
         this.controllerUtility = new ControllerUtility();
+        this.annotationUtils = this.annotationAutocompleteService.getAnnotationUtils();
     }
      
     //autocomplete parameter defaults to 1 if not specified
@@ -77,11 +81,12 @@ public class W3CAnnotationSearchController {
 	Status serviceResponseStatus = serviceResponse.getStatus();
 
 	if (serviceResponseStatus.equals(Status.OK)) {
-	     return ResponseEntity.ok(serviceResponse.getObj());
+	    return new ResponseEntity<Map<String,Object>>(serviceResponse.getObj(), controllerUtility.getResponseHeaders(),  HttpStatus.OK);
 	}
 
 	if (serviceResponseStatus.equals(Status.NOT_FOUND)) {
-	    	return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+	    Map <String, Object> emptyMap = annotationUtils.returnEmptyResultSet(queryString,true, new PageParameters(),false);
+	    return new ResponseEntity<Map<String,Object>>(emptyMap, controllerUtility.getResponseHeaders(),  HttpStatus.OK);
 	}
 
 	throw new SearchException(String.format("Unexpected service response status [%s]", serviceResponseStatus));
@@ -110,11 +115,12 @@ public class W3CAnnotationSearchController {
 	Status serviceResponseStatus = serviceResponse.getStatus();
 
 	if (serviceResponseStatus.equals(Status.OK)) {
-	     return ResponseEntity.ok(serviceResponse.getObj());
+	    return new ResponseEntity<Map<String,Object>>(serviceResponse.getObj(), controllerUtility.getResponseHeaders(),  HttpStatus.OK);
 	}
 
 	if (serviceResponseStatus.equals(Status.NOT_FOUND)) {
-	    	return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+	    Map <String, Object> emptyMap = annotationUtils.returnEmptyResultSet(queryString,true, new PageParameters(),false);
+	    return new ResponseEntity<Map<String,Object>>(emptyMap, controllerUtility.getResponseHeaders(),  HttpStatus.OK);
 	}
 
 	throw new SearchException(String.format("Unexpected service response status [%s]", serviceResponseStatus));
@@ -138,11 +144,12 @@ public class W3CAnnotationSearchController {
 	Status serviceResponseStatus = serviceResponse.getStatus();
 
 	if (serviceResponseStatus.equals(Status.OK)) {
-	     return ResponseEntity.ok(serviceResponse.getObj());
+	    return new ResponseEntity<Map<String,Object>>(serviceResponse.getObj(), controllerUtility.getResponseHeaders(),  HttpStatus.OK);
 	}
 
 	if (serviceResponseStatus.equals(Status.NOT_FOUND)) {
-	    	return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+	    Map <String, Object> emptyMap = annotationUtils.returnEmptyAutocompleteResultSet(queryString,motivation,date,user);
+	    return new ResponseEntity<Map<String,Object>>(emptyMap, controllerUtility.getResponseHeaders(),  HttpStatus.OK);
 	}
 	
 	throw new SearchException(String.format("Unexpected service response status [%s]", serviceResponseStatus));
@@ -167,11 +174,13 @@ public class W3CAnnotationSearchController {
 	Status serviceResponseStatus = serviceResponse.getStatus();
 
 	if (serviceResponseStatus.equals(Status.OK)) {
-	     return ResponseEntity.ok(serviceResponse.getObj());
+	    return new ResponseEntity<Map<String,Object>>(serviceResponse.getObj(), controllerUtility.getResponseHeaders(),  HttpStatus.OK);
 	}
 
 	if (serviceResponseStatus.equals(Status.NOT_FOUND)) {
-	    	return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+	    Map <String, Object> emptyMap = annotationUtils.returnEmptyAutocompleteResultSet(queryString,motivation,date,user);
+	    return new ResponseEntity<Map<String,Object>>(emptyMap, controllerUtility.getResponseHeaders(),  HttpStatus.OK);
+	    
 	}
 	
 	throw new SearchException(String.format("Unexpected service response status [%s]", serviceResponseStatus));

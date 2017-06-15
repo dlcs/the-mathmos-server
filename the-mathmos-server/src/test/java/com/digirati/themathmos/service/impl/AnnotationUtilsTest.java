@@ -51,12 +51,12 @@ public class AnnotationUtilsTest {
 	boolean isW3c = true;
 	
 	PageParameters pageParams = new PageParameters();
-	pageParams.setTotalElements("12");
+	pageParams.setTotal(12);
 	pageParams.setFirstPageNumber("1");
 	pageParams.setLastPageNumber("2");
 	pageParams.setNextPageNumber("2");
 	pageParams.setPreviousPageNumber(null);
-	pageParams.setStartIndex("0");
+	pageParams.setStartIndex(0);
 	
 	int totalHits = 11;
 	Map<String,Object> json = annotationUtils.createAnnotationPage(query, annoList, isW3c, pageParams, totalHits, false);

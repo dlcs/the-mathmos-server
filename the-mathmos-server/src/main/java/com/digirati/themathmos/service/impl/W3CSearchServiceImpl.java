@@ -16,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.digirati.themathmos.model.ServiceResponse;
 import com.digirati.themathmos.model.ServiceResponse.Status;
+import com.digirati.themathmos.model.annotation.page.PageParameters;
 import com.digirati.themathmos.service.TextSearchService;
 import com.digirati.themathmos.service.W3CSearchService;
 
@@ -97,12 +98,15 @@ public class W3CSearchServiceImpl extends AnnotationSearchServiceImpl implements
 		    LOG.info(mixedCache.get(noPageParamter).get().toString());
 		    return new ServiceResponse<>(Status.OK, textAnnoMap);
 		}else{
-		    return new ServiceResponse<>(Status.NOT_FOUND, null);
+		    Map <String, Object> emptyMap = annotationUtils.returnEmptyResultSet(queryString,true, new PageParameters(),true);
+		    return new ServiceResponse<>(Status.OK, emptyMap);
+		   // return new ServiceResponse<>(Status.NOT_FOUND, null);
 		}
 	    }
 	}
-	
-	return new ServiceResponse<>(Status.NOT_FOUND, null);
+	Map <String, Object> emptyMap = annotationUtils.returnEmptyResultSet(queryString,true, new PageParameters(),true);
+	return new ServiceResponse<>(Status.OK, emptyMap);
+	//return new ServiceResponse<>(Status.NOT_FOUND, null);
 
     }
 	

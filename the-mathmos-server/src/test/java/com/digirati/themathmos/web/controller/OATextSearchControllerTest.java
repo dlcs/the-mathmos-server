@@ -24,6 +24,7 @@ import com.digirati.themathmos.service.AnnotationAutocompleteService;
 import com.digirati.themathmos.service.OAAnnotationSearchService;
 import com.digirati.themathmos.service.TextSearchService;
 import com.digirati.themathmos.service.W3CAnnotationSearchService;
+import com.digirati.themathmos.service.impl.TextUtils;
 import com.digirati.themathmos.web.controller.OAAnnotationSearchController;
 
 public class OATextSearchControllerTest {
@@ -33,7 +34,7 @@ public class OATextSearchControllerTest {
     private TextSearchService textSearchService;
     private AnnotationAutocompleteService annotationAutocompleteService;
     HttpServletRequest request;
-    
+    TextUtils textUtils;
 
     HttpServletRequest withinRequest;
     HttpServletRequest withinAutocompleteRequest;
@@ -48,6 +49,7 @@ public class OATextSearchControllerTest {
     public void setUp() throws Exception {
 	
 	textSearchService = mock(TextSearchService.class);
+	when(textSearchService.getTextUtils()).thenReturn(new TextUtils());
 	annotationAutocompleteService = mock(AnnotationAutocompleteService.class);
 	controller = new OATextSearchController(textSearchService,annotationAutocompleteService );
 	

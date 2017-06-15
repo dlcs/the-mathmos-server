@@ -3,13 +3,23 @@ package com.digirati.themathmos.web.controller;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.http.HttpHeaders;
 
 
 
 public class ControllerUtility {
     
+    HttpHeaders responseHeaders;
     
- 
+    public  ControllerUtility(){
+	this.responseHeaders = new HttpHeaders();
+	this.responseHeaders.setAccessControlAllowOrigin("*");
+    }
+    
+    
+    protected HttpHeaders getResponseHeaders(){
+	return responseHeaders;
+    }
     
 
     protected String createQueryString(HttpServletRequest request){

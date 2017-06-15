@@ -32,13 +32,12 @@ public class AnnotationUtils extends CommonUtils{
     public static final String SERVICE_NAME = "AnnotationUtils";  
     
     
-    private static final String OA_SEARCH_TERMLIST = "search:TermList";
+    
  
    
     
     
-    private static final String[] AUTOCOMPLETE_IGNORE_PARAMETERS = new String[] 
-	    {AnnotationSearchConstants.PARAM_FIELD_MOTIVATION, AnnotationSearchConstants.PARAM_FIELD_USER, AnnotationSearchConstants.PARAM_FIELD_DATE};
+   
     
     private static final String[] SCHEMES = new String[]{"http", "https", "ftp", "mailto", "file", "data"};
     
@@ -79,6 +78,32 @@ public class AnnotationUtils extends CommonUtils{
     }
     
   
+    
+    
+    /**
+     * Method to create the terms urls will replace
+     * @param query
+     * @param optionText
+     * @return
+     */
+    private String getSearchQueryFromAutocompleteQuery(String query, String optionText){
+	
+	String searchQuery = query;
+	searchQuery = searchQuery.replace("autocomplete","search");
+	
+	String tidyQuery = removeParametersAutocompleteQuery(searchQuery,AUTOCOMPLETE_IGNORE_PARAMETERS);
+	String encodedOptionText = optionText;
+	try {
+	    encodedOptionText = URLEncoder.encode(optionText, "UTF-8");
+	} catch (UnsupportedEncodingException e) {
+	    
+	   LOG.error(String.format("Autocomplete: unable to encode [%s]", optionText), e);
+	}
+
+	return tidyQuery.replaceAll("q=[^&]+","q="+encodedOptionText);
+    }
+    
+    
     public Map<String,Object> createAutocompleteList(List <SuggestOption> options , boolean isW3c, String queryString,String motivation, String date, String user){
 	
 	if(null == options || options.isEmpty()){
@@ -109,84 +134,14 @@ public class AnnotationUtils extends CommonUtils{
 	    return null;
 	}	
     }
-    
-    /**
-     * Method to create the terms urls will replace
-     * @param query
-     * @param optionText
-     * @return
-     */
-    private String getSearchQueryFromAutocompleteQuery(String query, String optionText){
-	
-	String searchQuery = query;
-	searchQuery = searchQuery.replace("autocomplete","search");
-	
-	String tidyQuery = removeParametersAutocompleteQuery(searchQuery,AUTOCOMPLETE_IGNORE_PARAMETERS);
-	String encodedOptionText = optionText;
-	try {
-	    encodedOptionText = URLEncoder.encode(optionText, "UTF-8");
-	} catch (UnsupportedEncodingException e) {
-	    
-	   LOG.error(String.format("Autocomplete: unable to encode [%s]", optionText), e);
-	}
 
-	return tidyQuery.replaceAll("q=[^&]+","q="+encodedOptionText);
-    }
-    
-    
-   
-    
-   
-    
-    
-    @SuppressWarnings("unchecked") 
-    protected Map<String, Object> buildAutoCompleteHead(String query, String motivation, String date, String user) {
-	
-
-	Map<String, Object> root = new LinkedTreeMap<>();
-
-	root.put(CONTEXT, SEARCHCONTEXT_PATH);
-	
-	String queryWithRemovedIgnoredParamters = removeParametersAutocompleteQuery(query,AUTOCOMPLETE_IGNORE_PARAMETERS);
-	root.put(ROOT_ID, queryWithRemovedIgnoredParamters);
-	
-
-	root.put(ROOT_TYPE, OA_SEARCH_TERMLIST);
-	
-	if(!StringUtils.isEmpty(motivation) || !StringUtils.isEmpty(date) || !StringUtils.isEmpty(user)){
-	    List ignored = new ArrayList();
-	    if(!StringUtils.isEmpty(motivation)){
-		ignored.add(AnnotationSearchConstants.PARAM_FIELD_MOTIVATION);
-	    }
-	    if(!StringUtils.isEmpty(date)){
-		ignored.add(AnnotationSearchConstants.PARAM_FIELD_DATE);
-	    }
-	    if(!StringUtils.isEmpty(user)){
-		ignored.add(AnnotationSearchConstants.PARAM_FIELD_USER);
-	    }
-	    root.put("ignored",ignored);
-	}
-
-	List resources = new ArrayList();
-	
-	root.put(OA_TERMSLIST, resources); 
-	
-
-	return root;
-    }
-    
-    
-    
-    
-    
-    
+       
     
     public List<W3CAnnotation > getW3CAnnotations(String[] annotationArray){
    	if(null != annotationArray && annotationArray.length > 0){
    	    List<W3CAnnotation> annoList  = new ArrayList<>();
    	    for(String anno:annotationArray){
    		W3CAnnotation annotation  = new W3CAnnotation();
-   		LOG.info(String.format("The annotation is [%s] ", anno));
    		if(null != anno){
    		    Map<String, Object> javaRootMapObject = new Gson().fromJson(anno, Map.class);
    		    annotation.setJsonMap(javaRootMapObject);
@@ -228,7 +183,7 @@ public class AnnotationUtils extends CommonUtils{
     
     public int[] getPageParams(Map<String, Object> root, boolean isW3c){
 	Map map;
-	String total;
+	int total;
 
 	List resources = getResources(root, isW3c);
    	
@@ -236,23 +191,23 @@ public class AnnotationUtils extends CommonUtils{
 	    LOG.info("resourcesSize in getPageParams" + resources.size());
 	}
    	
-	String startIndex;
+	Integer startIndex;
 	int[] pageParams = new int[2];
 	if(isW3c){
    	    map = (LinkedHashMap) root.get(W3C_WITHIN_IS_PART_OF); 
-   	    total = (String) map.get(W3C_WITHIN_AS_TOTALITEMS);
+   	    total = (Integer) map.get(W3C_WITHIN_AS_TOTALITEMS);
    	}else{
    	    map = (LinkedHashMap) root.get(OA_WITHIN);
-   	    total = (String) map.get(OA_WITHIN_TOTAL);
+   	    total = (Integer) map.get(OA_WITHIN_TOTAL);
    	}
-	pageParams[0] =  Integer.parseInt(total);
+	pageParams[0] =  total;
    	
    	if (isW3c) {
-   	    startIndex = (String)root.get(W3C_STARTINDEX);
+   	    startIndex = (Integer)root.get(W3C_STARTINDEX);
 	} else {
-	    startIndex = (String)root.get(OA_STARTINDEX);
+	    startIndex = (Integer)root.get(OA_STARTINDEX);
 	}
-   	pageParams[1] = Integer.parseInt(startIndex); 
+   	pageParams[1] = startIndex; 
    		 
    	
    	return pageParams;

@@ -62,7 +62,7 @@ public class W3CAnnotationSearchServiceImplTest {
 	
 	
 	ServiceResponse<Map<String, Object>> response = impl.getAnnotationPage(params, queryString, page, null, null);
-	assertEquals(ServiceResponse.Status.NOT_FOUND,response.getStatus());
+	assertNotEquals(ServiceResponse.Status.NOT_FOUND,response.getStatus());
     }
 
 }

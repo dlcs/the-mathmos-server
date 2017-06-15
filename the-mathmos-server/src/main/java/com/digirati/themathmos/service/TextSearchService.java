@@ -5,6 +5,7 @@ import java.util.Map;
 
 import com.digirati.themathmos.model.ServiceResponse;
 import com.digirati.themathmos.model.annotation.page.PageParameters;
+import com.digirati.themathmos.service.impl.TextUtils;
 
 public interface TextSearchService {
     
@@ -16,5 +17,7 @@ public interface TextSearchService {
     public long getTotalHits();
     
     public PageParameters getPageParameters();
+    
+    public TextUtils getTextUtils();
 
 }

@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.elasticsearch.core.ElasticsearchTemplate;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
@@ -50,7 +51,9 @@ public class OAAnnotationSearchServiceImpl extends AnnotationSearchServiceImpl i
 	String[] annoSearchArray  = this.getAnnotationsPage(parameters, queryString, false, page, within, type);
 	
 	if(annoSearchArray.length == 0){
-	    return new ServiceResponse<>(Status.NOT_FOUND, null); 
+	    Map <String, Object> emptyMap = annotationUtils.returnEmptyResultSet(queryString,false, new PageParameters(),false);
+	    return new ServiceResponse<>(Status.OK,emptyMap);
+	    //return new ServiceResponse<>(Status.NOT_FOUND, null); 
 	}
 	
 	PageParameters pagingParameters = this.getPageParameters();
@@ -62,7 +65,9 @@ public class OAAnnotationSearchServiceImpl extends AnnotationSearchServiceImpl i
 	if(null != annoMap && !annoMap.isEmpty()){
 	    return new ServiceResponse<>(Status.OK, annoMap);
 	}else{
-	    return new ServiceResponse<>(Status.NOT_FOUND, null); 
+	    Map <String, Object> emptyMap = annotationUtils.returnEmptyResultSet(queryString,false, new PageParameters(),false);
+	    return new ServiceResponse<>(Status.OK,emptyMap);
+	    //return new ServiceResponse<>(Status.NOT_FOUND, null); 
 	}
     }
    

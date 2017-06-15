@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
+
 
 import org.apache.log4j.Logger;
 import org.elasticsearch.action.search.SearchRequestBuilder;
@@ -50,6 +50,11 @@ public class AnnotationAutocompleteServiceImpl implements AnnotationAutocomplete
     public AnnotationAutocompleteServiceImpl(ElasticsearchTemplate template, AnnotationUtils annotationUtils){
 	this.client = template.getClient();
 	this.annotationUtils = annotationUtils;
+    }
+    
+    @Override
+    public AnnotationUtils getAnnotationUtils(){
+	return this.annotationUtils;
     }
 
 

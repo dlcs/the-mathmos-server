@@ -110,17 +110,17 @@ private static final Logger LOG = Logger.getLogger(W3CSearchServiceImpTest.class
 	
 	ServiceResponse<Map<String, Object>> serviceResponse = impl.getAnnotationPage(query, queryString, page, within, type, widthHeight);
 	assertNotNull(serviceResponse);
-	assertNull(serviceResponse.getObj());
+	assertNotNull(serviceResponse.getObj());
 	
 	page = "2";
 	serviceResponse = impl.getAnnotationPage(query, queryString, page, within, type, widthHeight);
 	assertNotNull(serviceResponse);
-	assertNull(serviceResponse.getObj());
+	assertNotNull(serviceResponse.getObj());
 	
 	page = "2";
 	serviceResponse = impl.getAnnotationPage(query, queryStringWithPage, page, within, type, widthHeight);
 	assertNotNull(serviceResponse);
-	assertNull(serviceResponse.getObj());
+	assertNotNull(serviceResponse.getObj());
 	
     }
 
