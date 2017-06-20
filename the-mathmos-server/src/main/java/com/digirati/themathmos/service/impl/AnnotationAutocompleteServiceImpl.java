@@ -3,10 +3,11 @@ package com.digirati.themathmos.service.impl;
 
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-
+import java.util.Set;
 
 import org.apache.log4j.Logger;
 import org.elasticsearch.action.search.SearchRequestBuilder;
@@ -192,11 +193,20 @@ public class AnnotationAutocompleteServiceImpl implements AnnotationAutocomplete
 			Map<String, Object> payloadMap = next.getPayloadAsMap();
 			if (null != payloadMap && payloadMap.containsKey("uri")) {
 
-			    List<String> payloadSet = (List) payloadMap.get("uri");
+			    Collection<String> payloadSet ;
+				
+			    try{
+				payloadSet= (Set) payloadMap.get("uri");
+				LOG.info("within finding a Set ");
+			    }catch (Exception e){
+				payloadSet= (List) payloadMap.get("uri");
+				LOG.info("within finding a List ");
+			    }
 			   
+			    LOG.info("payloadSet " + payloadSet);
 			    if (null != payloadSet && payloadSet.contains(decodedWithinUrl)) {
 				options.add(option);
-				LOG.info("option " + option.getText());
+				LOG.info("within option " + option.getText());
 			    }
 			}
 		    }
