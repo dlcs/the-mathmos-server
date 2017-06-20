@@ -8,9 +8,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -23,8 +21,10 @@ import com.digirati.themathmos.exception.SearchException;
 import com.digirati.themathmos.exception.SearchQueryException;
 import com.digirati.themathmos.model.ServiceResponse;
 import com.digirati.themathmos.model.ServiceResponse.Status;
+import com.digirati.themathmos.model.annotation.page.PageParameters;
 import com.digirati.themathmos.service.AnnotationAutocompleteService;
 import com.digirati.themathmos.service.TextSearchService;
+import com.digirati.themathmos.service.impl.TextUtils;
 
 
 
@@ -38,7 +38,7 @@ public class OATextSearchController{
     private TextSearchService textSearchService;
     private AnnotationAutocompleteService annotationAutocompleteService;
     private ControllerUtility controllerUtility;
-    
+    private TextUtils textUtils;
   //autocomplete parameter defaults to 1 if not specified
     public static final String PARAM_MIN = "min";
  
@@ -48,6 +48,7 @@ public class OATextSearchController{
         this.textSearchService = textSearchService;
         this.annotationAutocompleteService = annotationAutocompleteService;
         this.controllerUtility = new ControllerUtility();
+        this.textUtils = this.textSearchService.getTextUtils();
     }
 
     private static final String OA_TEXT_SEARCH_REQUEST_PATH = "/oa/text/search";   
@@ -78,14 +79,12 @@ public class OATextSearchController{
 	Status serviceResponseStatus = serviceResponse.getStatus();
 
 	if (serviceResponseStatus.equals(Status.OK)) {
-	     //return ResponseEntity.ok(serviceResponse.getObj());
-	     HttpHeaders responseHeaders = new HttpHeaders();
-		    responseHeaders.setAccessControlAllowOrigin("*");
-		    return  new ResponseEntity(serviceResponse.getObj(), responseHeaders,  HttpStatus.OK);
+	     return new ResponseEntity<Map<String,Object>>(serviceResponse.getObj(), controllerUtility.getResponseHeaders(),  HttpStatus.OK);
 	}
 
 	if (serviceResponseStatus.equals(Status.NOT_FOUND)) {
-	    	return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+	    Map <String, Object> emptyMap = textUtils.returnEmptyResultSet(queryString,false, new PageParameters(),true);
+	    return new ResponseEntity<Map<String,Object>>(emptyMap, controllerUtility.getResponseHeaders(),  HttpStatus.OK);
 	}
 	
 	throw new SearchException(String.format("Unexpected service response status [%s]", serviceResponseStatus));
@@ -115,14 +114,12 @@ public class OATextSearchController{
 	Status serviceResponseStatus = serviceResponse.getStatus();
 
 	if (serviceResponseStatus.equals(Status.OK)) {
-	     //return ResponseEntity.ok(serviceResponse.getObj());
-	    HttpHeaders responseHeaders = new HttpHeaders();
-	    responseHeaders.setAccessControlAllowOrigin("*");
-	    return  new ResponseEntity(serviceResponse.getObj(), responseHeaders,  HttpStatus.OK);
+	     return new ResponseEntity<Map<String,Object>>(serviceResponse.getObj(), controllerUtility.getResponseHeaders(),  HttpStatus.OK);
 	}
 
 	if (serviceResponseStatus.equals(Status.NOT_FOUND)) {
-	    	return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+	    Map <String, Object> emptyMap = textUtils.returnEmptyResultSet(queryString,false, new PageParameters(),true);
+	    return new ResponseEntity<Map<String,Object>>(emptyMap, controllerUtility.getResponseHeaders(),  HttpStatus.OK);
 	}
 	
 	throw new SearchException(String.format("Unexpected service response status [%s]", serviceResponseStatus));
@@ -142,14 +139,12 @@ public class OATextSearchController{
 	Status serviceResponseStatus = serviceResponse.getStatus();
 
 	if (serviceResponseStatus.equals(Status.OK)) {
-	    // return ResponseEntity.ok(serviceResponse.getObj());
-	    HttpHeaders responseHeaders = new HttpHeaders();
-	    responseHeaders.setAccessControlAllowOrigin("*");
-	    return  new ResponseEntity(serviceResponse.getObj(), responseHeaders,  HttpStatus.OK);
+	    return new ResponseEntity<Map<String,Object>>(serviceResponse.getObj(), controllerUtility.getResponseHeaders(),  HttpStatus.OK);
 	}
 
 	if (serviceResponseStatus.equals(Status.NOT_FOUND)) {
-	    	return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+	    Map <String, Object> emptyMap = textUtils.returnEmptyAutocompleteResultSet(queryString,null,null,null);
+	    return new ResponseEntity<Map<String,Object>>(emptyMap, controllerUtility.getResponseHeaders(),  HttpStatus.OK);
 	}
 	
 	throw new SearchException(String.format("Unexpected service response status [%s]", serviceResponseStatus));
@@ -170,13 +165,12 @@ public class OATextSearchController{
 	Status serviceResponseStatus = serviceResponse.getStatus();
 
 	if (serviceResponseStatus.equals(Status.OK)) {
-	    HttpHeaders responseHeaders = new HttpHeaders();
-	    responseHeaders.setAccessControlAllowOrigin("*");
-	    return  new ResponseEntity(serviceResponse.getObj(), responseHeaders,  HttpStatus.OK);
+	    return new ResponseEntity<Map<String,Object>>(serviceResponse.getObj(), controllerUtility.getResponseHeaders(),  HttpStatus.OK);
 	}
 
 	if (serviceResponseStatus.equals(Status.NOT_FOUND)) {
-	    	return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+	    Map <String, Object> emptyMap = textUtils.returnEmptyAutocompleteResultSet(queryString,null,null,null);
+	    return new ResponseEntity<Map<String,Object>>(emptyMap, controllerUtility.getResponseHeaders(),  HttpStatus.OK);
 	}
 	
 	throw new SearchException(String.format("Unexpected service response status [%s]", serviceResponseStatus));

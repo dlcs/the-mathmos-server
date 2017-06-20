@@ -60,7 +60,7 @@ public class OAAnnotationSearchServiceImplTest {
 	Parameters params = new Parameters(query, motivation, date, user);
 	
 	ServiceResponse<Map<String, Object>> response = impl.getAnnotationPage(params, queryString, page, null, null);
-	assertEquals(ServiceResponse.Status.NOT_FOUND,response.getStatus());
+	assertNotEquals(ServiceResponse.Status.NOT_FOUND,response.getStatus());
 	
 	
     }

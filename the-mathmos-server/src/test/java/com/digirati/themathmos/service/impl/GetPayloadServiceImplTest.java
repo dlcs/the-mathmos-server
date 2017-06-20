@@ -52,8 +52,8 @@ public class GetPayloadServiceImplTest {
 	assertNotEquals(returnedPayload, "");
 	
 	//url = "http://starsky.dlcs-ida.org/coordsimage/0/"; 
-	url = "http://starsky.dlcs-ida.org/coordsimage/0/"; 
-	
+	//url = "http://starsky.dlcs-ida.org/coordsimage/0/"; 
+	url = "http://www.google.com"; 
 	Map<String, Object> root = new HashMap<>();
 	
 	List <Object>images = new ArrayList<>();

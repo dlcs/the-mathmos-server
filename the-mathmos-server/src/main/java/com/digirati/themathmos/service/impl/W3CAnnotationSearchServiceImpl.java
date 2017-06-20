@@ -79,7 +79,9 @@ public class W3CAnnotationSearchServiceImpl extends AnnotationSearchServiceImpl 
 	String[] annoSearchArray  = this.getAnnotationsPage(parameters, queryString, true, page, within, type);	
 	
 	if(annoSearchArray.length == 0){
-	    return new ServiceResponse<>(Status.NOT_FOUND, null); 
+	    Map <String, Object> emptyMap = annotationUtils.returnEmptyResultSet(queryString,true, new PageParameters(),false);
+	    return new ServiceResponse<>(Status.OK,emptyMap);
+	    //return new ServiceResponse<>(Status.NOT_FOUND, null); 
 	}
 
 	PageParameters pagingParameters = this.getPageParameters();
@@ -92,7 +94,9 @@ public class W3CAnnotationSearchServiceImpl extends AnnotationSearchServiceImpl 
 
 	    return new ServiceResponse<>(Status.OK, annoMap);
 	}else{
-	    return new ServiceResponse<>(Status.NOT_FOUND, null); 
+	    Map <String, Object> emptyMap = annotationUtils.returnEmptyResultSet(queryString,true, new PageParameters(),false);
+	    return new ServiceResponse<>(Status.OK,emptyMap);
+	   // return new ServiceResponse<>(Status.NOT_FOUND, null); 
 	}
 	
 	

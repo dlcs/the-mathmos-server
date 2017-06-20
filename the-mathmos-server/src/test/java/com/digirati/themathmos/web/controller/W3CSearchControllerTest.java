@@ -27,6 +27,7 @@ import com.digirati.themathmos.service.OASearchService;
 import com.digirati.themathmos.service.TextSearchService;
 import com.digirati.themathmos.service.W3CAnnotationSearchService;
 import com.digirati.themathmos.service.W3CSearchService;
+import com.digirati.themathmos.service.impl.TextUtils;
 import com.digirati.themathmos.web.controller.OAAnnotationSearchController;
 
 public class W3CSearchControllerTest {
@@ -40,7 +41,7 @@ public class W3CSearchControllerTest {
     HttpServletRequest request;
     HttpServletRequest withinRequest;
     HttpServletRequest withinAutocompleteRequest;
-    
+    TextUtils textUtils;
     String within ="http://www.google.com";
     
     
@@ -53,6 +54,7 @@ public class W3CSearchControllerTest {
 	
 	w3cAnnotationSearchService = mock(W3CAnnotationSearchService.class);
 	textSearchService = mock(TextSearchService.class);
+	when(textSearchService.getTextUtils()).thenReturn(new TextUtils());
 	w3cSearchService = mock(W3CSearchService.class);
 	annotationAutocompleteService = mock(AnnotationAutocompleteService.class);
 	controller = new W3CSearchController(w3cAnnotationSearchService,annotationAutocompleteService,textSearchService, w3cSearchService );

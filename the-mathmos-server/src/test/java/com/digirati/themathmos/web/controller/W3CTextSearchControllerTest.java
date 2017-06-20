@@ -22,6 +22,7 @@ import com.digirati.themathmos.model.ServiceResponse.Status;
 import com.digirati.themathmos.service.AnnotationAutocompleteService;
 import com.digirati.themathmos.service.TextSearchService;
 import com.digirati.themathmos.service.W3CAnnotationSearchService;
+import com.digirati.themathmos.service.impl.TextUtils;
 import com.digirati.themathmos.web.controller.W3CAnnotationSearchController;
 
 public class W3CTextSearchControllerTest {
@@ -31,6 +32,7 @@ public class W3CTextSearchControllerTest {
     private TextSearchService textSearchService;
     private AnnotationAutocompleteService annotationAutocompleteService;
     HttpServletRequest request;
+    TextUtils textUtils;
     
     HttpServletRequest withinRequest;
     HttpServletRequest withinAutocompleteRequest;
@@ -45,6 +47,7 @@ public class W3CTextSearchControllerTest {
     public void setUp() throws Exception {
 	
 	textSearchService = mock(TextSearchService.class);
+	when(textSearchService.getTextUtils()).thenReturn(new TextUtils());
 	annotationAutocompleteService = mock(AnnotationAutocompleteService.class);
 	controller = new W3CTextSearchController(textSearchService,annotationAutocompleteService );
 	

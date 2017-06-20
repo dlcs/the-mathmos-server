@@ -7,14 +7,15 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
-import org.elasticsearch.common.text.Text;
 import org.springframework.data.domain.Page;
 
 import com.digirati.themathmos.AnnotationSearchConstants;
 import com.digirati.themathmos.model.TermOffsetStart;
 import com.digirati.themathmos.model.annotation.page.PageParameters;
 import com.google.gson.Gson;
+import com.google.gson.internal.LinkedTreeMap;
 
 
 public class CommonUtils {
@@ -26,7 +27,7 @@ public class CommonUtils {
 
     protected static final String PRESENTATIONCONTEXT_PATH = "http://iiif.io/api/presentation/2/context.json";
     
-    
+    protected static final String OA_SEARCH_TERMLIST = "search:TermList";
     protected static final String SEARCHCONTEXT_PATH = "http://iiif.io/api/search/1/context.json";
 
     protected static final String FULL_HAS_ANNOTATIONS = "http://iiif.io/api/presentation/2#hasAnnotations";
@@ -61,6 +62,9 @@ public class CommonUtils {
     
     protected static final String W3C_STARTINDEX =  "as:startIndex";
     protected static final String OA_STARTINDEX =  "startIndex";
+    
+    protected static final String[] AUTOCOMPLETE_IGNORE_PARAMETERS = new String[] 
+	    {AnnotationSearchConstants.PARAM_FIELD_MOTIVATION, AnnotationSearchConstants.PARAM_FIELD_USER, AnnotationSearchConstants.PARAM_FIELD_DATE};
 
     protected List getResources(Map<String, Object> root, boolean isW3c) {
 	List resources;
@@ -141,16 +145,52 @@ public class CommonUtils {
 	return root;
     }
 
-   
+    @SuppressWarnings("unchecked") 
+    protected Map<String, Object> buildAutoCompleteHead(String query, String motivation, String date, String user) {
+	
+
+	Map<String, Object> root = new LinkedTreeMap<>();
+
+	root.put(CONTEXT, SEARCHCONTEXT_PATH);
+	
+	String queryWithRemovedIgnoredParamters = removeParametersAutocompleteQuery(query,AUTOCOMPLETE_IGNORE_PARAMETERS);
+	root.put(ROOT_ID, queryWithRemovedIgnoredParamters);
+	
+
+	root.put(ROOT_TYPE, OA_SEARCH_TERMLIST);
+	
+	if(!StringUtils.isEmpty(motivation) || !StringUtils.isEmpty(date) || !StringUtils.isEmpty(user)){
+	    List ignored = new ArrayList();
+	    if(!StringUtils.isEmpty(motivation)){
+		ignored.add(AnnotationSearchConstants.PARAM_FIELD_MOTIVATION);
+	    }
+	    if(!StringUtils.isEmpty(date)){
+		ignored.add(AnnotationSearchConstants.PARAM_FIELD_DATE);
+	    }
+	    if(!StringUtils.isEmpty(user)){
+		ignored.add(AnnotationSearchConstants.PARAM_FIELD_USER);
+	    }
+	    root.put("ignored",ignored);
+	}
+
+	List resources = new ArrayList();
+	
+	root.put(OA_TERMSLIST, resources); 
+	
+
+	return root;
+    }
+    
+    
     
     @SuppressWarnings("unchecked")
     protected Map<String, Object> buildAnnotationPageHead(String query, boolean isW3c, PageParameters pagingParams, boolean isText) {
-	String total = pagingParams.getTotalElements();
+	int total = pagingParams.getTotal();
 	String first = pagingParams.getFirstPageNumber();
 	String last = pagingParams.getLastPageNumber();
 	String next = pagingParams.getNextPageNumber();
 	String previous = pagingParams.getPreviousPageNumber();
-	String startIndex = pagingParams.getStartIndex();
+	int startIndex = pagingParams.getStartIndex();
 
 	Map<String, Object> root = new LinkedHashMap<>();
 
@@ -186,6 +226,40 @@ public class CommonUtils {
 
 	setResources(root, isW3c);
 
+	return root;
+    }
+    
+    
+    @SuppressWarnings("unchecked")
+    protected Map<String, Object> buildEmptyAnnotationPageHead(String query, boolean isW3c, PageParameters pagingParams, boolean isText) {
+	int total = pagingParams.getTotal();;
+	int startIndex = pagingParams.getStartIndex();
+
+	Map<String, Object> root = new LinkedHashMap<>();
+
+	setContextIdType(root, isW3c, query,isText);
+
+	Map withinMap = new LinkedHashMap();
+	if (isW3c) {
+	    withinMap.put(W3C_WITHIN_TYPE, FULL_LAYER);
+	    withinMap.put(W3C_WITHIN_AS_TOTALITEMS, total);
+	    root.put(W3C_WITHIN_IS_PART_OF, withinMap);
+	} else {
+	    
+	    withinMap.put(ROOT_TYPE, "sc:Layer");
+	    withinMap.put(OA_WITHIN_TOTAL, total);
+	    
+	    root.put(OA_WITHIN, withinMap);
+	}
+
+	if (isW3c) {
+	    root.put(W3C_STARTINDEX, startIndex);
+	} else {
+	    root.put(OA_STARTINDEX, startIndex);
+	}
+
+	setResources(root, isW3c);
+	setHits(root);
 	return root;
     }
 
@@ -247,7 +321,7 @@ public class CommonUtils {
    	PageParameters parameters = new PageParameters();
 
    	
-   	parameters.setTotalElements(Long.toString(totalHits));
+   	parameters.setTotal((int)totalHits);
    	
    	int lastPage = (int) (totalHits/defaultPagingNumber)+1;
    	parameters.setFirstPageNumber(getPagingParam(queryString, 1));
@@ -265,7 +339,7 @@ public class CommonUtils {
    	    int previousPage = annotationPage.getNumber() /defaultPagingNumber ;
    	    parameters.setPreviousPageNumber(getPagingParam(queryString,previousPage)); 
    	}
-   	parameters.setStartIndex(annotationPage.getNumber()+ "");
+   	parameters.setStartIndex(annotationPage.getNumber());
    	return parameters;
        }
        
@@ -302,7 +376,7 @@ public class CommonUtils {
 	List resources = getResources(root, isW3c);
 	int resourcesSize = resources.size();
 	LOG.info("resourcesSize in amendPagingParameters " + resourcesSize);
-	int totalElements = Integer.parseInt(pageParams.getTotalElements());
+	int totalElements = pageParams.getTotal();
 	LOG.info("totalElements from pageParames in amendPagingParameters " + totalElements);
 	int newElementsforPage = 0;
 	if(resourcesSize > AnnotationSearchConstants.DEFAULT_PAGING_NUMBER){
@@ -316,12 +390,12 @@ public class CommonUtils {
 	if(isW3c){
 	    map = (LinkedHashMap) root.get(W3C_WITHIN_IS_PART_OF); 
 	    if(null != map){
-		map.put(W3C_WITHIN_AS_TOTALITEMS, Integer.toString(resourcesSize));
+		map.put(W3C_WITHIN_AS_TOTALITEMS, resourcesSize);
 	    }
 	}else{
 	    map = (LinkedHashMap) root.get(OA_WITHIN);
 	    if(null != map){
-		map.put(OA_WITHIN_TOTAL, Integer.toString(resourcesSize));
+		map.put(OA_WITHIN_TOTAL, resourcesSize);
 	    }
 	}
 	
@@ -332,14 +406,15 @@ public class CommonUtils {
 	  
    	if(isW3c){
    	    map = (LinkedHashMap) root.get(W3C_WITHIN_IS_PART_OF); 
-   	    map.put(W3C_WITHIN_AS_TOTALITEMS, Integer.toString(total));
+   	    map.put(W3C_WITHIN_AS_TOTALITEMS, total);
    	}else{
    	    map = (LinkedHashMap) root.get(OA_WITHIN);
-   	    map.put(OA_WITHIN_TOTAL, Integer.toString(total));
+   	    map.put(OA_WITHIN_TOTAL, total);
    	}
 	
     }
     
+    /*
     public int[] tallyPagingParameters(Map<String, Object> root, boolean isW3c, int totalElements, int startIndex){
 	
    	List resources = getResources(root, isW3c);
@@ -360,17 +435,71 @@ public class CommonUtils {
   
    	if(isW3c){
    	    map = (LinkedHashMap) root.get(W3C_WITHIN_IS_PART_OF); 
-   	    map.put(W3C_WITHIN_AS_TOTALITEMS, Integer.toString(totalElementsTally));
+   	    map.put(W3C_WITHIN_AS_TOTALITEMS, totalElementsTally);
    	}else{
    	    map = (LinkedHashMap) root.get(OA_WITHIN);
-   	    map.put(OA_WITHIN_TOTAL, Integer.toString(totalElementsTally));
+   	    map.put(OA_WITHIN_TOTAL, totalElementsTally);
    	}
    	
    	if (isW3c) {
-	    root.put(W3C_STARTINDEX, Integer.toString(startIndex));
+	    root.put(W3C_STARTINDEX, startIndex);
 	} else {
-	    root.put(OA_STARTINDEX, Integer.toString(startIndex));
+	    root.put(OA_STARTINDEX, startIndex);
 	}
+   	
+   	return returnArray;
+       }
+    */
+    
+public int[] tallyPagingParameters(Map<String, Object> root, boolean isW3c, int totalElements, int startIndex){
+	
+	LOG.info(root.toString());
+   	List resources = getResources(root, isW3c);
+   	int resourcesSize = 0;
+   	if(null != resources ){
+   	    LOG.info("resources size in tallyPagingParameters " + resources.size());
+   	    resourcesSize = resources.size();
+   	}else{
+   	    LOG.info("resources size in tallyPagingParameters 0 "); 
+   	}
+   	int extraResourcesSize = 0;
+   	if(null != resources && resourcesSize > AnnotationSearchConstants.DEFAULT_PAGING_NUMBER){
+   	    extraResourcesSize = resourcesSize - AnnotationSearchConstants.DEFAULT_PAGING_NUMBER;
+   	} 
+   	LOG.info("extraResourcesSize in tallyPagingParameters " + extraResourcesSize);
+   	int[] returnArray = new int[2]; 	
+ 	
+   	int totalElementsTally = totalElements + extraResourcesSize;  	
+   	int startIndexforPage = startIndex + resourcesSize;
+
+   	returnArray[0]  = totalElementsTally;
+   	
+   	returnArray[1]  = startIndexforPage; 
+   	
+   	Map map;
+   	int existingTotal = 0;
+
+   	if(extraResourcesSize > 0){
+   	    if(isW3c){
+   		map = (LinkedHashMap) root.get(W3C_WITHIN_IS_PART_OF); 
+   		existingTotal = (Integer) map.get(W3C_WITHIN_AS_TOTALITEMS);
+   		existingTotal += totalElementsTally;
+   		map.put(W3C_WITHIN_AS_TOTALITEMS, existingTotal);
+   	    }else{
+   		map = (LinkedHashMap) root.get(OA_WITHIN);
+   		existingTotal = (Integer) map.get(OA_WITHIN_TOTAL);
+   		existingTotal += totalElementsTally;
+   		map.put(OA_WITHIN_TOTAL,existingTotal);
+   	    }
+   	}
+   	int existingStartIndex = 0;
+	    if (isW3c) {
+		existingStartIndex = (Integer)root.get(W3C_STARTINDEX);
+		root.put(W3C_STARTINDEX, startIndex);
+	    } else {
+		existingStartIndex = (Integer)root.get(OA_STARTINDEX);
+		root.put(OA_STARTINDEX, startIndex);
+	    }
    	
    	return returnArray;
        }
@@ -457,5 +586,13 @@ public class CommonUtils {
     public String decodeWithinUrl(String within){
 	
 	return new String(Base64.getDecoder().decode(within)); 
+    }
+    
+    public Map<String,Object> returnEmptyResultSet(String queryString, boolean isW3c, PageParameters pageParams,boolean isText ){
+	return this.buildEmptyAnnotationPageHead(queryString, isW3c, pageParams, true);
+	
+    }
+    public Map<String,Object> returnEmptyAutocompleteResultSet(String queryString, String motivation, String date,String user ){
+	return this.buildAutoCompleteHead(queryString,motivation, date,user);
     }
 }

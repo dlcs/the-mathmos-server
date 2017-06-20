@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
+
 
 import org.apache.log4j.Logger;
 import org.elasticsearch.action.search.SearchRequestBuilder;
@@ -37,7 +37,7 @@ public class AnnotationAutocompleteServiceImpl implements AnnotationAutocomplete
     private static final String TEXT_INDEX = AnnotationSearchConstants.TEXT_INDEX_NAME;
     private static final String W3C_INDEX = "w3cannotation";
     
-    public static final int MAX_NUMBER_OF_HITS_RETURNED = 1000;
+    
     
     private static final Logger LOG = Logger.getLogger(AnnotationAutocompleteServiceImpl.class);
     
@@ -50,6 +50,11 @@ public class AnnotationAutocompleteServiceImpl implements AnnotationAutocomplete
     public AnnotationAutocompleteServiceImpl(ElasticsearchTemplate template, AnnotationUtils annotationUtils){
 	this.client = template.getClient();
 	this.annotationUtils = annotationUtils;
+    }
+    
+    @Override
+    public AnnotationUtils getAnnotationUtils(){
+	return this.annotationUtils;
     }
 
 
@@ -122,7 +127,7 @@ public class AnnotationAutocompleteServiceImpl implements AnnotationAutocomplete
 
 	completionSuggestionBuilder.text(suggestRequest);
 	completionSuggestionBuilder.field("suggest");
-	completionSuggestionBuilder.size(MAX_NUMBER_OF_HITS_RETURNED);
+	completionSuggestionBuilder.size(AnnotationSearchConstants.MAX_NUMBER_OF_HITS_RETURNED);
 
 	LOG.info(completionSuggestionBuilder.toString());
 

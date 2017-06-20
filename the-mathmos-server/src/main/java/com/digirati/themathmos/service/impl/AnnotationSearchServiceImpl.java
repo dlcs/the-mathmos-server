@@ -63,6 +63,7 @@ public class AnnotationSearchServiceImpl {
     private PageParameters pagingParameters = null;
     
     
+    
 
     @Autowired
     /**
@@ -349,9 +350,16 @@ public class AnnotationSearchServiceImpl {
 	int[] textPageParams  = new int[]{0,0};
 	
 	
-	
+	PageParameters textPagingParamters = textSearchService.getPageParameters();
+	PageParameters annoPageParams = this.getPageParameters();
 	if(null != textAnnoMap && null != textAnnoMap.getObj()){
 	    textPageParams = annotationUtils.getPageParams(textAnnoMap.getObj(), isW3c);		
+	}
+	
+	LOG.info("text page parameters: " + textPagingParamters.toString());
+	LOG.info("anno page parameters: " + annoPageParams.toString());
+	if(annoPageParams.getTotal() >= textPagingParamters.getTotal()){
+	    textPagingParamters = annoPageParams;
 	}
 	
 	long totalAnnotationHits = this.getTotalHits();
@@ -362,18 +370,18 @@ public class AnnotationSearchServiceImpl {
 	    isPageable = true;
 	}
 	
-	PageParameters textPagingParamters = textSearchService.getPageParameters();
+	
 	LOG.info("total annotations are : " + (totalAnnotationHits+totalTextHits));
-	textPagingParamters.setTotalElements(Long.toString(totalAnnotationHits+totalTextHits));
-	textPagingParamters.setStartIndex(Integer.toString(textPageParams[1]));
+	textPagingParamters.setTotal((int)(totalAnnotationHits+totalTextHits));
+	textPagingParamters.setStartIndex(textPageParams[1]);
 	
 	
-	PageParameters mapPagingParameters = this.getPageParameters();
-	int lastAnnoPage = mapPagingParameters.getLastPage();
+	
+	int lastAnnoPage = annoPageParams.getLastPage();
 	int lastTextPage = textPagingParamters.getLastPage();
 	
 	if(lastAnnoPage > lastTextPage){
-	    textPagingParamters.setLastPageNumber(mapPagingParameters.getLastPageNumber()); 
+	    textPagingParamters.setLastPageNumber(annoPageParams.getLastPageNumber()); 
 	}
 	
 	if(null != textAnnoMap && null != textAnnoMap.getObj()){
@@ -388,7 +396,7 @@ public class AnnotationSearchServiceImpl {
 	Map<String, Object> annoMap = null;
 	if(annoSearchArray.length != 0){
 	    List<W3CAnnotation> annotationList = annotationUtils.getW3CAnnotations(annoSearchArray);
-	    annoMap = annotationUtils.createAnnotationPage(queryString, annotationList, isW3c, mapPagingParameters, AnnotationSearchServiceImpl.DEFAULT_PAGING_NUMBER - 1, true);
+	    annoMap = annotationUtils.createAnnotationPage(queryString, annotationList, isW3c, annoPageParams, AnnotationSearchServiceImpl.DEFAULT_PAGING_NUMBER - 1, true);
 	}
 	if((null == textAnnoMap || null == textAnnoMap.getObj()) && (null == annoMap || annoMap.isEmpty())){	    
 	    return  null;  
@@ -424,6 +432,7 @@ public class AnnotationSearchServiceImpl {
 		List textResources = (List)textAnnoMap.getObj().get(CommonUtils.OA_RESOURCELIST);
     	    	List textHits = (List)textAnnoMap.getObj().get(CommonUtils.OA_HITS);
     	    
+    	    	
     	    	root.put(CommonUtils.OA_RESOURCELIST, textResources);
     	    	root.put(CommonUtils.OA_HITS, textHits);
 	    }
@@ -445,11 +454,15 @@ public class AnnotationSearchServiceImpl {
         	 List annoResources = (List)annoMap.get(CommonUtils.OA_RESOURCELIST);
         	 if(root.containsKey(CommonUtils.OA_RESOURCELIST)){
         	     List existingResources = (List)root.get(CommonUtils.OA_RESOURCELIST);
+        	     List newExistingResources = new ArrayList(existingResources);
         	     if(null == existingResources){
         		 existingResources = new ArrayList<>();
         	     }
-        	     existingResources.addAll(annoResources);
-        	     root.put(CommonUtils.OA_RESOURCELIST, existingResources);
+        	     
+        	     newExistingResources.addAll(annoResources);
+        	     
+        	     
+        	     root.put(CommonUtils.OA_RESOURCELIST, newExistingResources);
         	  }else{
         	      root.put(CommonUtils.OA_RESOURCELIST, annoResources);
         	 }
