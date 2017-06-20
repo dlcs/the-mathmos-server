@@ -18,6 +18,8 @@ public class AnnotationSearchConstants {
 
     public static final int DEFAULT_PAGING_NUMBER = 100;
     
+    public static final int MAX_NUMBER_OF_HITS_RETURNED = 1000;
+    
     public static final String PAINTING_MOTIVATION = "painting";
     
     public static final String EMPTY_QUERY_MESSAGE = "Please enter either a query, motivation, date or user to search";

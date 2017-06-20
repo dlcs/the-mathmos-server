@@ -10,11 +10,9 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang3.ArrayUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.springframework.stereotype.Service;
 
-import com.digirati.themathmos.AnnotationSearchConstants;
 import com.digirati.themathmos.model.annotation.page.PageParameters;
 import com.digirati.themathmos.model.annotation.w3c.SuggestOption;
 import com.digirati.themathmos.model.annotation.w3c.W3CAnnotation;

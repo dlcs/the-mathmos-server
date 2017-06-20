@@ -37,7 +37,7 @@ public class AnnotationAutocompleteServiceImpl implements AnnotationAutocomplete
     private static final String TEXT_INDEX = AnnotationSearchConstants.TEXT_INDEX_NAME;
     private static final String W3C_INDEX = "w3cannotation";
     
-    public static final int MAX_NUMBER_OF_HITS_RETURNED = 1000;
+    
     
     private static final Logger LOG = Logger.getLogger(AnnotationAutocompleteServiceImpl.class);
     
@@ -127,7 +127,7 @@ public class AnnotationAutocompleteServiceImpl implements AnnotationAutocomplete
 
 	completionSuggestionBuilder.text(suggestRequest);
 	completionSuggestionBuilder.field("suggest");
-	completionSuggestionBuilder.size(MAX_NUMBER_OF_HITS_RETURNED);
+	completionSuggestionBuilder.size(AnnotationSearchConstants.MAX_NUMBER_OF_HITS_RETURNED);
 
 	LOG.info(completionSuggestionBuilder.toString());
 
