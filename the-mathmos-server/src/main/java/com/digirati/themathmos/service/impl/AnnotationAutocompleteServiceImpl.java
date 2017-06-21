@@ -134,6 +134,8 @@ public class AnnotationAutocompleteServiceImpl implements AnnotationAutocomplete
 		LOG.info("decodedWithinUrl :" + decodedWithinUrl);
 		completionSuggestionBuilder.addContextField(AnnotationSearchConstants.CONTEXT_MANIFEST_NAME, decodedWithinUrl);
 	    }
+	}else if(null == within || W3C_INDEX.equals(index)){
+	    completionSuggestionBuilder.addContextField(AnnotationSearchConstants.CONTEXT_MANIFEST_NAME, "*");
 	}
 
 	completionSuggestionBuilder.size(AnnotationSearchConstants.MAX_NUMBER_OF_HITS_RETURNED);
@@ -174,23 +176,24 @@ public class AnnotationAutocompleteServiceImpl implements AnnotationAutocomplete
 
 	CompletionSuggestion compSuggestion = searchResponse.getSuggest().getSuggestion("annotation_suggest");
 
-	List<CompletionSuggestion.Entry> entryList = compSuggestion.getEntries();
-
 	List<SuggestOption> options = new ArrayList<>();
-
-	if (entryList != null) {
-	    CompletionSuggestion.Entry entry = entryList.get(0);
-	    List<CompletionSuggestion.Entry.Option> csEntryOptions = entry.getOptions();
-	    if (null != csEntryOptions && !csEntryOptions.isEmpty()) {
-		Iterator<? extends CompletionSuggestion.Entry.Option> iter = csEntryOptions.iterator();
-		while (iter.hasNext()) {
-		    CompletionSuggestion.Entry.Option next = iter.next();
-		    SuggestOption option = new SuggestOption(next.getText().string());
-
-		    options.add(option);
-		    LOG.info("option " + option.getText());
-		}
-	    }
+	if(null != compSuggestion){
+        	List<CompletionSuggestion.Entry> entryList = compSuggestion.getEntries();
+        
+        	if (entryList != null) {
+        	    CompletionSuggestion.Entry entry = entryList.get(0);
+        	    List<CompletionSuggestion.Entry.Option> csEntryOptions = entry.getOptions();
+        	    if (null != csEntryOptions && !csEntryOptions.isEmpty()) {
+        		Iterator<? extends CompletionSuggestion.Entry.Option> iter = csEntryOptions.iterator();
+        		while (iter.hasNext()) {
+        		    CompletionSuggestion.Entry.Option next = iter.next();
+        		    SuggestOption option = new SuggestOption(next.getText().string());
+        
+        		    options.add(option);
+        		    LOG.info("option " + option.getText());
+        		}
+        	    }
+        	}
 	}
 
 	return options;
