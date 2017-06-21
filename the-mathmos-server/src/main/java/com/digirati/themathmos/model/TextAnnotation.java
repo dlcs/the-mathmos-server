@@ -1,9 +1,15 @@
 package com.digirati.themathmos.model;
 
+import java.util.List;
+
 import org.springframework.data.annotation.Id;
 import org.springframework.data.elasticsearch.annotations.CompletionField;
 import org.springframework.data.elasticsearch.annotations.Document;
-import org.springframework.data.elasticsearch.core.completion.Completion;
+import org.springframework.data.elasticsearch.annotations.Field;
+import org.springframework.data.elasticsearch.annotations.FieldType;
+
+
+
 
 
 
@@ -11,17 +17,19 @@ import org.springframework.data.elasticsearch.core.completion.Completion;
 public class TextAnnotation {
     
 
-    
-	@Id
-    	private String id;
+    @Id
+	private String id;
 	
 	private String imageId;
-    	
+	
+	@Field(type = FieldType.String, analyzer = "whitespace")
+	private List<String> manifestId;
+	
 	private String text;
 	
-	@CompletionField (payloads = true)
-    	private Completion suggest;
-    	
+	@CompletionField (payloads = false)
+	private ContextCompletion suggest;
+	
 
 	public String getId() {
 	    return id;
@@ -30,7 +38,7 @@ public class TextAnnotation {
 	public void setId(String id) {
 	    this.id = id;
 	}
-    	
+	
 
 	public String getImageId() {
 	    return imageId;
@@ -49,18 +57,26 @@ public class TextAnnotation {
 	}
 	
 	
-	public Completion getSuggest() {
+	public ContextCompletion getSuggest() {
 	    return suggest;
 	}
 
-	public void setSuggest(Completion suggest) {
-	    this.suggest = suggest;
+	public void setSuggest(ContextCompletion newSuggest) {
+	    this.suggest = newSuggest;
 	}
 	
 	
-    	@Override
+	public List<String> getManifestId() {
+	    return manifestId;
+	}
+
+	public void setManifestId(List<String> manifestId) {
+	    this.manifestId = manifestId;
+	}
+
+	@Override
 	public String toString() {
-		return "Text [(" + getId() + "),(" + getImageId() + "),(" + getText() + "),(" + getSuggest().getInput() + ")]";
+		return "Text [(" + getId() + "),(" + getImageId() + "),(" + getText() + "),(" + getManifestId() + "),(" + getSuggest().getInput() + ")]";
 		
 	}
 	

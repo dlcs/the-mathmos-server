@@ -29,6 +29,10 @@ public class AnnotationSearchConstants {
     
     public static final String TEXT_INDEX_NAME = "text_index";
     
+    public static final String W3C_INDEX_NAME = "w3cannotation";
+    
+    public static final String CONTEXT_MANIFEST_NAME = "manifest";
+    
     private AnnotationSearchConstants(){
 	
     }

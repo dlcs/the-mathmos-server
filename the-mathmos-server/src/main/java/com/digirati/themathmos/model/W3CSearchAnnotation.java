@@ -8,55 +8,58 @@ import org.springframework.data.elasticsearch.annotations.Document;
 import org.springframework.data.elasticsearch.annotations.Field;
 import org.springframework.data.elasticsearch.annotations.FieldIndex;
 import org.springframework.data.elasticsearch.annotations.FieldType;
-import org.springframework.data.elasticsearch.core.completion.Completion;
+
+
 
 @Document( indexName="w3cannotation", type="annotations")
 public class W3CSearchAnnotation {
     
 
-    
-	@Id
-    	private String id;
-    	
-    	private List<String> motivations;
-    	
-    	@Field( type = FieldType.Date)
-    	private List<String> created;
-    	
-    	@Field( type = FieldType.Date)
-    	private List<String> generated;
-    	
-    	@Field( type = FieldType.Date)
-    	private List<String> modified;
-    	
-    	@Field(type = FieldType.String, analyzer = "whitespace")
-    	private List<String> creators;
-    	
-    	private List<String> generator;
-    	
-    	private List <String> target;
-    	
-    	private List <String> body;
-    	
-    	@Field(type = FieldType.String, analyzer = "whitespace")
-    	private List <String> targetURI;
-    	
-    	@Field(type = FieldType.String, analyzer = "whitespace")
-    	private List <String> uri;
-    	
-    	@Field(type = FieldType.String, analyzer = "whitespace")
-    	private List <String> bodyURI;
-    	
-    	private List <String> xywh;
-    	
-    	@Field( type = FieldType.String, index = FieldIndex.no)
-    	private String w3cJsonLd;
-    	
-    	@Field( type = FieldType.String, index = FieldIndex.no)
-    	private String oaJsonLd;
-    	
-    	@CompletionField (payloads = true)
-    	private Completion suggest;
+    @Id
+	private String id;
+	
+	private List<String> motivations;
+	
+	@Field( type = FieldType.Date)
+	private List<String> created;
+	
+	@Field( type = FieldType.Date)
+	private List<String> generated;
+	
+	@Field( type = FieldType.Date)
+	private List<String> modified;
+	
+	@Field(type = FieldType.String, analyzer = "whitespace")
+	private List<String> creators;
+	
+	private List<String> generator;
+	
+	private List <String> target;
+	
+	private List <String> body;
+	
+	@Field(type = FieldType.String, analyzer = "whitespace")
+	private List <String> targetURI;
+	
+	@Field(type = FieldType.String, analyzer = "whitespace")
+	private List <String> uri;
+	
+	@Field(type = FieldType.String, analyzer = "whitespace")
+	private List <String> bodyURI;
+	
+	private List <String> xywh;
+	
+	@Field( type = FieldType.String, index = FieldIndex.no)
+	private String w3cJsonLd;
+	
+	@Field( type = FieldType.String, index = FieldIndex.no)
+	private String oaJsonLd;
+	
+	@Field(type = FieldType.String, analyzer = "whitespace")
+	private List<String> manifest;
+	
+	@CompletionField (payloads = false)
+	private ContextCompletion suggest;
 
 
 	public String getId() {
@@ -66,7 +69,7 @@ public class W3CSearchAnnotation {
 	public void setId(String id) {
 	    this.id = id;
 	}
-    	
+	
 
 	public List<String> getMotivations() {
 	    return motivations;
@@ -156,8 +159,16 @@ public class W3CSearchAnnotation {
 	public void setBodyURI(List <String> bodyURI) {
 	    this.bodyURI = bodyURI;
 	}
-    	
-    	@Override
+	
+	public List <String> getManifest() {
+	    return manifest;
+	}
+
+	public void setManifest(List <String> manifest) {
+	    this.manifest = manifest;
+	}
+	
+	@Override
 	public String toString() {
 		return "W3CAnnotation [(" + getId() + ")]";
 		
@@ -179,11 +190,11 @@ public class W3CSearchAnnotation {
 	    this.oaJsonLd = oaJsonLd;
 	}
 	
-	public Completion getSuggest() {
+	public ContextCompletion getSuggest() {
 	    return suggest;
 	}
 
-	public void setSuggest(Completion suggest) {
+	public void setSuggest(ContextCompletion suggest) {
 	    this.suggest = suggest;
 	}
 
@@ -194,6 +205,6 @@ public class W3CSearchAnnotation {
 	public void setXywh(List <String> xywh) {
 	    this.xywh = xywh;
 	}
-    	
+	
 
 }

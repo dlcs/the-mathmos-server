@@ -3,11 +3,10 @@ package com.digirati.themathmos.service.impl;
 
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
+
 
 import org.apache.log4j.Logger;
 import org.elasticsearch.action.search.SearchRequestBuilder;
@@ -36,7 +35,7 @@ public class AnnotationAutocompleteServiceImpl implements AnnotationAutocomplete
     public static final String SERVICE_NAME = "annotationAutocompleteServiceImpl";
     
     private static final String TEXT_INDEX = AnnotationSearchConstants.TEXT_INDEX_NAME;
-    private static final String W3C_INDEX = "w3cannotation";
+    private static final String W3C_INDEX = AnnotationSearchConstants.W3C_INDEX_NAME;
     
     
     
@@ -128,6 +127,15 @@ public class AnnotationAutocompleteServiceImpl implements AnnotationAutocomplete
 
 	completionSuggestionBuilder.text(suggestRequest);
 	completionSuggestionBuilder.field("suggest");
+	String decodedWithinUrl = null;
+	if (null != within && TEXT_INDEX.equals(index)) {
+	    decodedWithinUrl = annotationUtils.decodeWithinUrl(within);
+	    if(null  != decodedWithinUrl){
+		LOG.info("decodedWithinUrl :" + decodedWithinUrl);
+		completionSuggestionBuilder.addContextField(AnnotationSearchConstants.CONTEXT_MANIFEST_NAME, decodedWithinUrl);
+	    }
+	}
+
 	completionSuggestionBuilder.size(AnnotationSearchConstants.MAX_NUMBER_OF_HITS_RETURNED);
 
 	LOG.info(completionSuggestionBuilder.toString());
@@ -136,14 +144,10 @@ public class AnnotationAutocompleteServiceImpl implements AnnotationAutocomplete
 	// SearchRequestBuilder searchRequestBuilderReal =
 	// client.prepareSearch(index);
 	SearchRequestBuilder searchRequestBuilder = client.prepareSearch(index);
-	String decodedWithinUrl = null;
-	if (null != within && TEXT_INDEX.equals(index)) {
-	    decodedWithinUrl = annotationUtils.decodeWithinUrl(within);
-	}
-	LOG.info("decodedWithinUrl :" + decodedWithinUrl);
+	
 
 	searchRequestBuilder.addSuggestion(completionSuggestionBuilder);
-	searchRequestBuilder.setSize(1);
+	searchRequestBuilder.setSize(0);
 	searchRequestBuilder.setFetchSource(false);
 
 	/*
@@ -182,34 +186,9 @@ public class AnnotationAutocompleteServiceImpl implements AnnotationAutocomplete
 		while (iter.hasNext()) {
 		    CompletionSuggestion.Entry.Option next = iter.next();
 		    SuggestOption option = new SuggestOption(next.getText().string());
-		    
-		    // if not null then we are looking for manifestIds within
-		    // the payload
-		    if (null == decodedWithinUrl) {
-			options.add(option);
-			LOG.info("option " + option.getText());
-		    } else {
 
-			Map<String, Object> payloadMap = next.getPayloadAsMap();
-			if (null != payloadMap && payloadMap.containsKey("uri")) {
-
-			    Collection<String> payloadSet ;
-				
-			    try{
-				payloadSet= (Set) payloadMap.get("uri");
-				LOG.info("within finding a Set ");
-			    }catch (Exception e){
-				payloadSet= (List) payloadMap.get("uri");
-				LOG.info("within finding a List ");
-			    }
-			   
-			    LOG.info("payloadSet " + payloadSet);
-			    if (null != payloadSet && payloadSet.contains(decodedWithinUrl)) {
-				options.add(option);
-				LOG.info("within option " + option.getText());
-			    }
-			}
-		    }
+		    options.add(option);
+		    LOG.info("option " + option.getText());
 		}
 	    }
 	}
