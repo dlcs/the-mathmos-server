@@ -26,7 +26,7 @@ public class Positions {
 
     @Override
     public String toString(){
-	return "position start:"+ startPosition +":"+endPosition;
+	return "position start:end ["+ startPosition +":"+endPosition+"]";
     }
     
     

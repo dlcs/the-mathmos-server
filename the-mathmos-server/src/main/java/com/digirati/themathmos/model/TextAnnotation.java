@@ -6,9 +6,8 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.elasticsearch.annotations.CompletionField;
 import org.springframework.data.elasticsearch.annotations.Document;
 import org.springframework.data.elasticsearch.annotations.Field;
+import org.springframework.data.elasticsearch.annotations.FieldIndex;
 import org.springframework.data.elasticsearch.annotations.FieldType;
-
-
 
 
 
@@ -17,19 +16,30 @@ import org.springframework.data.elasticsearch.annotations.FieldType;
 public class TextAnnotation {
     
 
-    @Id
-	private String id;
+    
+	@Id
+    	private String id;
 	
 	private String imageId;
 	
 	@Field(type = FieldType.String, analyzer = "whitespace")
 	private List<String> manifestId;
-	
+    	
 	private String text;
 	
 	@CompletionField (payloads = false)
-	private ContextCompletion suggest;
+    	private ContextCompletion suggest;	
+
+	@Field( type = FieldType.String, index = FieldIndex.no)
+	private String nextImageId;	
 	
+	@Field( type = FieldType.String, index = FieldIndex.no)
+	private String nextCanvasId;
+	
+	
+	@Field( type = FieldType.Integer, index = FieldIndex.no)
+	private int endPositionOfCurrentText;
+    	
 
 	public String getId() {
 	    return id;
@@ -38,7 +48,7 @@ public class TextAnnotation {
 	public void setId(String id) {
 	    this.id = id;
 	}
-	
+    	
 
 	public String getImageId() {
 	    return imageId;
@@ -66,7 +76,7 @@ public class TextAnnotation {
 	}
 	
 	
-	public List<String> getManifestId() {
+    	public List<String> getManifestId() {
 	    return manifestId;
 	}
 
@@ -76,8 +86,40 @@ public class TextAnnotation {
 
 	@Override
 	public String toString() {
-		return "Text [(" + getId() + "),(" + getImageId() + "),(" + getText() + "),(" + getManifestId() + "),(" + getSuggest().getInput() + ")]";
+		return "Text [(" + getId() + "),(" + getImageId() + "),(" + getText() + "),(" + getManifestId() + "),(" + getSuggest().getInput() + ")"+
+	",(nextCanvasId: " + this.getNextCanvasId()+ ")"+
+	",(nextImageId: " + this.getNextImageId()+ "), (endPositionOfCurrentText: " + this.getEndPositionOfCurrentText()+ "]";
 		
+	}
+
+
+
+	public String getNextImageId() {
+	    return nextImageId;
+	}
+
+	public void setNextImageId(String nextImageId) {
+	    this.nextImageId = nextImageId;
+	}
+
+
+
+	public String getNextCanvasId() {
+	    return nextCanvasId;
+	}
+
+	public void setNextCanvasId(String nextCanvasId) {
+	    this.nextCanvasId = nextCanvasId;
+	}
+
+
+
+	public int getEndPositionOfCurrentText() {
+	    return endPositionOfCurrentText;
+	}
+
+	public void setEndPositionOfCurrentText(int endPositionOfCurrentText) {
+	    this.endPositionOfCurrentText = endPositionOfCurrentText;
 	}
 	
 
