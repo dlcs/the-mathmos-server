@@ -36,6 +36,7 @@ import org.springframework.core.io.DefaultResourceLoader;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
 
+import com.digirati.themathmos.model.ImageHelperObject;
 import com.digirati.themathmos.model.Positions;
 import com.digirati.themathmos.model.TermOffsetStart;
 import com.digirati.themathmos.model.TermOffsetsWithPosition;
@@ -276,8 +277,11 @@ public class TextUtilsTest {
 
 	String coordinates2 = getFileContents("test_coordinates_2.json");
 	
+	ImageHelperObject imageHelper = new ImageHelperObject();
+	imageHelper.setPositionsMap(positionMap);
+	Map<String,String> crossMap = null;
 	
-	Map<String,Object>  map = textUtils.createCoordinateAnnotation(query, coordinates2, true, positionMap, termPositionMap, queryString, new PageParameters(), true, imageCanvasMap);
+	Map<String,Object>  map = textUtils.createCoordinateAnnotation(query, coordinates2, true, imageHelper, termPositionMap, queryString, new PageParameters(), true, imageCanvasMap, crossMap);
 	//Map<String,Object>  map =textUtils.createCoordinateAnnotation(params,coordinates2, positionMap, termPositionMap , //10,
 	//	new PageParameters());
 	LOG.info(map.toString());
@@ -364,6 +368,13 @@ public class TextUtilsTest {
         
         
         
+    }
+    
+    @Test
+    public void testAmendStartsAndEndsPositions(){
+	String text = "had than the a pions we can mahe- to have one see from One chain jaica k one side from, anotes and - it T hit C Na an one chain, a hr a we can me one can heue the fire is are code , but I those order in fines, they to order n he obs Chai i al, hields. For example , supprene A. her chain sent He he second musi Ge It is like a code.";
+		 
+	textUtils.amendStartsAndEndsPositions(text, 21, 313);
     }
  
     

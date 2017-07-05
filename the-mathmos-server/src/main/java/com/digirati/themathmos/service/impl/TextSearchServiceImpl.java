@@ -38,6 +38,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.digirati.themathmos.AnnotationSearchConstants;
 import com.digirati.themathmos.mapper.TextSearchAnnotationMapper;
+import com.digirati.themathmos.model.ImageHelperObject;
+import com.digirati.themathmos.model.Images;
+import com.digirati.themathmos.model.Image;
+import com.digirati.themathmos.model.PageOverlapDetails;
 import com.digirati.themathmos.model.Positions;
 import com.digirati.themathmos.model.ServiceResponse;
 import com.digirati.themathmos.model.TermOffsetStart;
@@ -48,6 +52,9 @@ import com.digirati.themathmos.model.ServiceResponse.Status;
 import com.digirati.themathmos.model.annotation.page.PageParameters;
 import com.digirati.themathmos.service.GetPayloadService;
 import com.digirati.themathmos.service.TextSearchService;
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
 import com.google.gson.internal.LinkedTreeMap;
 
@@ -217,7 +224,7 @@ public class TextSearchServiceImpl implements TextSearchService {
 	}
 	
 	Map<String,String> imageCanvasMap = new HashMap<>();
-	Map<String,String> canvasImageMap = new HashMap<>();
+	Map<String,PageOverlapDetails> canvasOverlapDetailMap = new HashMap<>();
 	
 	Page<TextAnnotation> annotationPage = formQuery(queryBuilder, from, pagingSize, within);
 
@@ -226,9 +233,9 @@ public class TextSearchServiceImpl implements TextSearchService {
 	Map<String, List<TermWithTermOffsets>> termWithOffsetsMap = new HashMap<>();
 	Map<String, Map<String, TermOffsetStart>> termPositionsMap = new HashMap<>();
 	Map<String, Map<String, String>> offsetPositionMap = new HashMap<>();
-	
 
-	extractTermOffsetsFromPage(termWithOffsetsMap, annotationPage, query, termPositionsMap, offsetPositionMap, imageCanvasMap, canvasImageMap);
+
+	extractTermOffsetsFromPage(termWithOffsetsMap, annotationPage, query, termPositionsMap, offsetPositionMap, imageCanvasMap, canvasOverlapDetailMap);
 
 	LOG.info("termWithOffsetsMap "+ termWithOffsetsMap.toString());
 	LOG.info("termPositionsMap "+ termPositionsMap.toString());
@@ -241,13 +248,17 @@ public class TextSearchServiceImpl implements TextSearchService {
 	    height = widthHeightArray[1];
 	}
 	
+	ImageHelperObject imageHelper = textUtils.createOffsetPayload(termWithOffsetsMap, width, height,
+		offsetPositionMap, canvasOverlapDetailMap);
 	
-	Map<String, Object> offsetPayloadMap = textUtils.createOffsetPayload(termWithOffsetsMap, width, height,
-		offsetPositionMap, canvasImageMap);
-	//textUtils.createOffsetPayload(termWithOffsetsMap,"1024", "768", offsetPositionMap);
-	//textUtils.createOffsetPayload(termWithOffsetsMap,"1024", "768", offsetPositionMap, canvasImageMap);
+	String payload = null;
+	
+	if(null != imageHelper){
+	    Map<String, Object> offsetPayloadMap = imageHelper.getOffsetPayloadMap();
 
-	String payload = new Gson().toJson(offsetPayloadMap);
+	    payload = new Gson().toJson(offsetPayloadMap);
+	}
+	
 	LOG.info("payload "+ payload);
 	pagingParameters = textUtils.getAnnotationPageParameters(annotationPage, queryString,
 		DEFAULT_TEXT_PAGING_NUMBER, totalHits);
@@ -255,17 +266,29 @@ public class TextSearchServiceImpl implements TextSearchService {
 	if (null == payload || StringUtils.isEmpty(payload) || "null".equals(payload)) {
 	    return null;
 	} else {
+	    Map <String, String> crossXywhQueryMap = null;
+	    
 	    // now call another service to get the actual coordinates
 	    String coordinatePayload = coordinateService.getJsonPayload(coordinateServerUrl, payload);
+	    
+	    ObjectMapper mapper = new ObjectMapper();
+	    try {
+		Images images = mapper.readValue(coordinatePayload, Images.class);
+		
+		crossXywhQueryMap = textUtils.createCoordinateAnnotationFromImages(query, images,
+			 imageHelper,imageCanvasMap);
+	    } catch (Exception e) {
+		LOG.error("Error converting payload to Images object " + e);
+	    } 
 
-	    Map<String, List<Positions>> positionMap = textUtils.getPositionsMap();
+	    Map<String, List<Positions>> positionMap = imageHelper.getPositionsMap();
 	    LOG.info("PositionMap " + positionMap.toString());
 
 	   
 	    Map<String, Object> textMap = textUtils.createCoordinateAnnotation(query, coordinatePayload,
-	  isW3c, positionMap, termPositionsMap, queryString, 
+	  isW3c, imageHelper, termPositionsMap, queryString, 
 		    pagingParameters,
-		    isMixedSearch,imageCanvasMap);
+		    isMixedSearch,imageCanvasMap,crossXywhQueryMap);
 	  
 	    if (null != textMap && !textMap.isEmpty()) {
 		textUtils.amendPagingParameters(textMap, pagingParameters, isW3c);
@@ -279,26 +302,42 @@ public class TextSearchServiceImpl implements TextSearchService {
     
     
     /**
-     * Method to get all the _id fields returned in our search and pass these to getMultiTermVectors to get a {@code MultiTermVectorsResponse}.
-     * @param page {@code Page} whose content is a {@code List} of {@code TextAnnotation} objects, from which we get the ids.
-     * @return {@code MultiTermVectorsResponse} containing all the term vectors in the matched text.
+     * Method to get all the _id fields returned in our search and pass these to
+     * getMultiTermVectors to get a {@code MultiTermVectorsResponse}.
+     * 
+     * @param page
+     *            {@code Page} whose content is a {@code List} of
+     *            {@code TextAnnotation} objects, from which we get the ids.
+     * @return {@code MultiTermVectorsResponse} containing all the term vectors
+     *         in the matched text.
      */
-    private MultiTermVectorsResponse getMultiTermVectorResponse(Page<TextAnnotation> page, Map<String,String> imageCanvasMap, Map<String,String> canvasImageMap) {
+    private MultiTermVectorsResponse getMultiTermVectorResponse(Page<TextAnnotation> page,
+	    Map<String, String> imageCanvasMap, Map<String, PageOverlapDetails> canvasOverlapDetailMap) {
 
 	List<TextAnnotation> textPage = page.getContent();
-	
+
 	String[] idArray = new String[textPage.size()];
 	int count = 0;
 	for (TextAnnotation textResult : textPage) {
-	    String id = textResult.getId();
+	    String canvasId = textResult.getId();
 	    String imageId = textResult.getImageId();
-	    imageCanvasMap.put(imageId, id);
-	    canvasImageMap.put(id, imageId);
-	    LOG.info("getMultiTermVectorResponse id of textAnotation is " + id + "imageId is  "+ imageId);
-	    if(null != id){
-		idArray[count] = id;
+
+	    PageOverlapDetails overlapDetails = new PageOverlapDetails();
+	    overlapDetails.setImageId(imageId);
+	    overlapDetails.setCanvasId(canvasId);
+	    overlapDetails.setNextImageId(textResult.getNextImageId());
+	    overlapDetails.setNextCanvasId(textResult.getNextCanvasId());
+	    overlapDetails.setEndPositionOfCurrentText(textResult.getEndPositionOfCurrentText());
+	    canvasOverlapDetailMap.put(canvasId, overlapDetails);
+
+	    imageCanvasMap.put(imageId, canvasId);
+	    imageCanvasMap.put(textResult.getNextImageId(), textResult.getNextCanvasId());
+
+	    LOG.info("getMultiTermVectorResponse id of textAnotation is " + canvasId + "imageId is  " + imageId);
+	    if (null != canvasId) {
+		idArray[count] = canvasId;
 		count++;
-	    }else{
+	    } else {
 		LOG.error("Error in getMultiTermVectorResponse, no id associated with this text");
 	    }
 	}
@@ -306,7 +345,6 @@ public class TextSearchServiceImpl implements TextSearchService {
 	return getMultiTermVectors(INDEX_FIELD_NAME, FIELD_TYPE_NAME, idArray, TEXT_FIELD_NAME);
 
     }
-
     
     
     /**
@@ -329,6 +367,9 @@ public class TextSearchServiceImpl implements TextSearchService {
 	searchRequestBuilder.setFrom(from);
 	searchRequestBuilder.setSize(pagingSize);
 	searchRequestBuilder.addField("imageId");
+	searchRequestBuilder.addField("nextImageId");
+	searchRequestBuilder.addField("nextCanvasId");
+	searchRequestBuilder.addField("endPositionOfCurrentText");
 	//searchRequestBuilder.setFetchSource(false);
 	
 	/*if(null != within){
@@ -515,9 +556,9 @@ public class TextSearchServiceImpl implements TextSearchService {
      */
     private void extractTermOffsetsFromPage(Map<String, List<TermWithTermOffsets>> termWithOffsetsMap,
 	    Page<TextAnnotation> page, String query, Map<String, Map<String, TermOffsetStart>> termPositionsMap, Map<String,Map <String,String>> offsetPositionMap,
-	    Map<String,String> imageCanvasMap,  Map<String,String> canvasImageMap) {
+	    Map<String,String> imageCanvasMap, Map<String, PageOverlapDetails> canvasOverlapDetailMap) {
 
-	MultiTermVectorsResponse response = getMultiTermVectorResponse(page, imageCanvasMap, canvasImageMap);
+	MultiTermVectorsResponse response = getMultiTermVectorResponse(page, imageCanvasMap, canvasOverlapDetailMap);
 
 	if (null != response) {
 	    MultiTermVectorsItemResponse[] itemResponseArray = response.getResponses();

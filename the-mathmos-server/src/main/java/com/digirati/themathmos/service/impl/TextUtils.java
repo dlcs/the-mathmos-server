@@ -5,6 +5,7 @@ import java.util.Base64;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -16,7 +17,11 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.springframework.stereotype.Service;
 
-
+import com.digirati.themathmos.model.Image;
+import com.digirati.themathmos.model.ImageHelperObject;
+import com.digirati.themathmos.model.Images;
+import com.digirati.themathmos.model.PageOverlapDetails;
+import com.digirati.themathmos.model.PositionListObjects;
 import com.digirati.themathmos.model.Positions;
 import com.digirati.themathmos.model.TermOffsetStart;
 import com.digirati.themathmos.model.TermOffsetsWithPosition;
@@ -32,8 +37,6 @@ import com.google.gson.internal.LinkedTreeMap;
 public class TextUtils extends CommonUtils {
     
     
-  
-   
     
     private static final Logger LOG = Logger.getLogger(TextUtils.class);
    
@@ -47,22 +50,8 @@ public class TextUtils extends CommonUtils {
     private static final int BEFORE_AFTER_WORDS = 10;
     
     
-    //Map containing keys of image ids and a List of the Positions (start end) where we have found matches to our query within them.
-    private Map <String, List<Positions>> positionsMap;
-    
-    public Map <String, List<Positions>> getPositionsMap() {
-	return positionsMap;
-    }
-    
-    public void setPositionsMap(Map <String, List<Positions>> positionsMap) {
-	this.positionsMap = positionsMap;
-    }
-    
-    
-    
- 
-    public Map<String, Object> createOffsetPayload(Map<String, List<TermWithTermOffsets>> termWithOffsetsMap,
-	    String width, String height, Map<String, Map<String, String>> offsetPositionMap) {
+    public ImageHelperObject createOffsetPayload(Map<String, List<TermWithTermOffsets>> termWithOffsetsMap,
+	    String width, String height, Map<String, Map<String, String>> offsetPositionMap, Map<String,PageOverlapDetails> canvasOverlapDetailMap) {
 
 	if (null == termWithOffsetsMap || termWithOffsetsMap.isEmpty()) {
 	    return null;
@@ -70,36 +59,118 @@ public class TextUtils extends CommonUtils {
 
 	Map<String, Object> root = buildImageListHead();
 
-	List<Map<String, Object>> imageList = createImages(termWithOffsetsMap, width, height, offsetPositionMap);
-
+	//List<Map<String, Object>> imageList = createImages(termWithOffsetsMap, width, height, offsetPositionMap, canvasOverlapDetailMap);
+	ImageHelperObject imageHelper = createImages(termWithOffsetsMap, width, height, offsetPositionMap, canvasOverlapDetailMap);
+	List<Map<String, Object>> imageList = imageHelper.getImageJson();
 	List<Map<String, Object>> images = (List<Map<String, Object>>) root.get(IMAGESLIST);
 
 	images.addAll(imageList);
 
-	return root;
-
-    }
-
-    public Map<String, Object> createOffsetPayload(Map<String, List<TermWithTermOffsets>> termWithOffsetsMap,
-	    String width, String height, Map<String, Map<String, String>> offsetPositionMap, Map<String, String> canvasImageMap) {
-
-	if (null == termWithOffsetsMap || termWithOffsetsMap.isEmpty()) {
-	    return null;
-	}
-
-	Map<String, Object> root = buildImageListHead();
-
-	List<Map<String, Object>> imageList = createImages(termWithOffsetsMap, width, height, offsetPositionMap, canvasImageMap);
-
-	List<Map<String, Object>> images = (List<Map<String, Object>>) root.get(IMAGESLIST);
-
-	images.addAll(imageList);
-
-	return root;
+	imageHelper.setOffsetPayloadMap(root);
+	return imageHelper;
 
     }
     
    
+    
+    
+    /**
+     * 
+     * @param query {@code String} The query e.g. "we are family"
+     * @param images {@code Images} The java representation of the images payload from the coordinate service
+     * @param imageHelper {@code ImageHelperObject} A helper object to store some objects for the writing of annotations 
+     * @param imageCanvasMap {@code Map} A map of canvasIds mapped to image Ids and vice versa.
+     * @return {@code Map} with the key : xywh {@code String} and value: chars for the resource {@code String} 
+     */
+    
+    public Map <String, String>  createCoordinateAnnotationFromImages(String query, Images images,
+      ImageHelperObject imageHelper, Map<String,String> imageCanvasMap){
+	
+	
+	Map<String,String> crossPageImageMap = imageHelper.getCrossPageImageMap();
+	LOG.info("crossPageImageMap: " +crossPageImageMap);
+	
+	String[] queryArray = query.split(" ");
+	int  queryArrayLength = queryArray.length;
+
+	Map <String, String> crossCoordinates = new HashMap<>();
+
+	if(images != null){
+	    List<Image> imageList = images.getImages();
+	    
+	    for(Image image: imageList){		
+		String imageId = image.getImage_uri();
+		String id = imageCanvasMap.get(imageId);
+		
+		if(null != crossPageImageMap && crossPageImageMap.containsKey(imageId)){
+		    String crossImageId = crossPageImageMap.get(imageId);
+		    String crossCanvasId = crossPageImageMap.get(id);
+		    Image crossImage = null;
+		    for(Image testImage: imageList){
+			if(testImage.getImage_uri().equals(crossImageId)){
+			    crossImage = testImage;
+			    break;
+			}
+		    }
+
+		    LOG.info("crossImageId: " +crossImageId);
+		    LOG.info("crossCanvasId: " +crossCanvasId);
+		    int countCount = 0;
+		    
+		    //get the last xywh in the current image
+		    int currentSize = image.getPhrases().get(0).size();
+		    int currentCount = image.getPhrases().get(0).get(currentSize-1).getCount();		   
+
+		    //get the first xywh in the next image
+		    int nextCount = crossImage.getPhrases().get(0).get(countCount).getCount();
+		    String nextXywh = crossImage.getPhrases().get(0).get(countCount).getXywh();
+ 
+		    String endQuery = "";
+		    for(int y = (currentCount); y < (currentCount + nextCount); y++){
+			endQuery +=queryArray[y] + " ";
+		    }
+		    int countTally = currentCount + nextCount;
+		    
+		    //deal with test that might be on a new line
+		    while(countTally < queryArrayLength){
+			countCount++;
+			countTally = amendCrossCoordinates(crossImage, countCount, countTally, queryArray,crossCoordinates);
+		    }
+		    endQuery = endQuery.substring(0, endQuery.length() -1);
+		    crossCoordinates.put(nextXywh, endQuery);  
+		}
+	    }
+	    LOG.info(crossCoordinates);
+	}
+	
+	return crossCoordinates;
+	
+    }
+    
+    
+    /**
+     * Method to deal with cross boundary resource chars that might be across multiple lines
+     * @param crossImage {@code Image}
+     * @param next {@code int} 
+     * @param countTally {@code int} the count of the next phrase for an image
+     * @param queryArray {@code String[]} the query in a String[]
+     * @param crossCoordinates {@code Map} we place key:xywh and value: words for resource chars for this coordinate match
+     * @return {@code int} the count of words we have placed in the crossCoordinates map.
+     */
+    
+    public int amendCrossCoordinates(Image crossImage, int next, int countTally, String[] queryArray, Map <String, String> crossCoordinates ){
+	int nextAgainCount = crossImage.getPhrases().get(0).get(next).getCount();
+	String nextAgainXywh = crossImage.getPhrases().get(0).get(next).getXywh();
+	String endAgainQuery = "";
+	for(int p = (countTally); p < (countTally + nextAgainCount); p++){
+	    endAgainQuery +=queryArray[p] + " ";
+	}
+	endAgainQuery = endAgainQuery.substring(0, endAgainQuery.length() -1);
+	crossCoordinates.put(nextAgainXywh, endAgainQuery); 
+	return countTally+nextAgainCount;
+    }
+    
+    
    
     /**
      * Method to create annotations from a json payload of coordinates. We are assuming that the order that we requested positions for is maintained by Starsky.
@@ -114,22 +185,27 @@ public class TextUtils extends CommonUtils {
      * @return {@code Map} a Map representing the json for an text-derived annotation. 
      */
     public Map<String, Object> createCoordinateAnnotation(String query, String coordinatePayload,
-	   boolean isW3c, Map<String, List<Positions>> positionMap,
+	   boolean isW3c, ImageHelperObject imageHelper,
 	    Map<String, Map<String, TermOffsetStart>> termPositionMap, String queryString,
-	    PageParameters pageParams, boolean isMixedSearch, Map<String,String> imageCanvasMap) {
+	    PageParameters pageParams, boolean isMixedSearch, Map<String,String> imageCanvasMap, Map <String, String> crossXywhQueryMap) {
 
 	if (null == coordinatePayload) {
 	    return null;
 	}
 	Map<String, Object> javaRootBodyMapObject = new Gson().fromJson(coordinatePayload, Map.class);
-
+	
+	Map<String, List<Positions>> positionMap = imageHelper.getPositionsMap();
+	Map<String,String> crossPageImageMap = imageHelper.getCrossPageImageMap();
+	LOG.info("crossPageImageMap: " +crossPageImageMap);
+	
 	if (null == javaRootBodyMapObject) {
 	    return null;
 	}
 	
 	String[] queryArray = query.split(" ");
 	int  queryArrayLength = queryArray.length;
-
+	LOG.info("queryArrayLength: " +queryArrayLength);
+	
 	Map<String, Object> root;
 
 	
@@ -141,23 +217,25 @@ public class TextUtils extends CommonUtils {
 	this.setHits(root);
 	
 	List images = (List) javaRootBodyMapObject.get(IMAGESLIST);
+	List<Positions> crossPositionList = null;
 	
 	//iterate through the images
 	for (Object object : (List) images) {
 	    Map<String, Object> image = (Map<String, Object>) object;
 	    
-	    //pull out the image id 
-	    
-	    
-	    
+	    //pull out the image id	    
 	    String imageId = (String) image.get("image_uri");
 	    String id = imageCanvasMap.get(imageId);
-
+	   
+	    
 	    //map for storing xywh keys against resource urls
 	    Map <String, String>annoURLMap = new HashMap<>();
 	    List<Positions> positionList = positionMap.get(id);
+	    
+	    LOG.info("positionList: " +positionList);
 	    Map<String, TermOffsetStart> sourcePositionMap = termPositionMap.get(id);
 	    
+
 	    Object phraseObject = image.get(PHRASES);
 	   
 	    
@@ -178,21 +256,22 @@ public class TextUtils extends CommonUtils {
 			int queryCount = 0;	
 			String[] beforeAfter = null;
 			for(Object phraseArray:innerObjectList){
-			    
 			    LinkedTreeMap map = (LinkedTreeMap)phraseArray;  
 			    xywh = (String)map.get("xywh");			    
 			    termCount =  removeDotZero((Double)map.get("count")) +"";
 			    
 			    int start = positionList.get(count).getStartPosition();
 			    int end = positionList.get(count).getEndPosition();
-			    beforeAfter = this.getHighlights(start, end, BEFORE_AFTER_WORDS, sourcePositionMap);
+			    if(null != sourcePositionMap){
+				beforeAfter = this.getHighlights(start, end, BEFORE_AFTER_WORDS, sourcePositionMap);
+			    }
 
 			    StringBuilder queryForResource = new StringBuilder();
 
 			    int countInt = Integer.parseInt(termCount);
 			    if(queryArrayLength > countInt){
 				if(queryCount == 0){
-				   for(int r= 0; r <countInt;r++){
+				   for(int r = 0; r <countInt;r++){
 				       queryForResource.append(queryArray[r] + " "); 
 				   }
 				   
@@ -205,10 +284,15 @@ public class TextUtils extends CommonUtils {
 					String[] valueArray = value.split(" ");
 					countOfElements += valueArray.length;
 				    }
+				    
 				    for(int r= countOfElements; r<countInt+countOfElements;r++){
-					queryForResource.append(queryArray[r] + " "); 
+				   	 queryForResource.append(queryArray[r] + " "); 
 				    }
+				    
 				    xywhMap.put(xywh, queryForResource.substring(0, queryForResource.length()-1));
+				}
+				if(null != crossXywhQueryMap && crossXywhQueryMap.containsKey(xywh)){
+				    xywhMap.put(xywh,crossXywhQueryMap.get(xywh));
 				}
 				queryCount++;
 			    }else{
@@ -219,13 +303,14 @@ public class TextUtils extends CommonUtils {
 			}
 			LOG.info("xywhMap " + xywhMap);
 			Map<String, Object> hitMap = new LinkedHashMap<>();
-			if(xywhMap.size() == 1){
-			    List<String> annotationsList = new ArrayList<>();
-			    annotationsList.add(annoURLMap.get(xywh));
-			    
-			    setHits(isW3c, hitMap, annotationsList, query, beforeAfter);
-			    resources.add(createResource(id, query,isW3c, xywh,annoURLMap.get(xywh))); 
-			}else{
+			//if(xywhMap.size() == 1){
+			//    List<String> annotationsList = new ArrayList<>();
+			//    annotationsList.add(annoURLMap.get(xywh));
+			//    if(null != beforeAfter){
+			//	setHits(isW3c, hitMap, annotationsList, query, beforeAfter);
+			//    }
+			//    resources.add(createResource(id, query,isW3c, xywh,annoURLMap.get(xywh))); 
+			//}else{
 			    List <String>list = new ArrayList<>(xywhMap.keySet());
 			    Collections.sort(list, Collections.reverseOrder());
 			    Set <String>resultSet = new LinkedHashSet<>(list);
@@ -235,10 +320,16 @@ public class TextUtils extends CommonUtils {
 				annotationsList.add(annoURLMap.get(xywhKey));
 				resources.add(createResource(id, partQuery, isW3c, xywhKey,annoURLMap.get(xywhKey))); 
 			    }
-			    setHits(isW3c, hitMap, annotationsList,query, beforeAfter);
-			    LOG.info("Hit:" +hitMap.toString());
+			    if(null != beforeAfter){
+				setHits(isW3c, hitMap, annotationsList,query, beforeAfter);
+			    } 
+			//}
+			
+			
+			LOG.info("Hit:" +hitMap.toString());
+			if(!hitMap.isEmpty()){
+			    hitList.add(hitMap);
 			}
-			hitList.add(hitMap);
 		    }
 		    count++;
 		}
@@ -280,6 +371,7 @@ public class TextUtils extends CommonUtils {
     
    
   
+  
     /**
      * Method to populate the positionMap,(key is the image id {@code String} and value is a list of {@code Position} objects) and create a 
      * json payload to send to the text server (Starsky).
@@ -306,87 +398,16 @@ public class TextUtils extends CommonUtils {
      * @return {@code List} - representing the json payload to send to Starsky. 
      * 
      */
-    public List<Map<String, Object>> createImages(Map<String, List<TermWithTermOffsets>> termWithOffsetsMap,
-	    String width, String height, Map<String, Map<String, String>> offsetPositionMap) {
+    public ImageHelperObject createImages(Map<String, List<TermWithTermOffsets>> termWithOffsetsMap,
+	    String width, String height, Map<String, Map<String, String>> offsetPositionMap, Map<String,PageOverlapDetails> canvasOverlapDetailMap) {
 
+	
+	ImageHelperObject imageHelper = new ImageHelperObject();
 	List<Map<String, Object>> realRoot = new ArrayList<>();
-
-	Map<String, List<Positions>> imagePositionsMap = new HashMap<>();
-
-	Set<String> keySet = termWithOffsetsMap.keySet();
-	for (String imageId : keySet) {
-	    Map<String, Object> root = new HashMap<>();
-	    List<TermWithTermOffsets> termWithOffsetsList = termWithOffsetsMap.get(imageId);
-
-	    List<Object> positions = new ArrayList<>();
-
-	    Map<String, String> startMap = offsetPositionMap.get(imageId);
-
-	    List<Positions> positionsList = new ArrayList<>();
-
-	    if (termWithOffsetsList.size() == 1) {
-		List<TermOffsetsWithPosition> offsets = termWithOffsetsList.get(0).getOffsets();
-		for (TermOffsetsWithPosition offset : offsets) {
-		    positions.add(offset.getStart());
-		    Positions positionObject = new Positions(offset.getPosition(), offset.getPosition());
-		    positionsList.add(positionObject);
-		}
-
-	    } else {
-		positions = sortPositionsForMultiwordPhrase(termWithOffsetsList, startMap, positionsList);
-
-	    }
-	    imagePositionsMap.put(imageId, positionsList);
-
-	    root.put("imageURI", imageId);
-	    root.put("positions", positions);
-	    if(!StringUtils.isEmpty(width)){
-		root.put("width", width);
-	    }
-	    if(!StringUtils.isEmpty(height)){
-		root.put("height", height);
-	    }
-
-	    realRoot.add(root);
-	}
-
-	setPositionsMap(imagePositionsMap);
-
-	return realRoot;
-    }
-    
-    
-    /**
-     * Method to populate the positionMap,(key is the image id {@code String} and value is a list of {@code Position} objects) and create a 
-     * json payload to send to the text server (Starsky).
-     * This is of the form:
-     *<pre>
-     * 
-     * {@code
-     *{
-     *    'images': [
-     *    {
-     *	    'imageURI' : <uri>,
-     *	    'positions' : [ [25, 31], 100,110], // list of integers or integer arrays * representing ordinal character positions within text for image
-     *	    'width' : 1024, // height and width of image to be presented
-     *	    'height' : 768 // text server scales from stored boxes
-     *    } 
-     *  ]
-     *}
-     *}
-     *</pre>
-     * @param termWithOffsetsMap {@code Map} containing image ids as keys and a List of their {@code TermWithTermOffsets} as values.
-     * @param width {@code String} The width to scale the coordinates from Starsky.
-     * @param height {@code String}  The height to scale the coordinates from Starsky.
-     * @param offsetPositionMap {@code Map} containing {@code String}  keys with image id and a {@code Map}
-     * @return {@code List} - representing the json payload to send to Starsky. 
-     * 
-     */
-    public List<Map<String, Object>> createImages(Map<String, List<TermWithTermOffsets>> termWithOffsetsMap,
-	    String width, String height, Map<String, Map<String, String>> offsetPositionMap, Map<String,String> canvasImageMap) {
-
-	List<Map<String, Object>> realRoot = new ArrayList<>();
-
+	
+	
+	List<Object> newPositions = null;
+	PositionListObjects newPositionsList = null;
 	Map<String, List<Positions>> imagePositionsMap = new HashMap<>();
 
 	Set<String> keySet = termWithOffsetsMap.keySet();
@@ -395,10 +416,13 @@ public class TextUtils extends CommonUtils {
 	    List<TermWithTermOffsets> termWithOffsetsList = termWithOffsetsMap.get(canvasId);
 
 	    List<Object> positions = new ArrayList<>();
-
+	    //PositionListObjects newPositionsList;
+	    
 	    Map<String, String> startMap = offsetPositionMap.get(canvasId);
 
 	    List<Positions> positionsList = new ArrayList<>();
+	    
+	    String imageURL = canvasOverlapDetailMap.get(canvasId).getImageId();
 
 	    if (termWithOffsetsList.size() == 1) {
 		List<TermOffsetsWithPosition> offsets = termWithOffsetsList.get(0).getOffsets();
@@ -409,11 +433,32 @@ public class TextUtils extends CommonUtils {
 		}
 
 	    } else {
+		
 		positions = sortPositionsForMultiwordPhrase(termWithOffsetsList, startMap, positionsList);
-
+		newPositionsList = sortMultiTermPosition(positions, canvasOverlapDetailMap.get(canvasId), positionsList);
+		newPositions = newPositionsList.getNewPositions();
+		
+		//only add the new image if we cross a page boundary
+		/*if(! newPositions.isEmpty()){
+        		Map<String, Object> newRoot = new HashMap<>();
+        		newRoot.put("imageURI", canvasOverlapDetailMap.get(canvasId).getNextImageId());
+        		newRoot.put("positions", newPositions);
+        		 if(!StringUtils.isEmpty(width)){
+        		     newRoot.put("width", width);
+        		 }
+        		 if(!StringUtils.isEmpty(height)){
+        		     newRoot.put("height", height);
+        		 }
+        		 realRoot.add(newRoot);
+        		 imagePositionsMap.put(canvasOverlapDetailMap.get(canvasId).getNextCanvasId(), newPositionsList.getPositionsList());
+        		 Map<String,String> crossPageImageMap = new HashMap<>();
+        		 crossPageImageMap.put(imageURL, canvasOverlapDetailMap.get(canvasId).getNextImageId());
+        		 crossPageImageMap.put(canvasId, canvasOverlapDetailMap.get(canvasId).getNextCanvasId());
+        		 imageHelper.setCrossPageImageMap(crossPageImageMap);
+		}*/
 	    }
 	    
-	    String imageURL = canvasImageMap.get(canvasId);
+	    
 	    
 	    imagePositionsMap.put(canvasId, positionsList);
 	   
@@ -427,11 +472,80 @@ public class TextUtils extends CommonUtils {
 	    }
 
 	    realRoot.add(root);
+	    
+	  //only add the new image if we cross a page boundary
+	  		if(null != newPositions && ! newPositions.isEmpty()){
+	          		Map<String, Object> newRoot = new HashMap<>();
+	          		newRoot.put("imageURI", canvasOverlapDetailMap.get(canvasId).getNextImageId());
+	          		newRoot.put("positions", newPositions);
+	          		 if(!StringUtils.isEmpty(width)){
+	          		     newRoot.put("width", width);
+	          		 }
+	          		 if(!StringUtils.isEmpty(height)){
+	          		     newRoot.put("height", height);
+	          		 }
+	          		 realRoot.add(newRoot);
+	          		 imagePositionsMap.put(canvasOverlapDetailMap.get(canvasId).getNextCanvasId(), newPositionsList.getPositionsList());
+	          		 Map<String,String> crossPageImageMap = new HashMap<>();
+	          		 crossPageImageMap.put(imageURL, canvasOverlapDetailMap.get(canvasId).getNextImageId());
+	          		 crossPageImageMap.put(canvasId, canvasOverlapDetailMap.get(canvasId).getNextCanvasId());
+	          		 imageHelper.setCrossPageImageMap(crossPageImageMap);
+	  		}
+	    
+	
 	}
-
-	setPositionsMap(imagePositionsMap);
-
-	return realRoot;
+	imageHelper.setPositionsMap(imagePositionsMap);
+	imageHelper.setImageJson(realRoot);
+	return imageHelper;
+    }
+    
+    
+    
+    
+    public PositionListObjects  sortMultiTermPosition(List<Object> positions, PageOverlapDetails overlapDetails,List<Positions> positionsList ){
+	
+	PositionListObjects positionListObjects = new PositionListObjects();
+	Iterator<Object> iter = positions.iterator();
+	String imageId = overlapDetails.getNextImageId();
+	int lastPositionOfCurrent = overlapDetails.getEndPositionOfCurrentText();
+	List<Object> newPositions = new ArrayList<>();
+	List<Object> newPositionsOuter = new ArrayList<>();
+	List<Positions> newPositionsList = new ArrayList<>();
+	int count = 0;
+	while(iter.hasNext()){
+	    List <String>position   = (List) iter.next();
+	    Positions listPosition =  positionsList.get(count);
+	    Iterator<String> positionIter = position.iterator();
+	    int positionCount = 0;
+	    while(positionIter.hasNext()){
+		String testPosition = positionIter.next();
+		int testInt = Integer.parseInt(testPosition);
+		//we disregard this hit if the phrase starts in the next page
+		if(positionCount == 0 && testInt > lastPositionOfCurrent){
+		    break;
+		}
+		if(testInt > lastPositionOfCurrent){
+		    positionIter.remove();
+		    LOG.info(" remove testPosition:" + testPosition);
+		    newPositions.add((testInt - lastPositionOfCurrent - 1 )+ "");
+		}
+		positionCount++;
+		
+	    }
+	    if(newPositions.size() > 0){
+		Positions newPosition = new Positions(0,newPositions.size()-1);
+		newPositionsOuter.add(newPositions);
+		newPositionsList.add(newPosition);
+		LOG.info(" newPositionsList:" + newPositionsList);
+	    }
+	    count++;
+	}
+	
+	positionListObjects.setNewPositions(newPositionsOuter);
+	positionListObjects.setPositionsList(newPositionsList);
+	LOG.info("sortMultiTermPosition newPositions " + newPositionsOuter);
+	LOG.info("sortMultiTermPosition positionsList " + newPositionsList);
+	return positionListObjects;
     }
     
     
@@ -508,41 +622,48 @@ public class TextUtils extends CommonUtils {
 	return intList;
     }
     
-    
     /**
-     * This method populates the List of Positions which is the start and end positions of the searched for query.
-     * @param termWithOffsetsList {@code List} of {@code TermWithTermOffsets} containing only the matched terms and a {@code List} of all their positions and offsets. 
-     * @param offsetPositionMap {@code Map} of the start and end positions of our matched query.
-     * @param positionsList {@code List} of the start and end positions of each matched query.
+     * This method populates the List of Positions which is the start and end
+     * positions of the searched for query.
+     * 
+     * @param termWithOffsetsList
+     *            {@code List} of {@code TermWithTermOffsets} containing only
+     *            the matched terms and a {@code List} of all their positions
+     *            and offsets.
+     * @param offsetPositionMap
+     *            {@code Map} of the start and end positions of our matched
+     *            query.
+     * @param positionsList
+     *            {@code List} of the start and end positions of each matched
+     *            query.
      * @return {@code List} of the positions for a multiword phrase.
      */
-    public List<Object> sortPositionsForMultiwordPhrase( List<TermWithTermOffsets> termWithOffsetsList,
-	    Map <String,String> offsetPositionMap ,
-	    List <Positions>positionsList) {
+    public List<Object> sortPositionsForMultiwordPhrase(List<TermWithTermOffsets> termWithOffsetsList,
+	    Map<String, String> offsetPositionMap, List<Positions> positionsList) {
 
-	 List<String>  stringSets = workThoughOffsets(termWithOffsetsList);
-	 
-	 List <String>templist;
-	 List<Object> position = new ArrayList<>();
-	 for(String item:stringSets){
-	     templist = new ArrayList<>();
-	     String[] stringArray = item.split("[|]");
-	     for(String numberInArray:stringArray){
-		 templist.add(numberInArray); 
-	     }
-	     
-	     int start = Integer.parseInt(offsetPositionMap.get(templist.get(0)));
-	     int end =  Integer.parseInt(offsetPositionMap.get(templist.get(templist.size() - 1))); 
+	List<String> stringSets = workThoughOffsets(termWithOffsetsList);
 
-	     positionsList.add(new Positions(start, end));
-	     
-	     position.add(templist);
-    
-	 }
-	 LOG.info("sortPositionsForMultiwordPhrase position "+ position);
-	 return position;
+	List<String> templist;
+	List<Object> position = new ArrayList<>();
+	for (String item : stringSets) {
+	    templist = new ArrayList<>();
+	    String[] stringArray = item.split("[|]");
+	    for (String numberInArray : stringArray) {
+		templist.add(numberInArray);
+	    }
+
+	    int start = Integer.parseInt(offsetPositionMap.get(templist.get(0)));
+	    int end = Integer.parseInt(offsetPositionMap.get(templist.get(templist.size() - 1)));
+
+	    positionsList.add(new Positions(start, end));
+	   
+	    position.add(templist);
+
+	}
+	LOG.info("sortPositionsForMultiwordPhrase positionsList " + positionsList);
+	LOG.info("sortPositionsForMultiwordPhrase position " + position);
+	return position;
     }
-    
     
     
     /**
@@ -619,6 +740,20 @@ public class TextUtils extends CommonUtils {
 	
 	query = query + "/searchResult"+searchResultRandom+xywh;
 	return query;
+    }
+    
+    
+    public void amendStartsAndEndsPositions(String text, int startText, int endText){
+	
+	String endPreviousText = text.substring(0, startText-1);
+	String currrentText = text.substring(startText, endText);
+	String startNextText = text.substring(endText+1, text.length());
+	LOG.info("["+text+"]");
+	LOG.info("["+currrentText+"]");
+	LOG.info("["+endPreviousText+"]");
+	LOG.info("["+startNextText+"]");
+	
+	
     }
     
     

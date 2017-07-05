@@ -52,7 +52,7 @@ public class GetPayloadServiceImplTest {
 	assertNotEquals(returnedPayload, "");
 	
 	//url = "http://starsky.dlcs-ida.org/coordsimage/0/"; 
-	//url = "http://starsky.dlcs-ida.org/coordsimage/0/"; 
+	
 	url = "http://www.google.com"; 
 	Map<String, Object> root = new HashMap<>();
 	
@@ -76,6 +76,29 @@ public class GetPayloadServiceImplTest {
 	
 	returnedPayload = getPayloadServiceImpl.getJsonPayload(url, payload);
 	LOG.info(returnedPayload);
+	
+	//url = "http://starsky.dlcs-ida.org/coordsimage/0/"; 
+	url = "http://starsky.dlcs-ida.org/coords/";
+	
+	imageRoot.put("imageURI", "https://dlcs.io/iiif-img/wellcome/1/3d134dfb-8e62-4ee1-8034-86d28e253e43");
+	positions.add(3);
+	Map<String, Object> imageRoot2 = new HashMap<>();
+	images.add(imageRoot2);
+	imageRoot2.put("imageURI", "https://dlcs.io/iiif-img/wellcome/1/9b955204-adc4-417f-b340-0ad9bea63ff6");
+	List <Object> positions2 = new ArrayList<>();
+	positions2.add(278);
+	imageRoot2.put("positions", positions2);
+	imageRoot2.put("width", 1024);
+	imageRoot2.put("height", 768);
+	
+	payload = new Gson().toJson(root);
+	
+	
+	
+	returnedPayload = getPayloadServiceImpl.getJsonPayload(url, payload);
+	LOG.info(returnedPayload);
+	
+	
     }
 
 }
