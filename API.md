@@ -293,6 +293,10 @@ At present we do not allow searching that spans image boundaries, as we do not i
 
 ## Autocomplete Request:
 
+### Intro:
+
+Autocomplete makes use of Elasticsearch [Completion](https://www.elastic.co/guide/en/elasticsearch/reference/5.4/search-suggesters-completion.html) and [Context](https://www.elastic.co/guide/en/elasticsearch/reference/5.4/suggester-context.html) Suggesters.  These are implemented when indexing. We take all the values (parsed by spaces) of the data in an annotation an add this to the documents suggest input field as lowercase String array. For plaintext we add the space separated terms in the plaintext field as input. We use the [Context](https://www.elastic.co/guide/en/elasticsearch/reference/5.4/suggester-context.html) Suggester to hold information on the manifest(s).
+
 ### Parameters:
 
 The following query parameters inline with the http://iiif.io/api/search/1.0/#query-parameters-1 have been implemented:
