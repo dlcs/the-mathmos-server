@@ -9,17 +9,24 @@ The Mathmos is a Web Search Service compliant with the [IIIF Content Search API]
 ```
 Java 8+
 ```
+```
 Apache Tomcat 8+
 ```
-Elasticsearch 2.4.1
-``` 
+
+```
+Elasticsearch 5.4.0
+```
+```
+Springdata for Elasticsearch 3.0.0.M4
+```
+
 The Mathmos Server and its dependencies are written in pure Java, and is designed to work with Elasticsearch.
 
 ### Building
 The Mathmos Server has a dependency that must be built first:
 * [the-mathmos-parent](the-mathmos-parent/)
-	  * Parent Maven project that defines dependency library version numbers and common dependencies 
-Each dependency and the Mathmos Server itself can be built using Maven:
+    * Parent Maven project that defines dependency library version numbers and common dependencies 
+      Each dependency and the Mathmos Server itself can be built using Maven:
 ```
 mvn clean package install -U
   
