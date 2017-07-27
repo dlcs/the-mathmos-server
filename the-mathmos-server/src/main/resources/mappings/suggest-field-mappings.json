@@ -7,5 +7,5 @@
     "analyzer": "simple",
     "preserve_separators": true,
     "preserve_position_increments": true,
-    "max_input_length": 50
+    "max_input_length": 100
 }
