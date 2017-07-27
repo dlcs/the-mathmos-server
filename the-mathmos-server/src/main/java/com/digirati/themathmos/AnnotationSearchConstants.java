@@ -22,6 +22,8 @@ public class AnnotationSearchConstants {
     
     public static final String PAINTING_MOTIVATION = "painting";
     
+    public static final String NON_PAINTING_MOTIVATION = "non-painting";
+    
     public static final String EMPTY_QUERY_MESSAGE = "Please enter either a query, motivation, date or user to search";
     
     public static final String EMPTY_AUTOCOMPLETE_QUERY_MESSAGE = "Please enter a query to search";

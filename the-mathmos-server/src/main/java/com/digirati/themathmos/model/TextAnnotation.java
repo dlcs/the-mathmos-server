@@ -6,13 +6,12 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.elasticsearch.annotations.CompletionField;
 import org.springframework.data.elasticsearch.annotations.Document;
 import org.springframework.data.elasticsearch.annotations.Field;
-import org.springframework.data.elasticsearch.annotations.FieldIndex;
 import org.springframework.data.elasticsearch.annotations.FieldType;
+import org.springframework.data.elasticsearch.annotations.Mapping;
 
 
 
-
-@Document( indexName="text_index", type="text")
+@Document( indexName="text_index", type="plaintext")
 public class TextAnnotation {
     
 
@@ -20,24 +19,27 @@ public class TextAnnotation {
 	@Id
     	private String id;
 	
+	@Field( type = FieldType.keyword, index = false)
 	private String imageId;
 	
-	@Field(type = FieldType.String, analyzer = "whitespace")
+	@Field( type = FieldType.keyword)
 	private List<String> manifestId;
     	
-	private String text;
+	@Mapping(mappingPath = "/mappings/text-field-mappings.json")	
+	private String plaintext;
 	
-	@CompletionField (payloads = false)
+	@CompletionField 
+	@Mapping(mappingPath = "/mappings/suggest-field-mappings.json")
     	private ContextCompletion suggest;	
 
-	@Field( type = FieldType.String, index = FieldIndex.no)
+	@Field( type = FieldType.keyword, index = false)
 	private String nextImageId;	
 	
-	@Field( type = FieldType.String, index = FieldIndex.no)
+	@Field( type = FieldType.keyword, index = false)
 	private String nextCanvasId;
 	
 	
-	@Field( type = FieldType.Integer, index = FieldIndex.no)
+	@Field( type = FieldType.Integer, index = false)
 	private int endPositionOfCurrentText;
     	
 
@@ -58,12 +60,12 @@ public class TextAnnotation {
 	    this.imageId = imageId;
 	}
 
-	public String getText() {
-	    return text;
+	public String getPlaintext() {
+	    return plaintext;
 	}
 
-	public void setText(String text) {
-	    this.text = text;
+	public void setPlaintext(String plaintext) {
+	    this.plaintext = plaintext;
 	}
 	
 	
@@ -86,9 +88,10 @@ public class TextAnnotation {
 
 	@Override
 	public String toString() {
-		return "Text [(" + getId() + "),(" + getImageId() + "),(" + getText() + "),(" + getManifestId() + "),(" + getSuggest().getInput() + ")"+
+		return "Plaintext [(" + getId() + "),(" + getImageId() + "),(" + getPlaintext() + "),(" + getManifestId() + "),(" + getSuggest().getInput() + ")"+
 	",(nextCanvasId: " + this.getNextCanvasId()+ ")"+
-	",(nextImageId: " + this.getNextImageId()+ "), (endPositionOfCurrentText: " + this.getEndPositionOfCurrentText()+ "]";
+	",(nextImageId: " + this.getNextImageId()+ "), (endPositionOfCurrentText: " + this.getEndPositionOfCurrentText()+ "]"+
+	"getSuggest:" + getSuggest();
 		
 	}
 

@@ -6,18 +6,20 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.elasticsearch.annotations.CompletionField;
 import org.springframework.data.elasticsearch.annotations.Document;
 import org.springframework.data.elasticsearch.annotations.Field;
-import org.springframework.data.elasticsearch.annotations.FieldIndex;
 import org.springframework.data.elasticsearch.annotations.FieldType;
+import org.springframework.data.elasticsearch.annotations.Mapping;
+
+
 
 
 
 @Document( indexName="w3cannotation", type="annotations")
 public class W3CSearchAnnotation {
     
-
     @Id
 	private String id;
 	
+	@Field(type = FieldType.text)
 	private List<String> motivations;
 	
 	@Field( type = FieldType.Date)
@@ -29,36 +31,41 @@ public class W3CSearchAnnotation {
 	@Field( type = FieldType.Date)
 	private List<String> modified;
 	
-	@Field(type = FieldType.String, analyzer = "whitespace")
+	@Field(type = FieldType.text, analyzer = "whitespace")
 	private List<String> creators;
 	
+	@Field(type = FieldType.text)
 	private List<String> generator;
 	
+	@Field(type = FieldType.text)
 	private List <String> target;
 	
+	@Field(type = FieldType.text)
 	private List <String> body;
 	
-	@Field(type = FieldType.String, analyzer = "whitespace")
+	@Field(type = FieldType.text, analyzer = "whitespace")
 	private List <String> targetURI;
 	
-	@Field(type = FieldType.String, analyzer = "whitespace")
+	@Field(type = FieldType.text, analyzer = "whitespace")
 	private List <String> uri;
 	
-	@Field(type = FieldType.String, analyzer = "whitespace")
+	@Field(type = FieldType.text, analyzer = "whitespace")
 	private List <String> bodyURI;
 	
+	@Field(type = FieldType.text)
 	private List <String> xywh;
 	
-	@Field( type = FieldType.String, index = FieldIndex.no)
+	@Field( type = FieldType.text, index = false)
 	private String w3cJsonLd;
 	
-	@Field( type = FieldType.String, index = FieldIndex.no)
+	@Field( type = FieldType.text, index = false)
 	private String oaJsonLd;
 	
-	@Field(type = FieldType.String, analyzer = "whitespace")
+	@Field(type = FieldType.text, analyzer = "whitespace")
 	private List<String> manifest;
 	
-	@CompletionField (payloads = false)
+	@CompletionField
+	@Mapping(mappingPath = "/mappings/suggest-field-mappings.json")
 	private ContextCompletion suggest;
 
 
@@ -205,6 +212,5 @@ public class W3CSearchAnnotation {
 	public void setXywh(List <String> xywh) {
 	    this.xywh = xywh;
 	}
-	
-
 }
+

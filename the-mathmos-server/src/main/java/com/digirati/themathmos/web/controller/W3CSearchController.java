@@ -100,7 +100,7 @@ public class W3CSearchController {
 	}else{
 	    if(AnnotationSearchConstants.PAINTING_MOTIVATION.equals(motivation)){
 		serviceResponse = textSearchService.getTextPositions(query, queryString, true, page, false, null, widthHeight);
-	    }else if(motivation.indexOf(AnnotationSearchConstants.PAINTING_MOTIVATION) < 0){		
+	    }else if(motivation.indexOf(AnnotationSearchConstants.PAINTING_MOTIVATION) < 0 || motivation.indexOf(AnnotationSearchConstants.NON_PAINTING_MOTIVATION) >= 0){		
 		serviceResponse = w3cAnnotationSearchService.getAnnotationPage(new Parameters(query, motivation, date, user), queryString, page, null, type); 
 	    }else{
 		serviceResponse = w3cSearchService.getAnnotationPage(query, queryString, page, null, type, widthHeight);
@@ -153,7 +153,7 @@ public class W3CSearchController {
 	}else{
 	    if(AnnotationSearchConstants.PAINTING_MOTIVATION.equals(motivation)){
 		serviceResponse = textSearchService.getTextPositions(query, queryString, true, page, false, within, widthHeight);
-	    }else if(motivation.indexOf(AnnotationSearchConstants.PAINTING_MOTIVATION) < 0){		
+	    }else if(motivation.indexOf(AnnotationSearchConstants.PAINTING_MOTIVATION) < 0 || motivation.indexOf(AnnotationSearchConstants.NON_PAINTING_MOTIVATION) >= 0){		
 		serviceResponse = w3cAnnotationSearchService.getAnnotationPage(new Parameters(query, motivation, date, user), queryString, page, within, type); 
 	    }else{
 		serviceResponse = w3cSearchService.getAnnotationPage(query, queryString, page, within, type, widthHeight);
@@ -198,7 +198,7 @@ public class W3CSearchController {
 	}else{
 	    if(AnnotationSearchConstants.PAINTING_MOTIVATION.equals(motivation)){
 		serviceResponse = annotationAutocompleteService.getTerms(query, min, queryString, true, null);
-	    }else if(motivation.indexOf(AnnotationSearchConstants.PAINTING_MOTIVATION) < 0){		
+	    }else if(motivation.indexOf(AnnotationSearchConstants.PAINTING_MOTIVATION) < 0 || motivation.indexOf(AnnotationSearchConstants.NON_PAINTING_MOTIVATION) >= 0){		
 		serviceResponse = annotationAutocompleteService.getTerms(query, motivation, date, user, min, queryString, true, null);
 	    }else{
 		serviceResponse = annotationAutocompleteService.getMixedTerms(query, min, queryString, true, null);
@@ -241,7 +241,7 @@ public class W3CSearchController {
 	}else{
 	    if(AnnotationSearchConstants.PAINTING_MOTIVATION.equals(motivation)){
 		serviceResponse = annotationAutocompleteService.getTerms(query, min, queryString, true, within);
-	    }else if(motivation.indexOf(AnnotationSearchConstants.PAINTING_MOTIVATION) < 0){		
+	    }else if(motivation.indexOf(AnnotationSearchConstants.PAINTING_MOTIVATION) < 0 || motivation.indexOf(AnnotationSearchConstants.NON_PAINTING_MOTIVATION) >= 0){		
 		serviceResponse = annotationAutocompleteService.getTerms(query, motivation, date, user, min, queryString, true, within);
 	    }else{
 		serviceResponse = annotationAutocompleteService.getMixedTerms(query, min, queryString, true, within);

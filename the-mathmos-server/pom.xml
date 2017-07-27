@@ -2,14 +2,14 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<artifactId>the-mathmos-server</artifactId>
-	<version>1.0.14</version>
+	<version>1.0.15-SNAPSHOT</version>
 	<packaging>war</packaging>
 	<name>The Mathmos Server</name>
 
 	<parent>
 		<groupId>com.digirati.themathmos</groupId>
 		<artifactId>the-mathmos-parent</artifactId>
-		<version>1.0.0</version>
+		<version>1.0.1</version>
 	</parent>
 
 	<properties>
@@ -83,7 +83,12 @@
 	</build>
 
 	<dependencies>
-
+	<!-- https://mvnrepository.com/artifact/com.google.guava/guava -->
+<dependency>
+    <groupId>com.google.guava</groupId>
+    <artifactId>guava</artifactId>
+    <version>r05</version>
+</dependency>
 		<!-- JSON-LD Dependencies -->
 		<dependency>
 			<groupId>com.github.jsonld-java</groupId>
@@ -94,6 +99,11 @@
 		<dependency>
 			<groupId>com.fasterxml.jackson.core</groupId>
 			<artifactId>jackson-databind</artifactId>
+			<version>${jackson-version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.fasterxml.jackson.core</groupId>
+			<artifactId>jackson-core</artifactId>
 			<version>${jackson-version}</version>
 		</dependency>
 		<!-- Gson: Java to Json conversion -->
@@ -156,7 +166,13 @@
 			<groupId>org.springframework.data</groupId>
 			<artifactId>spring-data-elasticsearch</artifactId>
 			<version>${spring-data-elasticsearch-version}</version>
-		</dependency>		
+			<exclusions>
+				<exclusion>
+					<artifactId>log4j-over-slf4j</artifactId>
+					<groupId>org.slf4j</groupId>
+				</exclusion>
+			</exclusions>
+		</dependency>	
 		<!-- Ehcache Dependencies -->
 		<dependency>
 			<groupId>net.sf.ehcache</groupId>
@@ -186,6 +202,23 @@
 			<artifactId>log4j</artifactId>
 			<version>${log4j-version}</version>
 		</dependency>
+		
+		<!-- https://mvnrepository.com/artifact/org.apache.logging.log4j/log4j-api -->
+		<dependency>
+		    <groupId>org.apache.logging.log4j</groupId>
+		    <artifactId>log4j-api</artifactId>
+		    <version>${log4j2-version}</version>
+		</dependency>
+		<dependency>
+		    <groupId>org.apache.logging.log4j</groupId>
+		    <artifactId>log4j-core</artifactId>
+		    <version>${log4j2-version}</version>
+  		</dependency>
+  		<dependency>
+		    <groupId>org.apache.logging.log4j</groupId>
+		    <artifactId>log4j-web</artifactId>
+		    <version>${log4j2-version}</version>
+  		</dependency>
 
 		<!-- ELASTICSEARCH DEPENDENCIES -->
 		<dependency>
@@ -193,7 +226,11 @@
 			<artifactId>elasticsearch</artifactId>
 			<version>${elasticsearch-version}</version>
 		</dependency>
-
+		<dependency>
+    		<groupId>org.elasticsearch.client</groupId>
+    		<artifactId>transport</artifactId>
+    		<version>${elasticsearch-version}</version>
+		</dependency>
 
 		<!-- Testing Dependencies -->
 		<dependency>
@@ -244,19 +281,13 @@
 			<scope>test</scope>
 		</dependency>
 
-		<dependency>
-			<groupId>org.apache.lucene</groupId>
-			<artifactId>lucene-test-framework</artifactId>
-			<version>5.5.2</version>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.elasticsearch</groupId>
-			<artifactId>elasticsearch</artifactId>
-			<version>2.4.1</version>
-			<scope>test</scope>
-			<type>test-jar</type>
-		</dependency>
+		<!-- https://mvnrepository.com/artifact/org.apache.lucene/lucene-test-framework -->
+<dependency>
+    <groupId>org.apache.lucene</groupId>
+    <artifactId>lucene-test-framework</artifactId>
+    <version>6.6.0</version>
+    <scope>test</scope>
+</dependency>
 
 	</dependencies>
 

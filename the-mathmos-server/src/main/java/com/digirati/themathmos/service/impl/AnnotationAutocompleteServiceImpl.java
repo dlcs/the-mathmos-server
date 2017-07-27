@@ -3,17 +3,23 @@ package com.digirati.themathmos.service.impl;
 
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-
+import java.util.Set;
+import java.util.TreeSet;
 
 import org.apache.log4j.Logger;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.Client;
+import org.elasticsearch.common.xcontent.ToXContent;
+import org.elasticsearch.search.suggest.SuggestBuilder;
+import org.elasticsearch.search.suggest.SuggestBuilders;
 import org.elasticsearch.search.suggest.completion.CompletionSuggestion;
 import org.elasticsearch.search.suggest.completion.CompletionSuggestionBuilder;
+import org.elasticsearch.search.suggest.completion.context.CategoryQueryContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.elasticsearch.core.ElasticsearchTemplate;
@@ -123,19 +129,21 @@ public class AnnotationAutocompleteServiceImpl implements AnnotationAutocomplete
     }
    
     public List<SuggestOption> findSuggestionsFor(String suggestRequest, String index, String within) {
-	CompletionSuggestionBuilder completionSuggestionBuilder = new CompletionSuggestionBuilder("annotation_suggest");
+	CompletionSuggestionBuilder completionSuggestionBuilder = 
+		SuggestBuilders.completionSuggestion("suggest").prefix(suggestRequest).size(AnnotationSearchConstants.MAX_NUMBER_OF_HITS_RETURNED);
 
-	completionSuggestionBuilder.text(suggestRequest);
-	completionSuggestionBuilder.field("suggest");
 	String decodedWithinUrl = null;
 	if (null != within && TEXT_INDEX.equals(index)) {
 	    decodedWithinUrl = annotationUtils.decodeWithinUrl(within);
 	    if(null  != decodedWithinUrl){
 		LOG.info("decodedWithinUrl :" + decodedWithinUrl);
-		completionSuggestionBuilder.addContextField(AnnotationSearchConstants.CONTEXT_MANIFEST_NAME, decodedWithinUrl);
+		
+		Map<String, List<? extends ToXContent>> contextsMap = new HashMap<>();
+		List<CategoryQueryContext> contexts = new ArrayList<>(1);
+		contexts.add(CategoryQueryContext.builder().setCategory(decodedWithinUrl).build());
+		contextsMap.put(AnnotationSearchConstants.CONTEXT_MANIFEST_NAME, contexts);
+		completionSuggestionBuilder.contexts(contextsMap);		
 	    }
-	}else if(null == within || W3C_INDEX.equals(index)){
-	    completionSuggestionBuilder.addContextField(AnnotationSearchConstants.CONTEXT_MANIFEST_NAME, "*");
 	}
 
 	completionSuggestionBuilder.size(AnnotationSearchConstants.MAX_NUMBER_OF_HITS_RETURNED);
@@ -147,8 +155,8 @@ public class AnnotationAutocompleteServiceImpl implements AnnotationAutocomplete
 	// client.prepareSearch(index);
 	SearchRequestBuilder searchRequestBuilder = client.prepareSearch(index);
 	
-
-	searchRequestBuilder.addSuggestion(completionSuggestionBuilder);
+	searchRequestBuilder.suggest(new  SuggestBuilder().addSuggestion("annotation_suggest", completionSuggestionBuilder));
+	//searchRequestBuilder.addSuggestion(completionSuggestionBuilder);
 	searchRequestBuilder.setSize(0);
 	searchRequestBuilder.setFetchSource(false);
 
@@ -177,6 +185,7 @@ public class AnnotationAutocompleteServiceImpl implements AnnotationAutocomplete
 	CompletionSuggestion compSuggestion = searchResponse.getSuggest().getSuggestion("annotation_suggest");
 
 	List<SuggestOption> options = new ArrayList<>();
+	Set <String>suggestOptionSet = new TreeSet<>();
 	if(null != compSuggestion){
         	List<CompletionSuggestion.Entry> entryList = compSuggestion.getEntries();
         
@@ -187,15 +196,22 @@ public class AnnotationAutocompleteServiceImpl implements AnnotationAutocomplete
         		Iterator<? extends CompletionSuggestion.Entry.Option> iter = csEntryOptions.iterator();
         		while (iter.hasNext()) {
         		    CompletionSuggestion.Entry.Option next = iter.next();
-        		    SuggestOption option = new SuggestOption(next.getText().string());
-        
-        		    options.add(option);
-        		    LOG.info("option " + option.getText());
+        		    //SuggestOption option = new SuggestOption(next.getText().string());
+        		    suggestOptionSet.add(next.getText().string());
+        		    //options.add(option);
+        		    
         		}
         	    }
         	}
 	}
 
+	if(null != suggestOptionSet){
+	    for(String setOption:suggestOptionSet){
+		SuggestOption option = new SuggestOption(setOption);
+		options.add(option);
+		LOG.info("option " + option.getText());
+	    }
+	}
 	return options;
     }
     

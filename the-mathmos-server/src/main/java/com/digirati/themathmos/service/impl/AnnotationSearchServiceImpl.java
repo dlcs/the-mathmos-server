@@ -202,7 +202,8 @@ public class AnnotationSearchServiceImpl {
     
     
     private Page<W3CSearchAnnotation> formQuery(QueryBuilder queryBuilder,int pageNumber, int pagingSize, String within){
-   	Pageable pageable  = new PageRequest(pageNumber, pagingSize);
+	//Pageable pageable  = new PageRequest(pageNumber, pagingSize);
+   	Pageable pageable  = PageRequest.of(pageNumber, pagingSize);
    	
    	W3CSearchAnnotationMapper resultsMapper = new W3CSearchAnnotationMapper();
 
@@ -221,7 +222,7 @@ public class AnnotationSearchServiceImpl {
    	    Map <String, Object> map = annotationUtils.getQueryMap(searchRequestBuilder.toString());
    	    if(null != decodedWithinUrl && null != map){
    		map = annotationUtils.setSource(map,decodedWithinUrl, W3C_INDEX, pagingSize);
-   		searchRequestBuilderReal.setSource(map);
+   		//searchRequestBuilderReal.setSource(map);
    	    }else{
    	   	LOG.error("Unable to find match to within");
    	    }
@@ -235,7 +236,10 @@ public class AnnotationSearchServiceImpl {
    	SearchResponse response = searchRequestBuilderReal.execute()
    		.actionGet();
    	
-   	totalHits = response.getHits().totalHits();
+   	
+   	//totalHits = response.getHits().totalHits();
+   	totalHits = response.getHits().getTotalHits();
+   	
    	LOG.info("Total hits are: "+totalHits);
    	
    	return resultsMapper.mapResults(response, W3CSearchAnnotation.class, pageable);
@@ -288,11 +292,14 @@ public class AnnotationSearchServiceImpl {
 	List <QueryBuilder> queryList  = new ArrayList<>();
 	
 	BoolQueryBuilder must = QueryBuilders.boolQuery();	
+
 	
 	if(null != query){
 	    String tidyQuery = annotationUtils.convertSpecialCharacters(query);
+	    
+	    //String[] fieldList = new String[]{"body","target","bodyURI","targetURI"};
 	    if(null == type){
-		must = must.must(QueryBuilders.multiMatchQuery(tidyQuery, "body","target","bodyURI", "targetURI").type(Type.PHRASE)); 
+		must = must.must(QueryBuilders.multiMatchQuery(tidyQuery, "body","target","bodyURI","targetURI").type(Type.PHRASE)); 
 	    }
 	    if ("topic".equals(type)){
 		must = must.must(QueryBuilders.multiMatchQuery(tidyQuery, "bodyURI"));
@@ -300,21 +307,21 @@ public class AnnotationSearchServiceImpl {
 	}
 		
 	if(null != motivations){
-   
+	    List<String>motivationsList = annotationUtils.getListFromSpaceSeparatedTerms(motivations);
 	    if(motivations.contains("non-")){
 		
-		List<String>motivationsList = annotationUtils.getListFromSpaceSeparatedTerms(motivations);
+		
 		if(motivationsList.size() > 1){
 		    throw new SearchQueryException(
     			"You have a motivation that is a non-<motivation>, there can only be one motivation in this instance."); 
 		}else{		  
 		    String tidyMotivations = motivations.replaceAll("non-", "");
 		    queryList.add(QueryBuilders.existsQuery(AnnotationSearchConstants.FIELD_MOTIVATIONS));		    
-		    must = must.mustNot(QueryBuilders.queryStringQuery(tidyMotivations).field(AnnotationSearchConstants.FIELD_MOTIVATIONS));
-   
+	
+		  must.mustNot(QueryBuilders.termQuery(AnnotationSearchConstants.FIELD_MOTIVATIONS, tidyMotivations));
 		}
-	    }else{
-		queryList.add(QueryBuilders.queryStringQuery(motivations).field(AnnotationSearchConstants.FIELD_MOTIVATIONS));
+	    }else{		
+		must.filter(QueryBuilders.termsQuery(AnnotationSearchConstants.FIELD_MOTIVATIONS, motivationsList));		
 	    }
 	}
 
@@ -323,7 +330,9 @@ public class AnnotationSearchServiceImpl {
 	}
 
 	if(null != users){
-	    queryList.add(QueryBuilders.queryStringQuery(users).field("creators"));
+	    List<String>usersList = annotationUtils.getListFromSpaceSeparatedTerms(users);
+	    must.filter(QueryBuilders.termsQuery("creators", usersList));	
+	    //queryList.add(QueryBuilders.queryStringQuery(users).field("creators"));
 	}
    	
  

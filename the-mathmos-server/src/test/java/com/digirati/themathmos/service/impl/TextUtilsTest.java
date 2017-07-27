@@ -11,6 +11,7 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -19,16 +20,18 @@ import org.apache.log4j.Logger;
 import org.elasticsearch.common.io.stream.BytesStreamOutput;
 import org.elasticsearch.common.lucene.BytesRefs;
 import org.elasticsearch.common.text.Text;
+import org.elasticsearch.common.xcontent.ToXContent;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.common.xcontent.XContentFactory;
 import org.elasticsearch.common.xcontent.XContentParser;
-import org.elasticsearch.rest.action.admin.indices.analyze.RestAnalyzeAction.Fields;
+//import org.elasticsearch.rest.action.admin.indices.analyze.RestAnalyzeAction.Fields;
 import org.elasticsearch.search.suggest.Suggest;
 import org.elasticsearch.search.suggest.Suggest.Suggestion;
 import org.elasticsearch.search.suggest.Suggest.Suggestion.Entry;
 import org.elasticsearch.search.suggest.Suggest.Suggestion.Entry.Option;
 import org.elasticsearch.search.suggest.completion.CompletionSuggestion;
-import org.elasticsearch.transport.netty.ChannelBufferStreamInput;
+import org.elasticsearch.search.suggest.completion.context.CategoryQueryContext;
+//import org.elasticsearch.transport.netty.ChannelBufferStreamInput;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -36,6 +39,7 @@ import org.springframework.core.io.DefaultResourceLoader;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
 
+import com.digirati.themathmos.AnnotationSearchConstants;
 import com.digirati.themathmos.model.ImageHelperObject;
 import com.digirati.themathmos.model.Positions;
 import com.digirati.themathmos.model.TermOffsetStart;
@@ -282,8 +286,6 @@ public class TextUtilsTest {
 	Map<String,String> crossMap = null;
 	
 	Map<String,Object>  map = textUtils.createCoordinateAnnotation(query, coordinates2, true, imageHelper, termPositionMap, queryString, new PageParameters(), true, imageCanvasMap, crossMap);
-	//Map<String,Object>  map =textUtils.createCoordinateAnnotation(params,coordinates2, positionMap, termPositionMap , //10,
-	//	new PageParameters());
 	LOG.info(map.toString());
 	
     }
@@ -353,8 +355,11 @@ public class TextUtilsTest {
     @Test
     public void testThis(){
 	
-	
-	CompletionSuggestion.Entry.Option option = new CompletionSuggestion.Entry.Option(new Text("someText"), 1.3f, null);
+	Map<String, Set<CharSequence>> contextsMap = new HashMap<>();
+	Set<CharSequence> contexts = new HashSet<>(1);
+	contexts.add("test");
+	contextsMap.put("manifest", contexts);
+	CompletionSuggestion.Entry.Option option = new CompletionSuggestion.Entry.Option(0, new Text("someText"), 1.3f, contextsMap);
 	
         CompletionSuggestion.Entry entry = new CompletionSuggestion.Entry(new Text("bacon"), 0, 5);
         entry.addOption(option);

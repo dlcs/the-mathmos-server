@@ -6,10 +6,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 public class ContextCompletion {
 
     private String[] input;
-    private String output;
-    private Integer weight;
-    private Object payload;
-    private Object context;
+    private Object contexts;
 
     private ContextCompletion() {
 	// required by mapper to instantiate object
@@ -19,12 +16,12 @@ public class ContextCompletion {
 	this.input = input;
     }
 
-    public Object getContext() {
-	return context;
+    public Object getContexts() {
+	return contexts;
     }
 
-    public void setContext(Object context) {
-	this.context = context;
+    public void setContexts(Object contexts) {
+	this.contexts = contexts;
     }
 
     public String[] getInput() {
@@ -35,27 +32,5 @@ public class ContextCompletion {
 	this.input = input;
     }
 
-    public String getOutput() {
-	return output;
-    }
-
-    public void setOutput(String output) {
-	this.output = output;
-    }
-
-    public Object getPayload() {
-	return payload;
-    }
-
-    public void setPayload(Object payload) {
-	this.payload = payload;
-    }
-
-    public Integer getWeight() {
-	return weight;
-    }
-
-    public void setWeight(Integer weight) {
-	this.weight = weight;
-    }
+   
 }

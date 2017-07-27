@@ -1,6 +1,6 @@
 package com.digirati.themathmos.service.impl;
 
-import java.io.IOException;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -18,9 +18,7 @@ import org.elasticsearch.action.termvectors.MultiTermVectorsResponse;
 import org.elasticsearch.action.termvectors.TermVectorsRequest;
 
 import org.elasticsearch.client.Client;
-import org.elasticsearch.common.xcontent.ToXContent;
 import org.elasticsearch.common.xcontent.XContentBuilder;
-import org.elasticsearch.common.xcontent.XContentFactory;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
@@ -40,7 +38,6 @@ import com.digirati.themathmos.AnnotationSearchConstants;
 import com.digirati.themathmos.mapper.TextSearchAnnotationMapper;
 import com.digirati.themathmos.model.ImageHelperObject;
 import com.digirati.themathmos.model.Images;
-import com.digirati.themathmos.model.Image;
 import com.digirati.themathmos.model.PageOverlapDetails;
 import com.digirati.themathmos.model.Positions;
 import com.digirati.themathmos.model.ServiceResponse;
@@ -52,8 +49,6 @@ import com.digirati.themathmos.model.ServiceResponse.Status;
 import com.digirati.themathmos.model.annotation.page.PageParameters;
 import com.digirati.themathmos.service.GetPayloadService;
 import com.digirati.themathmos.service.TextSearchService;
-import com.fasterxml.jackson.core.JsonParseException;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
 import com.google.gson.internal.LinkedTreeMap;
@@ -73,8 +68,8 @@ public class TextSearchServiceImpl implements TextSearchService {
     private String coordinateServerUrl;
     private CacheManager cacheManager;
     
-    private static final String TEXT_FIELD_NAME = "text";
-    private static final String FIELD_TYPE_NAME = "text";
+    private static final String TEXT_FIELD_NAME = "plaintext";
+    private static final String FIELD_TYPE_NAME = "plaintext";
     private static final String TERM_VECTORS_FIELD_NAME = "term_vectors";
     private static final String TERMS_FIELD_NAME = "terms";
     private static final String POSITION_FIELD_NAME = "position";
@@ -366,10 +361,15 @@ public class TextSearchServiceImpl implements TextSearchService {
 	searchRequestBuilder.setQuery(queryBuilder);
 	searchRequestBuilder.setFrom(from);
 	searchRequestBuilder.setSize(pagingSize);
-	searchRequestBuilder.addField("imageId");
-	searchRequestBuilder.addField("nextImageId");
-	searchRequestBuilder.addField("nextCanvasId");
-	searchRequestBuilder.addField("endPositionOfCurrentText");
+	searchRequestBuilder.addDocValueField("imageId");
+	searchRequestBuilder.addDocValueField("nextImageId");
+	searchRequestBuilder.addDocValueField("nextCanvasId");
+	searchRequestBuilder.addDocValueField("endPositionOfCurrentText");
+	
+	//searchRequestBuilder.addField("imageId");
+	//searchRequestBuilder.addField("nextImageId");
+	//searchRequestBuilder.addField("nextCanvasId");
+	//searchRequestBuilder.addField("endPositionOfCurrentText");
 	//searchRequestBuilder.setFetchSource(false);
 	
 	/*if(null != within){
@@ -504,7 +504,40 @@ public class TextSearchServiceImpl implements TextSearchService {
     }
     
     
-    
+    /**
+     * Find the offsets for each query term
+     * @param query - The {@code String} query e.g. turnips
+     * @param builder - The {@code XContentBuilder} representing the json of the {@code MultiTermVectorsResponse}. 
+     * @param termWithOffsets - Populated with the key = the lowercase query term and value a {@code List} of {@code TermOffsetsWithPosition} which are the position, and start and end offsets
+     */
+    private void findOffsetsForQuery(String query, String builder, TermWithTermOffsets termWithOffsets) {
+	try {
+	    Map<String, Object> javaRootBodyMapObject = new Gson().fromJson(builder, Map.class);
+
+	    Map termVectors = (Map) javaRootBodyMapObject.get(TERM_VECTORS_FIELD_NAME);
+	    LinkedTreeMap text = (LinkedTreeMap) termVectors.get(TEXT_FIELD_NAME);
+	    LinkedTreeMap terms = (LinkedTreeMap) text.get(TERMS_FIELD_NAME);
+	    LinkedTreeMap queryTerm = (LinkedTreeMap) terms.get(query.toLowerCase());
+
+	    termWithOffsets.setTerm(query.toLowerCase());
+
+	    List<TermOffsetsWithPosition> termOffsets = new ArrayList<>();
+	    termWithOffsets.setOffsets(termOffsets);
+	    ArrayList tokens = (ArrayList) queryTerm.get(TOKENS_FIELD_NAME);
+	    for (Object token : tokens) {
+		LinkedTreeMap tokenObject = (LinkedTreeMap) token;
+
+		TermOffsetsWithPosition offsets = new TermOffsetsWithPosition();
+		offsets.setPosition(removeDotZero((Double) tokenObject.get(POSITION_FIELD_NAME)));
+		offsets.setEnd(removeDotZero((Double) tokenObject.get("end_offset")));
+		offsets.setStart(removeDotZero((Double) tokenObject.get(START_OFFSET_FIELD_NAME)));
+		termOffsets.add(offsets);
+	    }
+
+	} catch (Exception e) {
+	    LOG.error("Error getting json from builderString" + e);
+	}
+    }
     
     /**
      * Method to populate a Map whose key is the position in the text and whose value is the {@code TermOffsetStart}. This contains a term and its start offset. e.g. key = 13, value = {"turnips", 34}
@@ -542,7 +575,41 @@ public class TextSearchServiceImpl implements TextSearchService {
 	return positionMap;
     }
     
-    
+    /**
+     * Method to populate a Map whose key is the position in the text and whose value is the {@code TermOffsetStart}. This contains a term and its start offset. e.g. key = 13, value = {"turnips", 34}
+     * This is done for the entire text. 
+     * @param builder {@code XContentBuilder} representing the json from the {@code MultiTermVectorsResponse}
+     * @return {@code Map} <String, TermOffsetStart>
+     */
+    private Map<String, TermOffsetStart> findPositions(String builder) {
+
+	Map<String, TermOffsetStart> positionMap = new HashMap<>();
+	try {
+	    Map<String, Object> javaRootBodyMapObject = new Gson().fromJson(builder, Map.class);
+	    LOG.info(javaRootBodyMapObject.toString());
+	    Map termVectors = (Map) javaRootBodyMapObject.get(TERM_VECTORS_FIELD_NAME);
+	    LinkedTreeMap text = (LinkedTreeMap) termVectors.get(TEXT_FIELD_NAME);	    
+	    LinkedTreeMap terms = (LinkedTreeMap) text.get(TERMS_FIELD_NAME);
+	    Set<String> querySet = (Set) terms.keySet();
+
+	    for (String term : querySet) {
+		LinkedTreeMap queryTerm = (LinkedTreeMap) terms.get(term);
+
+		ArrayList tokens = (ArrayList) queryTerm.get(TOKENS_FIELD_NAME);
+		for (Object token : tokens) {
+		    LinkedTreeMap tokenObject = (LinkedTreeMap) token;
+		    TermOffsetStart termStart = new TermOffsetStart(term, removeDotZero((Double) tokenObject.get(START_OFFSET_FIELD_NAME)));
+		    positionMap.put(removeDotZeroString((Double) tokenObject.get(POSITION_FIELD_NAME)), termStart);
+		}
+	    }
+
+	} catch (Exception e) {
+	    LOG.error("findPositions - Error getting json from builderString " + e);
+	}
+	LOG.info("positionMap is "+ positionMap.toString());
+
+	return positionMap;
+    }
     
     
     
@@ -571,13 +638,17 @@ public class TextSearchServiceImpl implements TextSearchService {
 		LOG.info("itemResponse id is " + imageId);
 
 		XContentBuilder builder;
-		try {
-		    builder = XContentFactory.jsonBuilder().startObject();
-		    itemReponse.getResponse().toXContent(builder, ToXContent.EMPTY_PARAMS);
-		    builder.endObject();
-		    LOG.info(builder.string());
+		//try {
+		   // builder = XContentFactory.jsonBuilder().startObject();
+		    //itemReponse.getResponse().toXContent(builder, ToXContent.EMPTY_PARAMS);
+		    //builder.endObject();
 		    
-		    Map<String, TermOffsetStart> positions = findPositions(builder);
+		 
+
+		    String responseString = org.elasticsearch.common.Strings.toString(itemReponse.getResponse());
+		    LOG.info("Builder: " + responseString);
+		    
+		    Map<String, TermOffsetStart> positions = findPositions(responseString);
 		    Map <String,String> startMap = new HashMap<>();
 		    for(String key: positions.keySet()){
 			TermOffsetStart termOffsetStart = positions.get(key);
@@ -591,7 +662,7 @@ public class TextSearchServiceImpl implements TextSearchService {
 		    List<String> queryTerms = textUtils.getListFromSpaceSeparatedTerms(query);
 		    for (String queryTerm : queryTerms) {
 			TermWithTermOffsets termWithOffsets = new TermWithTermOffsets();
-			findOffsetsForQuery(queryTerm, builder, termWithOffsets);
+			findOffsetsForQuery(queryTerm, responseString, termWithOffsets);
 			if (termWithOffsetsMap.containsKey(imageId)) {
 			    List<TermWithTermOffsets> termList = termWithOffsetsMap.get(imageId);
 			    termList.add(termWithOffsets);
@@ -602,10 +673,10 @@ public class TextSearchServiceImpl implements TextSearchService {
 			    termWithOffsetsMap.put(imageId, termList);
 			}
 		    }
-		    LOG.info(imageId + " " + builder.string());
-		} catch (IOException e) {
-		    LOG.error("Error with XContentFactory.jsonBuilder().startObject()" + e);
-		}
+		   // LOG.info(imageId + " " + builder.string());
+		//} catch (IOException e) {
+		//    LOG.error("Error with XContentFactory.jsonBuilder().startObject()" + e);
+		//}
 	    }
 	}
     }

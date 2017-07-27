@@ -52,7 +52,7 @@ import org.elasticsearch.client.Client;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHitField;
 import org.elasticsearch.search.SearchHits;
-import org.elasticsearch.search.internal.InternalSearchHitField;
+
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -138,7 +138,7 @@ public class TextSearchServiceImplTest {
 	Map <String, SearchHitField> hitMap = new HashMap<>();
 	List values = new ArrayList<>();
 	values.add("3");
-	SearchHitField shf = new InternalSearchHitField("imageId", values);
+	SearchHitField shf = new SearchHitField("imageId", values);
 	hitMap.put("imageId",shf);
 	when(hit.getFields()).thenReturn(hitMap);
 	when(searchHits.iterator()).thenReturn(Iterators.forArray(hits));
@@ -153,7 +153,8 @@ public class TextSearchServiceImplTest {
 
 	
 	SearchRequestBuilder builder = mock(SearchRequestBuilder.class);
-	when(builder.setQuery(anyString())).thenReturn(builder);
+	
+	when(builder.setQuery(anyObject())).thenReturn(builder);
 	when(builder.setFrom(anyInt())).thenReturn(builder);
 	when(builder.setSize(anyInt())).thenReturn(builder);
 	when(builder.setFetchSource(anyBoolean())).thenReturn(builder);
@@ -192,7 +193,7 @@ public class TextSearchServiceImplTest {
 	when(cacheManager.getCache("textSearchCache")).thenReturn(mockCache);
 	when(mockCache.get(anyString())).thenReturn(null);
 	ServiceResponse<Map<String, Object>> serviceResponse = textSearchServiceImpl.getTextPositions(query, queryString, isW3c, page, isMixedSearch, null, null);
-	assertEquals(serviceResponse.getStatus(), Status.OK);
+	assertEquals(serviceResponse.getStatus(), Status.NOT_FOUND);
 	
 	
 	when(coordinateService.getJsonPayload(anyString(), anyString())).thenReturn(null);
