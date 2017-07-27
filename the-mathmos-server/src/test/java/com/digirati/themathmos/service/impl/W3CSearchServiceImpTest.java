@@ -96,8 +96,8 @@ public class W3CSearchServiceImpTest {
 	when(action.actionGet()).thenReturn(response);
 
 	SearchRequestBuilder builder = mock(SearchRequestBuilder.class);
-	when(builder.setQuery(anyString())).thenReturn(builder);
-	when(builder.setPostFilter(anyString())).thenReturn(builder);
+	when(builder.setQuery(anyObject())).thenReturn(builder);
+	when(builder.setPostFilter(anyObject())).thenReturn(builder);
 	when(builder.setFrom(anyInt())).thenReturn(builder);
 	when(builder.setSize(anyInt())).thenReturn(builder);
 	when(builder.execute()).thenReturn(action);

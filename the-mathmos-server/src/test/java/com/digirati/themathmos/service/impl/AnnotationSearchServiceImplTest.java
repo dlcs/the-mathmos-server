@@ -66,7 +66,7 @@ public class AnnotationSearchServiceImplTest {
 	assertEquals(0, annotationSearchServiceImpl.getTotalHits());
     }
 
-   
+  
     @Test
     public void testGetAnnotationsPage() {
 	String query = "comment";
@@ -101,8 +101,8 @@ public class AnnotationSearchServiceImplTest {
 	when(action.actionGet()).thenReturn(response);
 
 	SearchRequestBuilder builder = mock(SearchRequestBuilder.class);
-	when(builder.setQuery(anyString())).thenReturn(builder);
-	when(builder.setPostFilter(anyString())).thenReturn(builder);
+	when(builder.setQuery(anyObject())).thenReturn(builder);
+	when(builder.setPostFilter(anyObject())).thenReturn(builder);
 	when(builder.setFrom(anyInt())).thenReturn(builder);
 	when(builder.setSize(anyInt())).thenReturn(builder);
 	when(builder.execute()).thenReturn(action);
@@ -235,7 +235,7 @@ public class AnnotationSearchServiceImplTest {
 	
 	
     }
-    
+   
     
   
 

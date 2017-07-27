@@ -2,6 +2,7 @@ package com.digirati.themathmos.service.impl;
 
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.anyObject;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -39,8 +40,8 @@ public class SearchQueryUtils {
 	when(action.actionGet()).thenReturn(response);
 
 	SearchRequestBuilder builder = mock(SearchRequestBuilder.class);
-	when(builder.setQuery(anyString())).thenReturn(builder);
-	when(builder.setPostFilter(anyString())).thenReturn(builder);
+	when(builder.setQuery(anyObject())).thenReturn(builder);
+	when(builder.setPostFilter(anyObject())).thenReturn(builder);
 	when(builder.setFrom(anyInt())).thenReturn(builder);
 	when(builder.setSize(anyInt())).thenReturn(builder);
 	when(builder.execute()).thenReturn(action);

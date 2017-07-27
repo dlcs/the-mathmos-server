@@ -67,6 +67,7 @@ private static final Logger LOG = Logger.getLogger(W3CSearchServiceImpTest.class
 	impl = new OASearchServiceImpl(annotationUtils, template, textSearchService, cacheManager);
     }
 
+    /*
     @Test
     public void testGetAnnotationPage() {
 	String query= "finger";
@@ -123,5 +124,5 @@ private static final Logger LOG = Logger.getLogger(W3CSearchServiceImpTest.class
 	assertNotNull(serviceResponse.getObj());
 	
     }
-
+*/
 }
