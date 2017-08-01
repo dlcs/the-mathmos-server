@@ -16,7 +16,7 @@
     <elasticsearch:repositories base-package="com.digirati.themathmos.repository"/>
     
     
-   <elasticsearch:transport-client id="client" cluster-nodes="${cluster.nodes}"  cluster-name="elasticsearch" client-transport-sniff="false" />
+   <elasticsearch:transport-client id="client" cluster-nodes="${cluster.nodes}"  cluster-name="${cluster.name}"  />
     <bean name="elasticsearchTemplate" class="org.springframework.data.elasticsearch.core.ElasticsearchTemplate">
         <constructor-arg name="client" ref="client"/>
     </bean>
