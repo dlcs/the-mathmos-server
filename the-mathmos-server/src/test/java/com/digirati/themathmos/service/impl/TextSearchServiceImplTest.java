@@ -251,7 +251,7 @@ public class TextSearchServiceImplTest {
         type.freeze();
         Document d = new Document();
         d.add(new Field("id", "abc", StringField.TYPE_STORED));
-        d.add(new Field("text", "the1 quick brown fox jumps over  the1 lazy dog comment", type));
+        d.add(new Field("plaintext", "the1 quick brown fox jumps over  the1 lazy dog comment", type));
         d.add(new Field("desc", "the1 quick brown fox jumps over  the1 lazy dog comment", type));
 
         writer.updateDocument(new Term("id", "abc"), d);

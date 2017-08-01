@@ -516,7 +516,7 @@ public class TextSearchServiceImpl implements TextSearchService {
 	    Map<String, Object> javaRootBodyMapObject = new Gson().fromJson(builder, Map.class);
 
 	    Map termVectors = (Map) javaRootBodyMapObject.get(TERM_VECTORS_FIELD_NAME);
-	    LinkedTreeMap text = (LinkedTreeMap) termVectors.get(REAL_TEXT_FIELD_NAME);
+	    LinkedTreeMap text = (LinkedTreeMap) termVectors.get(TEXT_FIELD_NAME);
 	    LinkedTreeMap terms = (LinkedTreeMap) text.get(TERMS_FIELD_NAME);
 	    LinkedTreeMap queryTerm = (LinkedTreeMap) terms.get(query.toLowerCase());
 
@@ -638,7 +638,7 @@ public class TextSearchServiceImpl implements TextSearchService {
 		
 		LOG.info("itemResponse id is " + imageId);
 
-		XContentBuilder builder;
+		//XContentBuilder builder;
 		//try {
 		   // builder = XContentFactory.jsonBuilder().startObject();
 		    //itemReponse.getResponse().toXContent(builder, ToXContent.EMPTY_PARAMS);
@@ -647,7 +647,7 @@ public class TextSearchServiceImpl implements TextSearchService {
 		 
 
 		    String responseString = org.elasticsearch.common.Strings.toString(itemReponse.getResponse());
-		    LOG.info("Builder: " + responseString);
+		    LOG.info("responseString: " + responseString);
 		    
 		    Map<String, TermOffsetStart> positions = findPositions(responseString);
 		    Map <String,String> startMap = new HashMap<>();
