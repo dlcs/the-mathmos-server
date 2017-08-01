@@ -172,9 +172,10 @@ public class AnnotationSearchServiceImpl {
  	    from = (pagingInteger.intValue()-1) * pagingSize;
  	}
 
- 	QueryBuilder builder = buildAllThings(parameters.getQuery(),parameters.getMotivation(),parameters.getDate(), parameters.getUser(), type);
+ 	QueryBuilder builder = buildAllThings(parameters.getQuery(),parameters.getMotivation(),parameters.getDate(), parameters.getUser(), type, within);
  	LOG.info(builder.toString());
  	Page<W3CSearchAnnotation> annotationPage;
+ 	
  	
  	annotationPage= formQuery(builder,from,pagingSize, within);
  	
@@ -199,6 +200,9 @@ public class AnnotationSearchServiceImpl {
  	return annoSearchArray;	
  	
      }
+     
+     
+     
     
     
     private Page<W3CSearchAnnotation> formQuery(QueryBuilder queryBuilder,int pageNumber, int pagingSize, String within){
@@ -208,14 +212,16 @@ public class AnnotationSearchServiceImpl {
    	W3CSearchAnnotationMapper resultsMapper = new W3CSearchAnnotationMapper();
 
    	// need a new SearchRequestBuilder or the source does not change
-   	SearchRequestBuilder searchRequestBuilderReal  = client.prepareSearch(W3C_INDEX);
+   	//SearchRequestBuilder searchRequestBuilderReal  = client.prepareSearch(W3C_INDEX);
    	
    	SearchRequestBuilder searchRequestBuilder  = client.prepareSearch(W3C_INDEX);
    	searchRequestBuilder.setQuery(queryBuilder);	
    	searchRequestBuilder.setPostFilter(QueryBuilders.boolQuery());
    	searchRequestBuilder.setFrom(pageNumber).setSize(pagingSize);
    	
-   	if(null != within){
+   	
+   	
+   	/*if(null != within){
    	    String decodedWithinUrl =  annotationUtils.decodeWithinUrl(within); 
    	
    		
@@ -235,7 +241,11 @@ public class AnnotationSearchServiceImpl {
    	
    	SearchResponse response = searchRequestBuilderReal.execute()
    		.actionGet();
+   	*/
+   	LOG.info("doSearch query "+ searchRequestBuilder.toString());
    	
+   	SearchResponse response = searchRequestBuilder.execute()
+   		.actionGet();
    	
    	//totalHits = response.getHits().totalHits();
    	totalHits = response.getHits().getTotalHits();
@@ -288,7 +298,7 @@ public class AnnotationSearchServiceImpl {
 	return should;
     }
 	
-    private QueryBuilder buildAllThings(String query,String motivations, String allDateRanges, String users, String type) {
+    private QueryBuilder buildAllThings(String query,String motivations, String allDateRanges, String users, String type, String within) {
 	List <QueryBuilder> queryList  = new ArrayList<>();
 	
 	BoolQueryBuilder must = QueryBuilders.boolQuery();	
@@ -338,6 +348,13 @@ public class AnnotationSearchServiceImpl {
  
    	for(QueryBuilder eachQuery:queryList){
    	    must =  must.must(eachQuery);
+   	}
+   	
+   	if(null != within){
+   	    String decodedWithinUrl = annotationUtils.decodeWithinUrl(within); 
+   	    if(null != decodedWithinUrl){
+   		 must.must(QueryBuilders.matchQuery("manifest", decodedWithinUrl));
+   	    }
    	}
    	
    	

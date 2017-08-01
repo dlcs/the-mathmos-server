@@ -9,7 +9,7 @@
 	<parent>
 		<groupId>com.digirati.themathmos</groupId>
 		<artifactId>the-mathmos-parent</artifactId>
-		<version>1.0.1</version>
+		<version>1.0.2</version>
 	</parent>
 
 	<properties>
@@ -226,11 +226,11 @@
 			<artifactId>elasticsearch</artifactId>
 			<version>${elasticsearch-version}</version>
 		</dependency>
-		<dependency>
+		<!--  dependency>
     		<groupId>org.elasticsearch.client</groupId>
     		<artifactId>transport</artifactId>
     		<version>${elasticsearch-version}</version>
-		</dependency>
+		</dependency-->
 
 		<!-- Testing Dependencies -->
 		<dependency>
