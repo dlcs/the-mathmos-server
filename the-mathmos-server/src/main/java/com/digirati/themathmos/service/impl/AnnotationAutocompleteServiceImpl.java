@@ -133,7 +133,8 @@ public class AnnotationAutocompleteServiceImpl implements AnnotationAutocomplete
 		SuggestBuilders.completionSuggestion("suggest").prefix(suggestRequest).size(AnnotationSearchConstants.MAX_NUMBER_OF_HITS_RETURNED);
 
 	String decodedWithinUrl = null;
-	if (null != within && TEXT_INDEX.equals(index)) {
+	if (null != within) {
+	//if (null != within && TEXT_INDEX.equals(index)) {
 	    decodedWithinUrl = annotationUtils.decodeWithinUrl(within);
 	    if(null  != decodedWithinUrl){
 		LOG.info("decodedWithinUrl :" + decodedWithinUrl);

@@ -69,6 +69,7 @@ public class TextSearchServiceImpl implements TextSearchService {
     private CacheManager cacheManager;
     
     private static final String TEXT_FIELD_NAME = "plaintext";
+    private static final String REAL_TEXT_FIELD_NAME = "text";
     private static final String FIELD_TYPE_NAME = "plaintext";
     private static final String TERM_VECTORS_FIELD_NAME = "term_vectors";
     private static final String TERMS_FIELD_NAME = "terms";
@@ -473,13 +474,13 @@ public class TextSearchServiceImpl implements TextSearchService {
      * @param query - The {@code String} query e.g. turnips
      * @param builder - The {@code XContentBuilder} representing the json of the {@code MultiTermVectorsResponse}. 
      * @param termWithOffsets - Populated with the key = the lowercase query term and value a {@code List} of {@code TermOffsetsWithPosition} which are the position, and start and end offsets
-     */
+    
     private void findOffsetsForQuery(String query, XContentBuilder builder, TermWithTermOffsets termWithOffsets) {
 	try {
 	    Map<String, Object> javaRootBodyMapObject = new Gson().fromJson(builder.string(), Map.class);
 
 	    Map termVectors = (Map) javaRootBodyMapObject.get(TERM_VECTORS_FIELD_NAME);
-	    LinkedTreeMap text = (LinkedTreeMap) termVectors.get(TEXT_FIELD_NAME);
+	    LinkedTreeMap text = (LinkedTreeMap) termVectors.get(REAL_TEXT_FIELD_NAME);
 	    LinkedTreeMap terms = (LinkedTreeMap) text.get(TERMS_FIELD_NAME);
 	    LinkedTreeMap queryTerm = (LinkedTreeMap) terms.get(query.toLowerCase());
 
@@ -502,7 +503,7 @@ public class TextSearchServiceImpl implements TextSearchService {
 	    LOG.error("Error getting json from builderString" + e);
 	}
     }
-    
+     */
     
     /**
      * Find the offsets for each query term
@@ -515,7 +516,7 @@ public class TextSearchServiceImpl implements TextSearchService {
 	    Map<String, Object> javaRootBodyMapObject = new Gson().fromJson(builder, Map.class);
 
 	    Map termVectors = (Map) javaRootBodyMapObject.get(TERM_VECTORS_FIELD_NAME);
-	    LinkedTreeMap text = (LinkedTreeMap) termVectors.get(TEXT_FIELD_NAME);
+	    LinkedTreeMap text = (LinkedTreeMap) termVectors.get(REAL_TEXT_FIELD_NAME);
 	    LinkedTreeMap terms = (LinkedTreeMap) text.get(TERMS_FIELD_NAME);
 	    LinkedTreeMap queryTerm = (LinkedTreeMap) terms.get(query.toLowerCase());
 
@@ -544,7 +545,7 @@ public class TextSearchServiceImpl implements TextSearchService {
      * This is done for the entire text. 
      * @param builder {@code XContentBuilder} representing the json from the {@code MultiTermVectorsResponse}
      * @return {@code Map} <String, TermOffsetStart>
-     */
+    
     private Map<String, TermOffsetStart> findPositions(XContentBuilder builder) {
 
 	Map<String, TermOffsetStart> positionMap = new HashMap<>();
@@ -574,7 +575,7 @@ public class TextSearchServiceImpl implements TextSearchService {
 
 	return positionMap;
     }
-    
+     */
     /**
      * Method to populate a Map whose key is the position in the text and whose value is the {@code TermOffsetStart}. This contains a term and its start offset. e.g. key = 13, value = {"turnips", 34}
      * This is done for the entire text. 

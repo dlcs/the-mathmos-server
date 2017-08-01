@@ -293,6 +293,10 @@ At present we do not allow searching that spans image boundaries, as we do not i
 
 ## Autocomplete Request:
 
+### Intro:
+
+Autocomplete makes use of Elasticsearch [Completion](https://www.elastic.co/guide/en/elasticsearch/reference/5.4/search-suggesters-completion.html) and [Context](https://www.elastic.co/guide/en/elasticsearch/reference/5.4/suggester-context.html) Suggesters.  These are implemented when indexing. We take all the values (parsed by spaces) of the data in an annotation an add this to the documents suggest input field as lowercase String array. For plaintext we add the space separated terms in the plaintext field as input. We use the [Context](https://www.elastic.co/guide/en/elasticsearch/reference/5.4/suggester-context.html) Suggester to hold information on the manifest(s).
+
 ### Parameters:
 
 The following query parameters inline with the http://iiif.io/api/search/1.0/#query-parameters-1 have been implemented:
@@ -319,7 +323,7 @@ The responses are in line with http://iiif.io/api/search/1.0/#response, however 
 
 
 
-#### Autocomplete response:
+### Autocomplete response:
 
     {
       "@context": "http://iiif.io/api/search/1/context.json",
@@ -357,6 +361,127 @@ The responses are in line with http://iiif.io/api/search/1.0/#response, however 
         ]
       }
     }
+
+
+
+### Topic Autocomplete Requests:
+
+If we were doing the autocomplete for e.g. a specific topic then we would do something like:
+
+Place is an umbrella term for GPE (Geo Political Entity), LOC (Location), FAC (Facilities) etc. Topics can be real or virtual so we need to query for six uri's:
+
+```
+https://omeka.dlcsida.org/s/ida/page/topics/virtual:gpe/sa
+
+https://omeka.dlcsida.org/s/ida/page/topics/gpe/sa
+
+https://omeka.dlcsida.org/s/ida/page/topics/virtual:loc/sa
+
+https://omeka.dlcsida.org/s/ida/page/topics/loc/sa
+
+https://omeka.dlcsida.org/s/ida/page/topics/virtual:fac/sa
+
+https://omeka.dlcsida.org/s/ida/page/topics/fac/sa
+
+```
+
+
+
+We need to URL- encode each uri to autocomplete on e.g.
+
+```
+http://mathmos.dlcs-ida.org/search/oa/autocomplete?q=https%3A%2F%2Fomeka.dlcsida.org%2Fs%2Fida%2Fpage%2Ftopics%2Fvirtual%3Agpe%2Fsa
+```
+
+and so on for each topic uri..
+
+
+
+This will pull back six sets of results, some of which may be empty if say there are no https://omeka.dlcsida.org/s/ida/page/topics/gpe/sa topics.  These will be of the form:
+
+
+
+### Topic Autocomplete Responses:
+
+```
+{
+    "@context": "http://iiif.io/api/search/1/context.json",
+    "@id": "http://mathmos.dlcs-ida.org/search/oa/autocomplete?q=https%3A%2F%2Fomeka.dlcsida.org%2Fs%2Fida%2Fpage%2Ftopics%2Fvirtual%3Agpe%2Fsa",
+    "@type": "search:TermList",
+    "terms": [
+        {
+            "match": "https://omeka.dlcsida.org/s/ida/page/topics/virtual:gpe/samir",
+            "url": "http://mathmos.dlcs-ida.org/search/oa/search?q=https%3A%2F%2Fomeka.dlcsida.org%2Fs%2Fida%2Fpage%2Ftopics%2Fvirtual%3Agpe%2Fsamir"
+        },
+        {
+            "match": "https://omeka.dlcsida.org/s/ida/page/topics/virtual:gpe/santafe",
+            "url": "http://mathmos.dlcs-ida.org/search/oa/search?q=https%3A%2F%2Fomeka.dlcsida.org%2Fs%2Fida%2Fpage%2Ftopics%2Fvirtual%3Agpe%2Fsantafe"
+        },
+        {
+            "match": "https://omeka.dlcsida.org/s/ida/page/topics/virtual:gpe/saslar",
+            "url": "http://mathmos.dlcs-ida.org/search/oa/search?q=https%3A%2F%2Fomeka.dlcsida.org%2Fs%2Fida%2Fpage%2Ftopics%2Fvirtual%3Agpe%2Fsaslar"
+        },
+        .....
+```
+
+or for an empty response:
+
+```
+{
+    "@context": "http://iiif.io/api/search/1/context.json",
+    "@id": "http://mathmos.dlcs-ida.org/search/oa/autocomplete?q=https://BAD",
+    "@type": "search:TermList",
+    "terms": []
+}
+```
+
+
+
+Iteration through each response and merging results of the match field minus the autocomplete strings e.g.
+
+```
+https://omeka.dlcsida.org/s/ida/page/topics/virtual:gpe/samir
+```
+
+minus
+
+```
+https://omeka.dlcsida.org/s/ida/page/topics/virtual:gpe 
+```
+
+will give you the terms you are looking for e.g.
+
+```
+samir
+```
+
+
+
+We could narrow down the number of requests we need to make by doing an autocomplete as we drilldown to searching for a place topic, as we will know if there is any data for e.g.
+
+```
+https://omeka.dlcsida.org/s/ida/page/topics/virtual:gpe
+
+https://omeka.dlcsida.org/s/ida/page/topics/gpe
+
+https://omeka.dlcsida.org/s/ida/page/topics/virtual:loc
+
+https://omeka.dlcsida.org/s/ida/page/topics/loc
+
+https://omeka.dlcsida.org/s/ida/page/topics/virtual:fac
+
+https://omeka.dlcsida.org/s/ida/page/topics/fac
+
+```
+
+And if we only get  a response with data for e.g.
+
+```
+https://omeka.dlcsida.org/s/ida/page/topics/virtual:gpe
+```
+
+Then only make requests for this data. Potential to cache this higher level topic information so that you can periodically query for update how many actual queries you need to make for a place.
+
 
 
 
