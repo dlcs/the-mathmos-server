@@ -62,7 +62,7 @@ public class AnnotationSearchServiceImpl {
  
     private PageParameters pagingParameters = null;
     
-    
+    protected static final boolean USE_PARED_DOWN_OA = AnnotationSearchConstants.USE_PARED_DOWN_OA;
     
 
     @Autowired
@@ -89,62 +89,7 @@ public class AnnotationSearchServiceImpl {
 	return totalHits;
     }
     
-   /**
-    * Method to get annotation page form elasticsearch
-    * @param query {@code String} e.g. q=test
-    * @param motivation {@code String} e.g. motivation=tagging
-    * @param date {@code String} e.g. date=date in format (YYYY-MM-DD'T'hh:mm:ssZ)
-    * @param user {@code String} e.g. user=sarah
-    * @param queryString {@code String} e.g/ http://www.examples.com/search/search/oa?q=test
-    * @param isW3c {@code boolean} true if w3c annotation and false if oa
-    * @param page {@code String} page parameter e.g. page=2
-    * @param within {@code String} within parameter e.g. base64 encoded collection string
-    * @param type {@code String} type parameter e.g. type=topic
-    * @return {@code String[]} containing either the w3c or oa annotations
-    
-    public String[] getAnnotationsPage(String query, String motivation, String date, String user, String queryString,
-	    boolean isW3c, String page, String within, String type)  {
-    
-	totalHits = 0;
-	
-	pagingParameters = null;
-	
-	int pagingSize = DEFAULT_PAGING_NUMBER;
-	int from = DEFAULT_STARTING_PAGING_NUMBER;
-	
-	//TODO validate that pagenumber is int and is in expected range.
-	if(!StringUtils.isEmpty(page)){
-	    Integer pagingInteger =  Integer.parseInt(page);	    
-	    from = (pagingInteger.intValue()-1) * pagingSize;
-	}
-
-	QueryBuilder builder = buildAllThings(query,motivation,date, user, type);
-	LOG.info(builder.toString());
-	Page<W3CSearchAnnotation> annotationPage;
-	
-	annotationPage= formQuery(builder,from,pagingSize, within);
-	
-	if(null == annotationPage){
-	    return new String[0];
-	}
-	String[] annoSearchArray = new String[annotationPage.getNumberOfElements()];
-	
-	LOG.info(String.format("Our paged search returned [%s] items ", annotationPage.getNumberOfElements()));
-	int count = 0;
-	for (W3CSearchAnnotation w3CAnnotation : annotationPage) {
-	    String jsonLd;
-	    if (isW3c) {
-		jsonLd = w3CAnnotation.getW3cJsonLd();
-	    } else {
-		jsonLd = w3CAnnotation.getOaJsonLd();
-	    }
-	    annoSearchArray[count] = jsonLd;
-	    count++;
-	}
-	pagingParameters = annotationUtils.getAnnotationPageParameters(annotationPage, queryString, DEFAULT_PAGING_NUMBER, totalHits);
-	return annoSearchArray;	
-	
-    }*/
+   
    
     /**
      * Method to get annotation page form elasticsearch
@@ -182,20 +127,43 @@ public class AnnotationSearchServiceImpl {
  	if(null == annotationPage){
  	    return new String[0];
  	}
- 	String[] annoSearchArray = new String[annotationPage.getNumberOfElements()];
+ 	
+ 	List<String> annoSearchList = new ArrayList<>();
+ 	
+ 	//String[] annoSearchArray = new String[annotationPage.getNumberOfElements()];
  	
  	LOG.info(String.format("Our paged search returned [%s] items ", annotationPage.getNumberOfElements()));
- 	int count = 0;
+ 	//int count = 0;
  	for (W3CSearchAnnotation w3CAnnotation : annotationPage) {
- 	    String jsonLd;
+ 	    //String jsonLd;
  	    if (isW3c) {
- 		jsonLd = w3CAnnotation.getW3cJsonLd();
+ 		annoSearchList.add(w3CAnnotation.getW3cJsonLd());
+ 		//jsonLd = w3CAnnotation.getW3cJsonLd();
+ 		//annoSearchArray[count] = jsonLd;
+ 		//count++;
  	    } else {
- 		jsonLd = w3CAnnotation.getOaJsonLd();
- 	    }
- 	    annoSearchArray[count] = jsonLd;
- 	    count++;
+ 		if(USE_PARED_DOWN_OA){
+ 		    List <String>annoList = w3CAnnotation.getParedDownOaJsonLd();
+ 		   if(null != annoList && !annoList.isEmpty()){
+ 		       for(String anno:annoList){
+ 		   
+ 			annoSearchList.add(anno);
+ 			//jsonLd = anno;
+ 			//annoSearchArray[count] = jsonLd;
+ 	 		//count++;
+ 		    }	
+ 		   }
+ 		}else{
+ 		   annoSearchList.add(w3CAnnotation.getW3cJsonLd());
+ 		   //jsonLd = w3CAnnotation.getOaJsonLd();
+ 		   //annoSearchArray[count] = jsonLd;
+ 		  //count++;
+ 		}
+ 	    }    
  	}
+ 	String[] annoSearchArray = new String[annoSearchList.size()];
+ 	annoSearchArray = annoSearchList.toArray(annoSearchArray);
+ 	
  	pagingParameters = annotationUtils.getAnnotationPageParameters(annotationPage, queryString, DEFAULT_PAGING_NUMBER, totalHits);
  	return annoSearchArray;	
  	
@@ -206,48 +174,23 @@ public class AnnotationSearchServiceImpl {
     
     
     private Page<W3CSearchAnnotation> formQuery(QueryBuilder queryBuilder,int pageNumber, int pagingSize, String within){
-	//Pageable pageable  = new PageRequest(pageNumber, pagingSize);
+
    	Pageable pageable  = PageRequest.of(pageNumber, pagingSize);
    	
    	W3CSearchAnnotationMapper resultsMapper = new W3CSearchAnnotationMapper();
 
-   	// need a new SearchRequestBuilder or the source does not change
-   	//SearchRequestBuilder searchRequestBuilderReal  = client.prepareSearch(W3C_INDEX);
    	
    	SearchRequestBuilder searchRequestBuilder  = client.prepareSearch(W3C_INDEX);
    	searchRequestBuilder.setQuery(queryBuilder);	
    	searchRequestBuilder.setPostFilter(QueryBuilders.boolQuery());
    	searchRequestBuilder.setFrom(pageNumber).setSize(pagingSize);
    	
-   	
-   	
-   	/*if(null != within){
-   	    String decodedWithinUrl =  annotationUtils.decodeWithinUrl(within); 
-   	
-   		
-   	    Map <String, Object> map = annotationUtils.getQueryMap(searchRequestBuilder.toString());
-   	    if(null != decodedWithinUrl && null != map){
-   		map = annotationUtils.setSource(map,decodedWithinUrl, W3C_INDEX, pagingSize);
-   		//searchRequestBuilderReal.setSource(map);
-   	    }else{
-   	   	LOG.error("Unable to find match to within");
-   	    }
-   	  
-   	}else{
-   	    searchRequestBuilderReal = searchRequestBuilder;
-   	}
 
-   	LOG.info("doSearch query "+ searchRequestBuilderReal.toString());
-   	
-   	SearchResponse response = searchRequestBuilderReal.execute()
-   		.actionGet();
-   	*/
    	LOG.info("doSearch query "+ searchRequestBuilder.toString());
    	
    	SearchResponse response = searchRequestBuilder.execute()
    		.actionGet();
    	
-   	//totalHits = response.getHits().totalHits();
    	totalHits = response.getHits().getTotalHits();
    	
    	LOG.info("Total hits are: "+totalHits);
@@ -307,7 +250,6 @@ public class AnnotationSearchServiceImpl {
 	if(null != query){
 	    String tidyQuery = annotationUtils.convertSpecialCharacters(query);
 	    
-	    //String[] fieldList = new String[]{"body","target","bodyURI","targetURI"};
 	    if(null == type){
 		must = must.must(QueryBuilders.multiMatchQuery(tidyQuery, "body","target","bodyURI","targetURI").type(Type.PHRASE)); 
 	    }
@@ -342,7 +284,6 @@ public class AnnotationSearchServiceImpl {
 	if(null != users){
 	    List<String>usersList = annotationUtils.getListFromSpaceSeparatedTerms(users);
 	    must.filter(QueryBuilders.termsQuery("creators", usersList));	
-	    //queryList.add(QueryBuilders.queryStringQuery(users).field("creators"));
 	}
    	
  
@@ -475,7 +416,7 @@ public class AnnotationSearchServiceImpl {
 		     Map mapForResources = new LinkedHashMap<>();
 		     root.put(CommonUtils.FULL_HAS_ANNOTATIONS, mapForResources);
 		     mapForResources.put(CommonUtils.W3C_RESOURCELIST, annoResources);
-		    }
+		 }
 	    }else{
         	 List annoResources = (List)annoMap.get(CommonUtils.OA_RESOURCELIST);
         	 if(root.containsKey(CommonUtils.OA_RESOURCELIST)){

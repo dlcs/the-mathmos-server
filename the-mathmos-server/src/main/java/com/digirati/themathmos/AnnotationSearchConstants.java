@@ -35,6 +35,8 @@ public class AnnotationSearchConstants {
     
     public static final String CONTEXT_MANIFEST_NAME = "manifest";
     
+    public static final boolean USE_PARED_DOWN_OA = true;
+    
     private AnnotationSearchConstants(){
 	
     }

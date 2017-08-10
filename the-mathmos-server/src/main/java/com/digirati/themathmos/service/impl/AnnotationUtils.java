@@ -61,15 +61,27 @@ public class AnnotationUtils extends CommonUtils{
 		root = this.buildAnnotationListHead(query, isW3c, false);
 	    } 
 	}
+	//this.setHits(root);
 	
 
 	List resources = this.getResources(root, isW3c);
-
+	//List<Map<String, Object>> hitList = this.getHits(root);
+	//Map<String, Object> hitMap = new LinkedHashMap<>();
+	//List <String>annotationsList;
+	//String[] beforeAfter = new String[]{"",""};
 	// forEach result in the search get the annotation from the database and
 	// populate resource element.
 	for (W3CAnnotation w3CAnnotation : annoList) {
+	   // annotationsList = new ArrayList<>(1);
+	    //annotationsList.add(w3CAnnotation.getId());
+	    //setHits(isW3c, hitMap, annotationsList,query, beforeAfter);
 	    resources.add(w3CAnnotation.getJsonMap());
 	}
+	
+	/*LOG.info("Hit:" +hitMap.toString());
+	if(!hitMap.isEmpty()){	    
+	    hitList.add(hitMap);
+	}*/
 
 	return root;
 

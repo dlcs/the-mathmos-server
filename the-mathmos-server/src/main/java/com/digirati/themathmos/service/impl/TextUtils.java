@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.commons.lang.RandomStringUtils;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.springframework.stereotype.Service;
@@ -59,7 +59,6 @@ public class TextUtils extends CommonUtils {
 
 	Map<String, Object> root = buildImageListHead();
 
-	//List<Map<String, Object>> imageList = createImages(termWithOffsetsMap, width, height, offsetPositionMap, canvasOverlapDetailMap);
 	ImageHelperObject imageHelper = createImages(termWithOffsetsMap, width, height, offsetPositionMap, canvasOverlapDetailMap);
 	List<Map<String, Object>> imageList = imageHelper.getImageJson();
 	List<Map<String, Object>> images = (List<Map<String, Object>>) root.get(IMAGESLIST);
@@ -303,14 +302,7 @@ public class TextUtils extends CommonUtils {
 			}
 			LOG.info("xywhMap " + xywhMap);
 			Map<String, Object> hitMap = new LinkedHashMap<>();
-			//if(xywhMap.size() == 1){
-			//    List<String> annotationsList = new ArrayList<>();
-			//    annotationsList.add(annoURLMap.get(xywh));
-			//    if(null != beforeAfter){
-			//	setHits(isW3c, hitMap, annotationsList, query, beforeAfter);
-			//    }
-			//    resources.add(createResource(id, query,isW3c, xywh,annoURLMap.get(xywh))); 
-			//}else{
+			
 			    List <String>list = new ArrayList<>(xywhMap.keySet());
 			    Collections.sort(list, Collections.reverseOrder());
 			    Set <String>resultSet = new LinkedHashSet<>(list);
@@ -323,7 +315,6 @@ public class TextUtils extends CommonUtils {
 			    if(null != beforeAfter){
 				setHits(isW3c, hitMap, annotationsList,query, beforeAfter);
 			    } 
-			//}
 			
 			
 			LOG.info("Hit:" +hitMap.toString());
@@ -416,7 +407,6 @@ public class TextUtils extends CommonUtils {
 	    List<TermWithTermOffsets> termWithOffsetsList = termWithOffsetsMap.get(canvasId);
 
 	    List<Object> positions = new ArrayList<>();
-	    //PositionListObjects newPositionsList;
 	    
 	    Map<String, String> startMap = offsetPositionMap.get(canvasId);
 
@@ -438,24 +428,7 @@ public class TextUtils extends CommonUtils {
 		newPositionsList = sortMultiTermPosition(positions, canvasOverlapDetailMap.get(canvasId), positionsList);
 		newPositions = newPositionsList.getNewPositions();
 		
-		//only add the new image if we cross a page boundary
-		/*if(! newPositions.isEmpty()){
-        		Map<String, Object> newRoot = new HashMap<>();
-        		newRoot.put("imageURI", canvasOverlapDetailMap.get(canvasId).getNextImageId());
-        		newRoot.put("positions", newPositions);
-        		 if(!StringUtils.isEmpty(width)){
-        		     newRoot.put("width", width);
-        		 }
-        		 if(!StringUtils.isEmpty(height)){
-        		     newRoot.put("height", height);
-        		 }
-        		 realRoot.add(newRoot);
-        		 imagePositionsMap.put(canvasOverlapDetailMap.get(canvasId).getNextCanvasId(), newPositionsList.getPositionsList());
-        		 Map<String,String> crossPageImageMap = new HashMap<>();
-        		 crossPageImageMap.put(imageURL, canvasOverlapDetailMap.get(canvasId).getNextImageId());
-        		 crossPageImageMap.put(canvasId, canvasOverlapDetailMap.get(canvasId).getNextCanvasId());
-        		 imageHelper.setCrossPageImageMap(crossPageImageMap);
-		}*/
+		
 	    }
 	    
 	    
@@ -703,44 +676,12 @@ public class TextUtils extends CommonUtils {
     
     
     
-    /**
-     * Method to populate the Hits json
-     * @param isW3c - {@code boolean} true if we want W3C Annotations returned.
-     * @param hitMap - {@code Map} containing the hit.
-     * @param annotationsList - {@code List} The resource urls that this hit references.
-     * @param query - The query term(s) {@code String} e.g. ?q=turnips in the ground
-     * @param beforeAfter - A {@code String[]} containing the text before[0] and after[1] the matched query.  
-     */
-    public void setHits(boolean isW3c, Map<String, Object> hitMap, List<String> annotationsList, String query,
-	    String[] beforeAfter) {
-
-	    hitMap.put("@type", "search:Hit");
-	    hitMap.put("annotations", annotationsList);
-	    hitMap.put("match", query);
-	    hitMap.put("before", beforeAfter[0]);
-	    hitMap.put("after", beforeAfter[1]);
-	
-    }
+   
     
     
     
    
-    /**
-     * Method to manufacture a resource for the annotation
-     * @param queryString The entire query {@code String}  e.g. http://www.searchme/search/oa?q=turnips
-     * @param xywh The xywh coordinates{@code String}  e.g. 1234,4,45,36
-     * @return The new {@code String}  representing the resource which is the original queryString minus the parameters with /searchResult followed by 8 random alphabetic characters and the xywh coordinates
-     * e.g. http://www.searchme/search/oa/searchResultfert4dfg1234,4,45,36
-     */
-    public String createMadeUpResource (String queryString,String xywh) {
-   	
-	String query = queryString.substring(0, queryString.indexOf("?"));
-	
-	String searchResultRandom = RandomStringUtils.randomAlphabetic(8);
-	
-	query = query + "/searchResult"+searchResultRandom+xywh;
-	return query;
-    }
+   
     
     
     public void amendStartsAndEndsPositions(String text, int startText, int endText){
