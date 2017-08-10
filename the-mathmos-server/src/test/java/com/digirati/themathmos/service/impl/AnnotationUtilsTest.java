@@ -67,7 +67,7 @@ public class AnnotationUtilsTest {
 	assertTrue("http://www.w3.org/ns/anno.jsonld".equals(json.get("@context")));
 	assertTrue("http://www.example.com/q=test".equals(json.get("@id")));
 	//assertTrue("2".equals(json.get("next")));
-	
+	assertNull(json.get("hits"));
 	assertFalse("http://www.example.com/q=test".equals(json.get("dcterms:isPartOf")));
 	
 	
@@ -76,7 +76,7 @@ public class AnnotationUtilsTest {
 	json = annotationUtils.createAnnotationPage(query, annoList, isW3c, pageParams, totalHits, false);
 	assertFalse("http://www.w3.org/ns/anno.jsonld".equals(json.get("@context")));
 	assertTrue("sc:AnnotationList".equals(json.get("@type")));
-	//assertTrue("2".equals(json.get("next")));
+	assertNull(json.get("hits"));
 	LOG.info(json);
     }
     

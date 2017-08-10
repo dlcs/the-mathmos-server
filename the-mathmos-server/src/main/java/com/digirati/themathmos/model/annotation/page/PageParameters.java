@@ -3,7 +3,7 @@ package com.digirati.themathmos.model.annotation.page;
 public class PageParameters {
     
     private int total;
-    //private String totalElements;
+ 
     private String firstPageNumber;
     private String lastPageNumber;
     private String nextPageNumber;

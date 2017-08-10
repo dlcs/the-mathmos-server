@@ -112,7 +112,7 @@ public class AnnotationSearchServiceImplTest {
 	
 	Parameters params = new Parameters(query, motivation, date, user);
 	String[] results = annotationSearchServiceImpl.getAnnotationsPage(params, queryString, isW3c, page, within, type);
-	LOG.info(results[0]);
+	LOG.info(results);
 	
 	motivation = "non-painting";
 	params.setMotivation(motivation);

@@ -38,37 +38,7 @@ public class W3CAnnotationSearchServiceImpl extends AnnotationSearchServiceImpl 
     
     
     
- /*
-    @Override
-    @Cacheable(value = "w3cAnnotationSearchPagingCache", key = "#queryString" )
-    @Transactional(readOnly = true, isolation = Isolation.SERIALIZABLE)
-    public ServiceResponse<Map<String, Object>> getAnnotationPage(String query, String motivation, String date, String user, String queryString, String page, String within, String type) {
-
-  
-
-	String[] annoSearchArray  = this.getAnnotationsPage(query, motivation, date, user, queryString, true, page, within, type);
-	
-	
-	if(annoSearchArray.length == 0){
-	    return new ServiceResponse<>(Status.NOT_FOUND, null); 
-	}
-
-	PageParameters pagingParameters = this.getPageParameters();
-
-	List<W3CAnnotation> annotationList = annotationUtils.getW3CAnnotations(annoSearchArray);
-		
-	Map<String, Object> annoMap = annotationUtils.createAnnotationPage(queryString, annotationList, true, pagingParameters, (int)this.getTotalHits(), false);
-	   	
-	if(null != annoMap && !annoMap.isEmpty()){
-
-	    return new ServiceResponse<>(Status.OK, annoMap);
-	}else{
-	    return new ServiceResponse<>(Status.NOT_FOUND, null); 
-	}
-	
-	
-	
-    }*/
+ 
     
     @Override
     @Cacheable(value = "w3cAnnotationSearchPagingCache", key = "#queryString" )
@@ -81,7 +51,6 @@ public class W3CAnnotationSearchServiceImpl extends AnnotationSearchServiceImpl 
 	if(annoSearchArray.length == 0){
 	    Map <String, Object> emptyMap = annotationUtils.returnEmptyResultSet(queryString,true, new PageParameters(),false);
 	    return new ServiceResponse<>(Status.OK,emptyMap);
-	    //return new ServiceResponse<>(Status.NOT_FOUND, null); 
 	}
 
 	PageParameters pagingParameters = this.getPageParameters();
@@ -96,11 +65,8 @@ public class W3CAnnotationSearchServiceImpl extends AnnotationSearchServiceImpl 
 	}else{
 	    Map <String, Object> emptyMap = annotationUtils.returnEmptyResultSet(queryString,true, new PageParameters(),false);
 	    return new ServiceResponse<>(Status.OK,emptyMap);
-	   // return new ServiceResponse<>(Status.NOT_FOUND, null); 
 	}
-	
-	
-	
+		
     }
    
 

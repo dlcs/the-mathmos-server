@@ -1,5 +1,6 @@
 package com.digirati.themathmos.model;
 
+
 import java.util.List;
 
 import org.springframework.data.annotation.Id;
@@ -10,63 +11,65 @@ import org.springframework.data.elasticsearch.annotations.FieldType;
 import org.springframework.data.elasticsearch.annotations.Mapping;
 
 
-
-
-
 @Document( indexName="w3cannotation", type="annotations")
 public class W3CSearchAnnotation {
     
-    @Id
-	private String id;
+
+    
+	@Id
+    	private String id;
 	
 	@Field(type = FieldType.text)
-	private List<String> motivations;
-	
-	@Field( type = FieldType.Date)
-	private List<String> created;
-	
-	@Field( type = FieldType.Date)
-	private List<String> generated;
-	
-	@Field( type = FieldType.Date)
-	private List<String> modified;
-	
-	@Field(type = FieldType.text, analyzer = "whitespace")
-	private List<String> creators;
-	
-	@Field(type = FieldType.text)
-	private List<String> generator;
-	
-	@Field(type = FieldType.text)
-	private List <String> target;
-	
-	@Field(type = FieldType.text)
-	private List <String> body;
-	
-	@Field(type = FieldType.text, analyzer = "whitespace")
-	private List <String> targetURI;
-	
-	@Field(type = FieldType.text, analyzer = "whitespace")
-	private List <String> uri;
-	
-	@Field(type = FieldType.text, analyzer = "whitespace")
-	private List <String> bodyURI;
-	
-	@Field(type = FieldType.text)
-	private List <String> xywh;
-	
-	@Field( type = FieldType.text, index = false)
-	private String w3cJsonLd;
-	
-	@Field( type = FieldType.text, index = false)
-	private String oaJsonLd;
-	
-	@Field(type = FieldType.text, analyzer = "whitespace")
-	private List<String> manifest;
-	
-	@CompletionField
-	@Mapping(mappingPath = "/mappings/suggest-field-mappings.json")
-	private ContextCompletion suggest;
+    	private List<String> motivations;
+    	
+    	@Field( type = FieldType.Date)
+    	private List<String> created;
+    	
+    	@Field( type = FieldType.Date)
+    	private List<String> generated;
+    	
+    	@Field( type = FieldType.Date)
+    	private List<String> modified;
+    	
+    	@Field(type = FieldType.text, analyzer = "whitespace")
+    	private List<String> creators;
+    	
+    	@Field(type = FieldType.text)
+    	private List<String> generator;
+    	
+    	@Field(type = FieldType.text)
+    	private List <String> target;
+    	
+    	@Field(type = FieldType.text)
+    	private List <String> body;
+    	
+    	@Field(type = FieldType.text, analyzer = "whitespace")
+    	private List <String> targetURI;
+    	
+    	@Field(type = FieldType.text, analyzer = "whitespace")
+    	private List <String> uri;
+    	
+    	@Field(type = FieldType.text, analyzer = "whitespace")
+    	private List <String> bodyURI;
+    	
+    	@Field(type = FieldType.text)
+    	private List <String> xywh;
+    	
+    	@Field( type = FieldType.text, index = false)
+    	private String w3cJsonLd;
+    	
+    	@Field( type = FieldType.text, index = false)
+    	private String oaJsonLd;
+    	
+    	@Field( type = FieldType.text, index = false)
+    	private List paredDownOaJsonLd;
+    	
+    	@Field(type = FieldType.text, analyzer = "whitespace")
+    	private List<String> manifest;
+    	
+    	@CompletionField 
+    	@Mapping(mappingPath = "/mappings/suggest-field-mappings.json")
+    	private ContextCompletion suggest;
 
 
 	public String getId() {
@@ -76,7 +79,7 @@ public class W3CSearchAnnotation {
 	public void setId(String id) {
 	    this.id = id;
 	}
-	
+    	
 
 	public List<String> getMotivations() {
 	    return motivations;
@@ -174,8 +177,8 @@ public class W3CSearchAnnotation {
 	public void setManifest(List <String> manifest) {
 	    this.manifest = manifest;
 	}
-	
-	@Override
+    	
+    	@Override
 	public String toString() {
 		return "W3CAnnotation [(" + getId() + ")]";
 		
@@ -197,6 +200,14 @@ public class W3CSearchAnnotation {
 	    this.oaJsonLd = oaJsonLd;
 	}
 	
+	public List getParedDownOaJsonLd() {
+	    return paredDownOaJsonLd;
+	}
+
+	public void setParedDownOaJsonLd(List paredDownOaJsonLd) {
+	    this.paredDownOaJsonLd = paredDownOaJsonLd;
+	}
+	
 	public ContextCompletion getSuggest() {
 	    return suggest;
 	}
@@ -212,5 +223,6 @@ public class W3CSearchAnnotation {
 	public void setXywh(List <String> xywh) {
 	    this.xywh = xywh;
 	}
-}
+    	
 
+}

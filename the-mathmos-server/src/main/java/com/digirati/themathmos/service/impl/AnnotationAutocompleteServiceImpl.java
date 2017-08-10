@@ -151,34 +151,14 @@ public class AnnotationAutocompleteServiceImpl implements AnnotationAutocomplete
 
 	LOG.info(completionSuggestionBuilder.toString());
 
-	// need a new SearchRequestBuilder or the source does not change
-	// SearchRequestBuilder searchRequestBuilderReal =
-	// client.prepareSearch(index);
+
 	SearchRequestBuilder searchRequestBuilder = client.prepareSearch(index);
 	
 	searchRequestBuilder.suggest(new  SuggestBuilder().addSuggestion("annotation_suggest", completionSuggestionBuilder));
-	//searchRequestBuilder.addSuggestion(completionSuggestionBuilder);
 	searchRequestBuilder.setSize(0);
 	searchRequestBuilder.setFetchSource(false);
 
-	/*
-	 * if(null != within){ String decodedWithinUrl =
-	 * annotationUtils.decodeWithinUrl(within);
-	 * 
-	 * 
-	 * Map <String, Object> map =
-	 * annotationUtils.getQueryMap(searchRequestBuilder.toString()); if(null
-	 * != decodedWithinUrl && null != map){ map =
-	 * annotationUtils.setSource(map,decodedWithinUrl, index, 1);
-	 * searchRequestBuilderReal.setSource(map); }else{
-	 * LOG.error("Unable to find match to within"); } }else{
-	 * searchRequestBuilderReal = searchRequestBuilder; }
-	 * 
-	 * LOG.info("doSearch query "+ searchRequestBuilderReal.toString());
-	 * 
-	 * SearchResponse searchResponse = searchRequestBuilderReal.execute()
-	 * .actionGet();
-	 */
+	
 	LOG.info("doSearch query " + searchRequestBuilder.toString());
 
 	SearchResponse searchResponse = searchRequestBuilder.execute().actionGet();
@@ -196,11 +176,8 @@ public class AnnotationAutocompleteServiceImpl implements AnnotationAutocomplete
         	    if (null != csEntryOptions && !csEntryOptions.isEmpty()) {
         		Iterator<? extends CompletionSuggestion.Entry.Option> iter = csEntryOptions.iterator();
         		while (iter.hasNext()) {
-        		    CompletionSuggestion.Entry.Option next = iter.next();
-        		    //SuggestOption option = new SuggestOption(next.getText().string());
-        		    suggestOptionSet.add(next.getText().string());
-        		    //options.add(option);
-        		    
+        		    CompletionSuggestion.Entry.Option next = iter.next();       	
+        		    suggestOptionSet.add(next.getText().string());    		    
         		}
         	    }
         	}

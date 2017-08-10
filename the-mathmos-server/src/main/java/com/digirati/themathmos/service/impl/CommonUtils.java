@@ -7,6 +7,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.springframework.data.domain.Page;
@@ -414,42 +415,7 @@ public class CommonUtils {
 	
     }
     
-    /*
-    public int[] tallyPagingParameters(Map<String, Object> root, boolean isW3c, int totalElements, int startIndex){
-	
-   	List resources = getResources(root, isW3c);
-   	
-   	int resourcesSize = 0;
-   	if(null != resources){
-   	    resourcesSize = resources.size();
-   	}
-  
-   	LOG.info("resourcesSize in tallyPagingParameters " + resourcesSize);
-   	int[] returnArray = new int[2];
-   	int newElementsforPage = resourcesSize;
-   	int totalElementsTally = totalElements;
-   	returnArray[1]  = startIndex + resourcesSize; 
-   	totalElementsTally += newElementsforPage;
-   	returnArray[0] = totalElementsTally;
-   	Map map ;
-  
-   	if(isW3c){
-   	    map = (LinkedHashMap) root.get(W3C_WITHIN_IS_PART_OF); 
-   	    map.put(W3C_WITHIN_AS_TOTALITEMS, totalElementsTally);
-   	}else{
-   	    map = (LinkedHashMap) root.get(OA_WITHIN);
-   	    map.put(OA_WITHIN_TOTAL, totalElementsTally);
-   	}
-   	
-   	if (isW3c) {
-	    root.put(W3C_STARTINDEX, startIndex);
-	} else {
-	    root.put(OA_STARTINDEX, startIndex);
-	}
-   	
-   	return returnArray;
-       }
-    */
+   
     
 public int[] tallyPagingParameters(Map<String, Object> root, boolean isW3c, int totalElements, int startIndex){
 	
@@ -560,8 +526,6 @@ public int[] tallyPagingParameters(Map<String, Object> root, boolean isW3c, int 
 	}else{
 	    return "";
 	}
-	
-	//Map<String, Object> javaRootBodyMapObject  = new Gson().fromJson(rawJson, Map.class);
     }
    
     public Map<String, Object> getQueryMap(String rawJson){
@@ -594,5 +558,41 @@ public int[] tallyPagingParameters(Map<String, Object> root, boolean isW3c, int 
     }
     public Map<String,Object> returnEmptyAutocompleteResultSet(String queryString, String motivation, String date,String user ){
 	return this.buildAutoCompleteHead(queryString,motivation, date,user);
+    }
+    
+    /**
+     * Method to populate the Hits json
+     * @param isW3c - {@code boolean} true if we want W3C Annotations returned.
+     * @param hitMap - {@code Map} containing the hit.
+     * @param annotationsList - {@code List} The resource urls that this hit references.
+     * @param query - The query term(s) {@code String} e.g. ?q=turnips in the ground
+     * @param beforeAfter - A {@code String[]} containing the text before[0] and after[1] the matched query.  
+     */
+    public void setHits(boolean isW3c, Map<String, Object> hitMap, List<String> annotationsList, String query,
+	    String[] beforeAfter) {
+
+	    hitMap.put("@type", "search:Hit");
+	    hitMap.put("annotations", annotationsList);
+	    hitMap.put("match", query);
+	    hitMap.put("before", beforeAfter[0]);
+	    hitMap.put("after", beforeAfter[1]);
+	
+    }
+    
+    /**
+     * Method to manufacture a resource for the annotation
+     * @param queryString The entire query {@code String}  e.g. http://www.searchme/search/oa?q=turnips
+     * @param xywh The xywh coordinates{@code String}  e.g. 1234,4,45,36
+     * @return The new {@code String}  representing the resource which is the original queryString minus the parameters with /searchResult followed by 8 random alphabetic characters and the xywh coordinates
+     * e.g. http://www.searchme/search/oa/searchResultfert4dfg1234,4,45,36
+     */
+    public String createMadeUpResource (String queryString,String xywh) {
+   	
+	String query = queryString.substring(0, queryString.indexOf("?"));
+	
+	String searchResultRandom = RandomStringUtils.randomAlphabetic(8);
+	
+	query = query + "/searchResult"+searchResultRandom+xywh;
+	return query;
     }
 }

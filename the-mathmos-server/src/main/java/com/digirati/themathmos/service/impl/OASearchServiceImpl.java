@@ -103,13 +103,11 @@ public class OASearchServiceImpl extends AnnotationSearchServiceImpl implements 
 		}else{
 		    Map <String, Object> emptyMap = annotationUtils.returnEmptyResultSet(queryString,false, new PageParameters(),true);
 		    return new ServiceResponse<>(Status.OK, emptyMap);
-		    //return new ServiceResponse<>(Status.NOT_FOUND, null);
 		}
 	    }
 	}
 	Map <String, Object> emptyMap = annotationUtils.returnEmptyResultSet(queryString,false, new PageParameters(),true);
 	return new ServiceResponse<>(Status.OK, emptyMap);
-	//return new ServiceResponse<>(Status.NOT_FOUND, null);
 
     }
     
