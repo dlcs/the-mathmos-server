@@ -248,8 +248,8 @@ public class AnnotationSearchServiceImpl {
 
 	
 	if(null != query){
-	    String tidyQuery = annotationUtils.convertSpecialCharacters(query);
-	    
+	   // String tidyQuery = annotationUtils.convertSpecialCharacters(query);
+	    String tidyQuery = query;
 	    if(null == type){
 		must = must.must(QueryBuilders.multiMatchQuery(tidyQuery, "body","target","bodyURI","targetURI").type(Type.PHRASE)); 
 	    }
