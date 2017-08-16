@@ -134,7 +134,6 @@ public class AnnotationAutocompleteServiceImpl implements AnnotationAutocomplete
 
 	String decodedWithinUrl = null;
 	if (null != within) {
-	//if (null != within && TEXT_INDEX.equals(index)) {
 	    decodedWithinUrl = annotationUtils.decodeWithinUrl(within);
 	    if(null  != decodedWithinUrl){
 		LOG.info("decodedWithinUrl :" + decodedWithinUrl);

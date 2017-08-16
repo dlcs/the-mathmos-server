@@ -139,7 +139,7 @@ public class TextUtils extends CommonUtils {
 		    crossCoordinates.put(nextXywh, endQuery);  
 		}
 	    }
-	    LOG.info(crossCoordinates);
+	    LOG.info("crossCoordinates: " +crossCoordinates);
 	}
 	
 	return crossCoordinates;
@@ -231,7 +231,7 @@ public class TextUtils extends CommonUtils {
 	    Map <String, String>annoURLMap = new HashMap<>();
 	    List<Positions> positionList = positionMap.get(id);
 	    
-	    LOG.info("positionList: " +positionList);
+	    LOG.debug("positionList: " +positionList);
 	    Map<String, TermOffsetStart> sourcePositionMap = termPositionMap.get(id);
 	    
 
@@ -300,7 +300,7 @@ public class TextUtils extends CommonUtils {
 			    String annoUrl = createMadeUpResource(queryString,xywh);
 			    annoURLMap.put(xywh, annoUrl);
 			}
-			LOG.info("xywhMap " + xywhMap);
+			LOG.debug("xywhMap " + xywhMap);
 			Map<String, Object> hitMap = new LinkedHashMap<>();
 			
 			    List <String>list = new ArrayList<>(xywhMap.keySet());
@@ -317,7 +317,7 @@ public class TextUtils extends CommonUtils {
 			    } 
 			
 			
-			LOG.info("Hit:" +hitMap.toString());
+			LOG.debug("Hit:" +hitMap.toString());
 			if(!hitMap.isEmpty()){
 			    hitList.add(hitMap);
 			}

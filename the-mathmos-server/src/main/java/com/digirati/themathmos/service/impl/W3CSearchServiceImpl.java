@@ -95,7 +95,6 @@ public class W3CSearchServiceImpl extends AnnotationSearchServiceImpl implements
 		textAnnoMap = this.getMap(query,queryString,true, page, within, type, widthHeight); 
 		if(null != textAnnoMap){
 		    mixedCache.put(noPageParamter, textAnnoMap);
-		    LOG.info(mixedCache.get(noPageParamter).get().toString());
 		    return new ServiceResponse<>(Status.OK, textAnnoMap);
 		}else{
 		    Map <String, Object> emptyMap = annotationUtils.returnEmptyResultSet(queryString,true, new PageParameters(),true);
