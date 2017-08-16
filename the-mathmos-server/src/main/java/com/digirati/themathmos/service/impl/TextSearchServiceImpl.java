@@ -232,8 +232,8 @@ public class TextSearchServiceImpl implements TextSearchService {
 
 	extractTermOffsetsFromPage(termWithOffsetsMap, annotationPage, query, termPositionsMap, offsetPositionMap, imageCanvasMap, canvasOverlapDetailMap);
 
-	LOG.info("termWithOffsetsMap "+ termWithOffsetsMap.toString());
-	LOG.info("termPositionsMap "+ termPositionsMap.toString());
+	LOG.debug("termWithOffsetsMap "+ termWithOffsetsMap.toString());
+	LOG.debug("termPositionsMap "+ termPositionsMap.toString());
 	String width = null;
 	String height = null;
 	
@@ -254,7 +254,7 @@ public class TextSearchServiceImpl implements TextSearchService {
 	    payload = new Gson().toJson(offsetPayloadMap);
 	}
 	
-	LOG.info("payload "+ payload);
+	LOG.debug("payload "+ payload);
 	pagingParameters = textUtils.getAnnotationPageParameters(annotationPage, queryString,
 		DEFAULT_TEXT_PAGING_NUMBER, totalHits);
 
@@ -277,7 +277,7 @@ public class TextSearchServiceImpl implements TextSearchService {
 	    } 
 
 	    Map<String, List<Positions>> positionMap = imageHelper.getPositionsMap();
-	    LOG.info("PositionMap " + positionMap.toString());
+	    LOG.debug("PositionMap " + positionMap.toString());
 
 	   
 	    Map<String, Object> textMap = textUtils.createCoordinateAnnotation(query, coordinatePayload,
@@ -372,7 +372,7 @@ public class TextSearchServiceImpl implements TextSearchService {
 	
 	
 	LOG.info("Total hits are: " + totalHits);
-	LOG.info("response: " + response.toString());
+	LOG.debug("response: " + response.toString());
 	
 	return resultsMapper.mapResults(response, TextAnnotation.class, pageable);
     }
@@ -493,7 +493,7 @@ public class TextSearchServiceImpl implements TextSearchService {
 	Map<String, TermOffsetStart> positionMap = new HashMap<>();
 	try {
 	    Map<String, Object> javaRootBodyMapObject = new Gson().fromJson(builder, Map.class);
-	    LOG.info(javaRootBodyMapObject.toString());
+	    LOG.debug(javaRootBodyMapObject.toString());
 	    Map termVectors = (Map) javaRootBodyMapObject.get(TERM_VECTORS_FIELD_NAME);
 	    LinkedTreeMap text = (LinkedTreeMap) termVectors.get(TEXT_FIELD_NAME);	    
 	    LinkedTreeMap terms = (LinkedTreeMap) text.get(TERMS_FIELD_NAME);
@@ -513,7 +513,7 @@ public class TextSearchServiceImpl implements TextSearchService {
 	} catch (Exception e) {
 	    LOG.error("findPositions - Error getting json from builderString " + e);
 	}
-	LOG.info("positionMap is "+ positionMap.toString());
+	LOG.debug("positionMap is "+ positionMap.toString());
 
 	return positionMap;
     }
@@ -542,10 +542,10 @@ public class TextSearchServiceImpl implements TextSearchService {
 		
 		String imageId = itemReponse.getId();
 		
-		LOG.info("itemResponse id is " + imageId);
+		LOG.debug("itemResponse id is " + imageId);
 
 		    String responseString = org.elasticsearch.common.Strings.toString(itemReponse.getResponse());
-		    LOG.info("responseString: " + responseString);
+		    LOG.debug("responseString: " + responseString);
 		    
 		    Map<String, TermOffsetStart> positions = findPositions(responseString);
 		    Map <String,String> startMap = new HashMap<>();

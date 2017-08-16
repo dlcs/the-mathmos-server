@@ -3,6 +3,7 @@
 The Mathmos is a Web Search Service compliant with the [IIIF Content Search API](http://iiif.io/api/search/1.0/). We can index Annotations provided by the Elucidate Server using Pygar. Elucidate can put messages into an AWS SQS Queue whenever an Annotation is created, updated or deleted.  We can index Image Text provided by the Starsky Server using Barbarella.  Starsky can put messages into an AWS SQS Queue which contain the text associated with an image. 
 
 
+
 ## Getting Started
 
 ### Prerequisites

@@ -30,13 +30,6 @@ public class AnnotationUtils extends CommonUtils{
     public static final String SERVICE_NAME = "AnnotationUtils";  
     
     
-    
- 
-   
-    
-    
-   
-    
     private static final String[] SCHEMES = new String[]{"http", "https", "ftp", "mailto", "file", "data"};
     
     
@@ -78,10 +71,10 @@ public class AnnotationUtils extends CommonUtils{
 	    resources.add(w3CAnnotation.getJsonMap());
 	}
 	
-	/*LOG.info("Hit:" +hitMap.toString());
-	if(!hitMap.isEmpty()){	    
-	    hitList.add(hitMap);
-	}*/
+	//LOG.info("Hit:" +hitMap.toString());
+	//if(!hitMap.isEmpty()){	    
+	//    hitList.add(hitMap);
+	//}
 
 	return root;
 
@@ -137,7 +130,7 @@ public class AnnotationUtils extends CommonUtils{
 		}
 	    }
 
-	    LOG.info("resources are " + JsonUtils.toString(root));
+	    LOG.debug("resources are " + JsonUtils.toString(root));
 	    return root;
 	}catch (IOException ioe){
 	   LOG.error("Error getting default file " + ioe);

@@ -130,34 +130,24 @@ public class AnnotationSearchServiceImpl {
  	
  	List<String> annoSearchList = new ArrayList<>();
  	
- 	//String[] annoSearchArray = new String[annotationPage.getNumberOfElements()];
  	
  	LOG.info(String.format("Our paged search returned [%s] items ", annotationPage.getNumberOfElements()));
- 	//int count = 0;
+ 
  	for (W3CSearchAnnotation w3CAnnotation : annotationPage) {
- 	    //String jsonLd;
+
  	    if (isW3c) {
  		annoSearchList.add(w3CAnnotation.getW3cJsonLd());
- 		//jsonLd = w3CAnnotation.getW3cJsonLd();
- 		//annoSearchArray[count] = jsonLd;
- 		//count++;
+ 		
  	    } else {
  		if(USE_PARED_DOWN_OA){
  		    List <String>annoList = w3CAnnotation.getParedDownOaJsonLd();
  		   if(null != annoList && !annoList.isEmpty()){
- 		       for(String anno:annoList){
- 		   
+ 		       for(String anno:annoList){		   
  			annoSearchList.add(anno);
- 			//jsonLd = anno;
- 			//annoSearchArray[count] = jsonLd;
- 	 		//count++;
  		    }	
  		   }
  		}else{
- 		   annoSearchList.add(w3CAnnotation.getW3cJsonLd());
- 		   //jsonLd = w3CAnnotation.getOaJsonLd();
- 		   //annoSearchArray[count] = jsonLd;
- 		  //count++;
+ 		   annoSearchList.add(w3CAnnotation.getOaJsonLd());
  		}
  	    }    
  	}
@@ -222,7 +212,7 @@ public class AnnotationSearchServiceImpl {
 		    queryBuilders.add(buildDateRangeQuery);  
 		}
 	    } catch (IllegalArgumentException e) {
-		LOG.debug(String.format("Wrong date format entered for [%s] ",allRanges), e);
+		LOG.error(String.format("Wrong date format entered for [%s] ",allRanges), e);
 		throw new SearchQueryException("Please enter dates with the ISO8601 format YYYY-MM-DDThh:mm:ssZ");
 	    } 
 	}
