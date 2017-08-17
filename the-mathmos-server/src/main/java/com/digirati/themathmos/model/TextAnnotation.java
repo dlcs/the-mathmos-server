@@ -109,5 +109,4 @@ public class TextAnnotation {
     public void setEndPositionOfCurrentText(int endPositionOfCurrentText) {
 	this.endPositionOfCurrentText = endPositionOfCurrentText;
     }
-
 }

@@ -74,5 +74,4 @@ public class Parameters implements Serializable{
         result = 31 * result + user.hashCode();
         return result;
     }
-
 }

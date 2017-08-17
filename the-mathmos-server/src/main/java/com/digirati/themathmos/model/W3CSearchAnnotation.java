@@ -216,5 +216,4 @@ public class W3CSearchAnnotation {
     public void setXywh(List<String> xywh) {
 	this.xywh = xywh;
     }
-
 }

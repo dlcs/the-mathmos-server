@@ -32,6 +32,4 @@ public class XYWHObject {
     public String toString(){
 	return "count:" + this.count +   " xywh:" + this.xywh;
     }
-
-
 }

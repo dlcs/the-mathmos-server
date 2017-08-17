@@ -12,7 +12,6 @@ public class TermOffsetsWithPosition extends TermOffsets{
 	this.position = position;
     }
 
-
     @Override
     public String toString(){
 	return "position: " + position +" start:" + this.getStart() +" end:"+this.getStart();

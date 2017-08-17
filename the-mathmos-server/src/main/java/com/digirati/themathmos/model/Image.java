@@ -36,5 +36,4 @@ public class Image {
     public String toString() {
 	return "image_uri:" + this.image_uri + " phrases:" + this.phrases;
     }
-
 }
