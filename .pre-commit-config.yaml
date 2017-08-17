@@ -8,3 +8,4 @@
     -   id: detect-private-key
     -   id: end-of-file-fixer
     -   id: trailing-whitespace
+    -   id: detect-private-key

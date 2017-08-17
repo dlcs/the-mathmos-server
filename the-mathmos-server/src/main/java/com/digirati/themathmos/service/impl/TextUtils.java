@@ -396,7 +396,7 @@ public class TextUtils extends CommonUtils {
      *}
      *}
      * </pre>
-     * 
+     *
      * @param termWithOffsetsMap
      *            {@code Map} containing image ids as keys and a List of their
      *            {@code TermWithTermOffsets} as values.
@@ -553,7 +553,7 @@ public class TextUtils extends CommonUtils {
      *
      *
      * We are assured that all terms are separated by a space from Starsky.
-     * 
+     *
      * @param termWithOffsetsList.
      *            A {@code List} of the terms with their offsets
      * @return {@code List<String>}
@@ -736,5 +736,4 @@ public class TextUtils extends CommonUtils {
 	LOG.info("http://localhost:8000/iiif/x/86e22fc7-89ba-42f5-82af-9c0c292f28e1/manifest : encodedBytes "
 		+ new String(encodedBytes));
     }
-
 }

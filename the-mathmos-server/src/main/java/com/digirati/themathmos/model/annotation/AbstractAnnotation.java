@@ -22,6 +22,4 @@ public abstract class AbstractAnnotation {
     public void setJsonMap(Map<String, Object> jsonMap) {
         this.jsonMap = jsonMap;
     }
-
-
 }

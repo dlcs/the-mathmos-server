@@ -25,6 +25,4 @@ public class PositionListObjects {
     public void setNewPositions(List<Object> newPositions) {
 	this.newPositions = newPositions;
     }
-
-
 }

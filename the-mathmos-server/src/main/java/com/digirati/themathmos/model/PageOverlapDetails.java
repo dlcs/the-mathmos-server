@@ -45,6 +45,4 @@ public class PageOverlapDetails {
     public void setEndPositionOfCurrentText(int endPositionOfCurrentText) {
 	this.endPositionOfCurrentText = endPositionOfCurrentText;
     }
-
-
 }

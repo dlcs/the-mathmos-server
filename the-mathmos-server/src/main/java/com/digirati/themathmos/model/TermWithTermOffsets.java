@@ -24,5 +24,4 @@ public class TermWithTermOffsets {
     public String toString(){
 	return "term:" + term+ " postion offsets:"+offsets.toString();
     }
-
 }

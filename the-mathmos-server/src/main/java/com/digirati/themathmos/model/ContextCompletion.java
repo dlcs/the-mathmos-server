@@ -31,5 +31,4 @@ public class ContextCompletion {
     public void setInput(String[] input) {
 	this.input = input;
     }
-
 }

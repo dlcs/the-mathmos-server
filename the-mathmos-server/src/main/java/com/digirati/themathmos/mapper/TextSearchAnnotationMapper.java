@@ -24,15 +24,13 @@ import com.fasterxml.jackson.core.JsonEncoding;
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonGenerator;
 
-/** If we are in the TextSearchServiceImpl formQuery method and not using
- * searchRequestBuilder.setFetchSource(false);
- * then remove all of below.
+/**
+ * If we are in the TextSearchServiceImpl formQuery method and not using
+ * searchRequestBuilder.setFetchSource(false); then remove all of below.
  */
 public class TextSearchAnnotationMapper extends DefaultResultMapper {
 
-
     private static final Logger LOG = Logger.getLogger(TextSearchAnnotationMapper.class);
-
 
     @Override
     public <T> AggregatedPage<T> mapResults(SearchResponse response, Class<T> clazz, Pageable pageable) {
@@ -87,7 +85,8 @@ public class TextSearchAnnotationMapper extends DefaultResultMapper {
 
     /*
      * vastly changed method from the one in defaultResultMapper. Mappingcontext
-     *was always null do we were never getting the _id field contents when we has no _source in the results
+     * was always null do we were never getting the _id field contents when we
+     * has no _source in the results
      */
     private <T> void setPersistentEntityId(T result, String id, Class<T> clazz) {
 	if (clazz.isAnnotationPresent(Document.class)) {

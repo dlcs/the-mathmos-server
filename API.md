@@ -551,4 +551,3 @@ The entry points for within will be:
 `/search/{withinId}/autocomplete/oa`
 
 `/search/{withinId}/autocomplete/w3c`
-

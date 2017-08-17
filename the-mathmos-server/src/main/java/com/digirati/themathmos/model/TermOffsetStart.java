@@ -14,17 +14,12 @@ public class TermOffsetStart {
 	this.start = start;
     }
 
-
-
-
     public int getStart() {
 	return start;
     }
     public void setStart(int start) {
 	this.start = start;
     }
-
-
 
     public String getTerm() {
 	return term;
@@ -37,5 +32,4 @@ public class TermOffsetStart {
     public String toString(){
 	return "term:" + term +" start: " + start;
     }
-
 }

@@ -4,6 +4,6 @@ package com.digirati.themathmos.exception;
 public class CoordinatePayloadException extends RuntimeException {
 
     public CoordinatePayloadException(String msg) {
-        super(msg);
+	super(msg);
     }
 }

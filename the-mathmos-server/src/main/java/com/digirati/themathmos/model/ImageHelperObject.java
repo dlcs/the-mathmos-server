@@ -18,7 +18,6 @@ public class ImageHelperObject {
 	this.imageJson = imageJson;
     }
 
-
     public Map <String, List<Positions>> getPositionsMap() {
 	return positionsMap;
     }
@@ -42,5 +41,4 @@ public class ImageHelperObject {
     public void setCrossPageImageMap(Map<String,String> crossPageImageMap) {
 	this.crossPageImageMap = crossPageImageMap;
     }
-
 }
