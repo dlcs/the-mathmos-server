@@ -28,7 +28,4 @@ public class Positions {
     public String toString(){
 	return "position start:end ["+ startPosition +":"+endPosition+"]";
     }
-
-
 }
-
