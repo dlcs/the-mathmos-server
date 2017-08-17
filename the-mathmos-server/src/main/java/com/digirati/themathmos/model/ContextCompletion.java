@@ -2,6 +2,7 @@ package com.digirati.themathmos.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 
+
 @JsonInclude(value = JsonInclude.Include.NON_NULL)
 public class ContextCompletion {
 
