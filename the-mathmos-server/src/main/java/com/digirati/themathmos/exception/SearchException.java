@@ -4,6 +4,6 @@ package com.digirati.themathmos.exception;
 public class SearchException extends RuntimeException {
 
     public SearchException(String msg) {
-        super(msg);
+	super(msg);
     }
 }

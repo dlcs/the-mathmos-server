@@ -1,6 +1,5 @@
 package com.digirati.themathmos.service.impl;
 
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -52,7 +51,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
 import com.google.gson.internal.LinkedTreeMap;
 
-
 @Service(TextSearchServiceImpl.SERVICE_NAME)
 public class TextSearchServiceImpl implements TextSearchService {
 
@@ -87,7 +85,8 @@ public class TextSearchServiceImpl implements TextSearchService {
     private long totalHits = 0;
 
     @Autowired
-    public TextSearchServiceImpl(TextUtils textUtils, ElasticsearchTemplate template, @Value("${text.server.coordinate.url}") String coordinateServerUrl,  GetPayloadService coordinateService,
+    public TextSearchServiceImpl(TextUtils textUtils, ElasticsearchTemplate template,
+	    @Value("${text.server.coordinate.url}") String coordinateServerUrl, GetPayloadService coordinateService,
 	    CacheManager cacheManager) {
 	this.textUtils = textUtils;
 	this.client = template.getClient();
@@ -97,7 +96,7 @@ public class TextSearchServiceImpl implements TextSearchService {
     }
 
     @Override
-    public PageParameters getPageParameters(){
+    public PageParameters getPageParameters() {
 	return pagingParameters;
     }
 
@@ -107,16 +106,14 @@ public class TextSearchServiceImpl implements TextSearchService {
     }
 
     @Override
-    public TextUtils getTextUtils(){
+    public TextUtils getTextUtils() {
 	return this.textUtils;
     }
 
-
     @Override
     @Transactional(readOnly = true, isolation = Isolation.SERIALIZABLE)
-   public ServiceResponse<Map<String, Object>> getTextPositions(String query, String queryString, boolean isW3c,
-   String page, boolean isMixedSearch, String within,String widthHeight) {
-
+    public ServiceResponse<Map<String, Object>> getTextPositions(String query, String queryString, boolean isW3c,
+	    String page, boolean isMixedSearch, String within, String widthHeight) {
 
 	totalHits = 0;
 	String pageTest;
@@ -132,7 +129,8 @@ public class TextSearchServiceImpl implements TextSearchService {
 		new String[] { "page" });
 	String queryWithAmendedPageParamter = queryWithNoPageParamter + pageTest;
 	String queryWithPageParamter;
-	// Call to get query from cache treat no page parameter as 1 page parameter as they are the same call.
+	// Call to get query from cache treat no page parameter as 1 page
+	// parameter as they are the same call.
 	Cache.ValueWrapper obj = cache.get(queryWithAmendedPageParamter);
 
 	if (null != obj) {
@@ -140,38 +138,42 @@ public class TextSearchServiceImpl implements TextSearchService {
 	    return new ServiceResponse<>(Status.OK, textMap);
 	} else {
 	    if (pageNumber > 1) {
-		//Cache or create and cache the first page
+		// Cache or create and cache the first page
 		Cache.ValueWrapper firstObj = cache.get(queryWithNoPageParamter);
-		LOG.info("getting "+queryWithNoPageParamter + "from the cache");
+		LOG.info("getting " + queryWithNoPageParamter + "from the cache");
 		boolean isInitialSearch = false;
 		if (null == firstObj) {
-		    Map<String, Object> firstTextMap = getTextMap(query, queryWithNoPageParamter, isW3c, null, isMixedSearch, within, widthHeight);
+		    Map<String, Object> firstTextMap = getTextMap(query, queryWithNoPageParamter, isW3c, null,
+			    isMixedSearch, within, widthHeight);
 		    if (null != firstTextMap) {
 			cache.put(queryWithNoPageParamter, firstTextMap);
 			firstObj = cache.get(queryWithNoPageParamter);
 			isInitialSearch = true;
 		    }
 		}
-		//We should now have the first page, so pull back the total elements and start index
+		// We should now have the first page, so pull back the total
+		// elements and start index
 		if (null != firstObj) {
 		    Map<String, Object> textMap = (Map) firstObj.get();
 		    int[] totalElements = textUtils.tallyPagingParameters(textMap, isW3c, 0, 0);
 		    // iterate through the pages getting back
 		    for (int y = 2; y <= pageNumber; y++) {
-			Map<String, Object> otherTextMaps = getTextMap(query, queryString,isW3c, Integer.toString(y), isMixedSearch, within, widthHeight);
+			Map<String, Object> otherTextMaps = getTextMap(query, queryString, isW3c, Integer.toString(y),
+				isMixedSearch, within, widthHeight);
 			if (null != otherTextMaps) {
-			    totalElements = textUtils.tallyPagingParameters(otherTextMaps,isW3c, totalElements[0],
+			    totalElements = textUtils.tallyPagingParameters(otherTextMaps, isW3c, totalElements[0],
 				    totalElements[1]);
 			    queryWithPageParamter = queryWithNoPageParamter + (y);
 			    cache.put(queryWithPageParamter, otherTextMaps);
 			} else {
-			    LOG.error("No results for page "+ y + " need to get back map with no resources plus numbers ");
-			    //if(isInitialSearch){
-			    	textUtils.removeResources(textMap, isW3c);
-			    	queryWithPageParamter = queryWithNoPageParamter + (y);
-			    	cache.put(queryWithPageParamter, textMap);
-			    	return new ServiceResponse<>(Status.OK, textMap);
-			    //}
+			    LOG.error("No results for page " + y
+				    + " need to get back map with no resources plus numbers ");
+			    // if(isInitialSearch){
+			    textUtils.removeResources(textMap, isW3c);
+			    queryWithPageParamter = queryWithNoPageParamter + (y);
+			    cache.put(queryWithPageParamter, textMap);
+			    return new ServiceResponse<>(Status.OK, textMap);
+			    // }
 			}
 		    }
 		    obj = cache.get(queryWithAmendedPageParamter);
@@ -179,12 +181,13 @@ public class TextSearchServiceImpl implements TextSearchService {
 			Map<String, Object> requestedTextMap = (Map) obj.get();
 			return new ServiceResponse<>(Status.OK, requestedTextMap);
 		    }
-		}else{
+		} else {
 		    LOG.error("Error with the cache - cannot create the first non paged search results");
 		}
 
 	    } else {
-		Map<String, Object> textMap = getTextMap(query, queryString, isW3c, page, isMixedSearch, within, widthHeight);
+		Map<String, Object> textMap = getTextMap(query, queryString, isW3c, page, isMixedSearch, within,
+			widthHeight);
 		if (null != textMap) {
 		    cache.put(queryWithNoPageParamter, textMap);
 		    return new ServiceResponse<>(Status.OK, textMap);
@@ -197,15 +200,15 @@ public class TextSearchServiceImpl implements TextSearchService {
 
     }
 
-
-    private Map<String, Object> getTextMap(String query, String queryString, boolean isW3c, String page, boolean isMixedSearch, String within, String widthHeight) {
+    private Map<String, Object> getTextMap(String query, String queryString, boolean isW3c, String page,
+	    boolean isMixedSearch, String within, String widthHeight) {
 
 	totalHits = 0;
 	QueryBuilder queryBuilder;
-	if(null != within){
+	if (null != within) {
 	    queryBuilder = buildQuery(query, within);
 
-	}else{
+	} else {
 	    queryBuilder = buildQuery(query);
 	}
 
@@ -218,26 +221,26 @@ public class TextSearchServiceImpl implements TextSearchService {
 	    from = (pagingInteger.intValue() - 1) * pagingSize;
 	}
 
-	Map<String,String> imageCanvasMap = new HashMap<>();
-	Map<String,PageOverlapDetails> canvasOverlapDetailMap = new HashMap<>();
+	Map<String, String> imageCanvasMap = new HashMap<>();
+	Map<String, PageOverlapDetails> canvasOverlapDetailMap = new HashMap<>();
 
 	Page<TextAnnotation> annotationPage = formQuery(queryBuilder, from, pagingSize, within);
 
-	LOG.info("total pages "+annotationPage.getTotalPages());
+	LOG.info("total pages " + annotationPage.getTotalPages());
 
 	Map<String, List<TermWithTermOffsets>> termWithOffsetsMap = new HashMap<>();
 	Map<String, Map<String, TermOffsetStart>> termPositionsMap = new HashMap<>();
 	Map<String, Map<String, String>> offsetPositionMap = new HashMap<>();
 
+	extractTermOffsetsFromPage(termWithOffsetsMap, annotationPage, query, termPositionsMap, offsetPositionMap,
+		imageCanvasMap, canvasOverlapDetailMap);
 
-	extractTermOffsetsFromPage(termWithOffsetsMap, annotationPage, query, termPositionsMap, offsetPositionMap, imageCanvasMap, canvasOverlapDetailMap);
-
-	LOG.debug("termWithOffsetsMap "+ termWithOffsetsMap.toString());
-	LOG.debug("termPositionsMap "+ termPositionsMap.toString());
+	LOG.debug("termWithOffsetsMap " + termWithOffsetsMap.toString());
+	LOG.debug("termPositionsMap " + termPositionsMap.toString());
 	String width = null;
 	String height = null;
 
-	if(null != widthHeight){
+	if (null != widthHeight) {
 	    String[] widthHeightArray = widthHeight.split("[|]");
 	    width = widthHeightArray[0];
 	    height = widthHeightArray[1];
@@ -248,20 +251,20 @@ public class TextSearchServiceImpl implements TextSearchService {
 
 	String payload = null;
 
-	if(null != imageHelper){
+	if (null != imageHelper) {
 	    Map<String, Object> offsetPayloadMap = imageHelper.getOffsetPayloadMap();
 
 	    payload = new Gson().toJson(offsetPayloadMap);
 	}
 
-	LOG.debug("payload "+ payload);
+	LOG.debug("payload " + payload);
 	pagingParameters = textUtils.getAnnotationPageParameters(annotationPage, queryString,
 		DEFAULT_TEXT_PAGING_NUMBER, totalHits);
 
 	if (null == payload || StringUtils.isEmpty(payload) || "null".equals(payload)) {
 	    return null;
 	} else {
-	    Map <String, String> crossXywhQueryMap = null;
+	    Map<String, String> crossXywhQueryMap = null;
 
 	    // now call another service to get the actual coordinates
 	    String coordinatePayload = coordinateService.getJsonPayload(coordinateServerUrl, payload);
@@ -270,8 +273,8 @@ public class TextSearchServiceImpl implements TextSearchService {
 	    try {
 		Images images = mapper.readValue(coordinatePayload, Images.class);
 
-		crossXywhQueryMap = textUtils.createCoordinateAnnotationFromImages(query, images,
-			 imageHelper,imageCanvasMap);
+		crossXywhQueryMap = textUtils.createCoordinateAnnotationFromImages(query, images, imageHelper,
+			imageCanvasMap);
 	    } catch (Exception e) {
 		LOG.error("Error converting payload to Images object " + e);
 	    }
@@ -279,22 +282,18 @@ public class TextSearchServiceImpl implements TextSearchService {
 	    Map<String, List<Positions>> positionMap = imageHelper.getPositionsMap();
 	    LOG.debug("PositionMap " + positionMap.toString());
 
-
-	    Map<String, Object> textMap = textUtils.createCoordinateAnnotation(query, coordinatePayload,
-	  isW3c, imageHelper, termPositionsMap, queryString,
-		    pagingParameters,
-		    isMixedSearch,imageCanvasMap,crossXywhQueryMap);
+	    Map<String, Object> textMap = textUtils.createCoordinateAnnotation(query, coordinatePayload, isW3c,
+		    imageHelper, termPositionsMap, queryString, pagingParameters, isMixedSearch, imageCanvasMap,
+		    crossXywhQueryMap);
 
 	    if (null != textMap && !textMap.isEmpty()) {
 		textUtils.amendPagingParameters(textMap, pagingParameters, isW3c);
-		return  textMap;
+		return textMap;
 	    } else {
 		return null;
 	    }
 	}
     }
-
-
 
     /**
      * Method to get all the _id fields returned in our search and pass these to
@@ -341,17 +340,21 @@ public class TextSearchServiceImpl implements TextSearchService {
 
     }
 
-
     /**
      * Method to query elasticsearch. We don't fetch the source.
-     * @param queryBuilder {@code QueryBuilder} containing the query
-     * @param from {@code int} - where we want our page to start from
-     * @param pagingSize {@code int} - maximum  hits we want in any page
-     * @param isOneWordSearch - not required..
+     *
+     * @param queryBuilder
+     *            {@code QueryBuilder} containing the query
+     * @param from
+     *            {@code int} - where we want our page to start from
+     * @param pagingSize
+     *            {@code int} - maximum hits we want in any page
+     * @param isOneWordSearch
+     *            - not required..
      * @return {@code Page} - of {@code TextAnnotation} objects.
      */
     private Page<TextAnnotation> formQuery(QueryBuilder queryBuilder, int from, int pagingSize, String within) {
-	LOG.info("Page stats are from:" +from + " pagingSize:" +  pagingSize);
+	LOG.info("Page stats are from:" + from + " pagingSize:" + pagingSize);
 	Pageable pageable = new PageRequest(from, pagingSize);
 
 	TextSearchAnnotationMapper resultsMapper = new TextSearchAnnotationMapper();
@@ -370,17 +373,17 @@ public class TextSearchServiceImpl implements TextSearchService {
 
 	totalHits = response.getHits().totalHits();
 
-
 	LOG.info("Total hits are: " + totalHits);
 	LOG.debug("response: " + response.toString());
 
 	return resultsMapper.mapResults(response, TextAnnotation.class, pageable);
     }
 
-
     /**
      * Method to build a matchPhraseQuery {@code QueryBuilder}
-     * @param query - The {@code String} query e.g. turnips
+     *
+     * @param query
+     *            - The {@code String} query e.g. turnips
      * @return {@code QueryBuilder}
      */
     private QueryBuilder buildQuery(String query) {
@@ -389,47 +392,60 @@ public class TextSearchServiceImpl implements TextSearchService {
 
     /**
      * Method to build a matchPhraseQuery {@code QueryBuilder}
-     * @param query - The {@code String} query e.g. turnips
-     * @param within - The {@code String} base64 encoded within String
+     *
+     * @param query
+     *            - The {@code String} query e.g. turnips
+     * @param within
+     *            - The {@code String} base64 encoded within String
      * @return {@code QueryBuilder}
      */
     private QueryBuilder buildQuery(String query, String within) {
 	String decodedWithinUrl = textUtils.decodeWithinUrl(within);
-	if(null != decodedWithinUrl){
+	if (null != decodedWithinUrl) {
 	    BoolQueryBuilder must = QueryBuilders.boolQuery();
 	    QueryBuilder builder = QueryBuilders.matchPhraseQuery(TEXT_FIELD_NAME, query);
 	    must.must(QueryBuilders.matchQuery("manifestId", decodedWithinUrl));
 	    must.must(builder);
 	    return must;
 
-	}else{
-	    LOG.info("Unable to decode the within "+ within);
+	} else {
+	    LOG.info("Unable to decode the within " + within);
 	    return null;
 	}
 
-
     }
+
     /**
-     * Method to create a {@code MultiTermVectorsRequest} by building up a series of {@code TermVectorsRequest} and adding them to a {@code MultiTermVectorsRequest}.
-     * Send this request to elasticsearch and return either null or a {@code MultiTermVectorsResponse}
-     * @param index - The {@code String} index we are querying.
-     * @param type - The {@code String} type we are querying.
-     * @param ids - The {@code String[]} of text ids we wish to get termvectors for
-     * @param field - The {@code String} name of the field we wish to get termvectors for e.g. the text field.
-     * @return the {@code MultiTermVectorsResponse} or null if we have an empty{@code MultiTermVectorsRequest}
+     * Method to create a {@code MultiTermVectorsRequest} by building up a
+     * series of {@code TermVectorsRequest} and adding them to a
+     * {@code MultiTermVectorsRequest}. Send this request to elasticsearch and
+     * return either null or a {@code MultiTermVectorsResponse}
+     *
+     * @param index
+     *            - The {@code String} index we are querying.
+     * @param type
+     *            - The {@code String} type we are querying.
+     * @param ids
+     *            - The {@code String[]} of text ids we wish to get termvectors
+     *            for
+     * @param field
+     *            - The {@code String} name of the field we wish to get
+     *            termvectors for e.g. the text field.
+     * @return the {@code MultiTermVectorsResponse} or null if we have an empty
+     *         {@code MultiTermVectorsRequest}
      */
     private MultiTermVectorsResponse getMultiTermVectors(String index, String type, String[] ids, String field) {
 	MultiTermVectorsRequest multiTermVectorsRequest = new MultiTermVectorsRequest();
 
 	for (String id : ids) {
-	    if(null != id){
+	    if (null != id) {
 		TermVectorsRequest termVectorsRequest = new TermVectorsRequest(index, type, id).selectedFields(field)
-		    .termStatistics(true);
+			.termStatistics(true);
 		multiTermVectorsRequest.add(termVectorsRequest);
 	    }
 	}
 
-	if(!multiTermVectorsRequest.isEmpty()){
+	if (!multiTermVectorsRequest.isEmpty()) {
 	    return client.multiTermVectors(multiTermVectorsRequest).actionGet();
 	}
 	return null;
@@ -444,13 +460,18 @@ public class TextSearchServiceImpl implements TextSearchService {
 	return Integer.toString(input.intValue());
     }
 
-
-
     /**
      * Find the offsets for each query term
-     * @param query - The {@code String} query e.g. turnips
-     * @param builder - The {@code XContentBuilder} representing the json of the {@code MultiTermVectorsResponse}.
-     * @param termWithOffsets - Populated with the key = the lowercase query term and value a {@code List} of {@code TermOffsetsWithPosition} which are the position, and start and end offsets
+     *
+     * @param query
+     *            - The {@code String} query e.g. turnips
+     * @param builder
+     *            - The {@code XContentBuilder} representing the json of the
+     *            {@code MultiTermVectorsResponse}.
+     * @param termWithOffsets
+     *            - Populated with the key = the lowercase query term and value
+     *            a {@code List} of {@code TermOffsetsWithPosition} which are
+     *            the position, and start and end offsets
      */
     private void findOffsetsForQuery(String query, String builder, TermWithTermOffsets termWithOffsets) {
 	try {
@@ -481,11 +502,15 @@ public class TextSearchServiceImpl implements TextSearchService {
 	}
     }
 
-
     /**
-     * Method to populate a Map whose key is the position in the text and whose value is the {@code TermOffsetStart}. This contains a term and its start offset. e.g. key = 13, value = {"turnips", 34}
-     * This is done for the entire text.
-     * @param builder {@code XContentBuilder} representing the json from the {@code MultiTermVectorsResponse}
+     * Method to populate a Map whose key is the position in the text and whose
+     * value is the {@code TermOffsetStart}. This contains a term and its start
+     * offset. e.g. key = 13, value = {"turnips", 34} This is done for the
+     * entire text.
+     *
+     * @param builder
+     *            {@code XContentBuilder} representing the json from the
+     *            {@code MultiTermVectorsResponse}
      * @return {@code Map} <String, TermOffsetStart>
      */
     private Map<String, TermOffsetStart> findPositions(String builder) {
@@ -505,7 +530,8 @@ public class TextSearchServiceImpl implements TextSearchService {
 		ArrayList tokens = (ArrayList) queryTerm.get(TOKENS_FIELD_NAME);
 		for (Object token : tokens) {
 		    LinkedTreeMap tokenObject = (LinkedTreeMap) token;
-		    TermOffsetStart termStart = new TermOffsetStart(term, removeDotZero((Double) tokenObject.get(START_OFFSET_FIELD_NAME)));
+		    TermOffsetStart termStart = new TermOffsetStart(term,
+			    removeDotZero((Double) tokenObject.get(START_OFFSET_FIELD_NAME)));
 		    positionMap.put(removeDotZeroString((Double) tokenObject.get(POSITION_FIELD_NAME)), termStart);
 		}
 	    }
@@ -513,30 +539,36 @@ public class TextSearchServiceImpl implements TextSearchService {
 	} catch (Exception e) {
 	    LOG.error("findPositions - Error getting json from builderString " + e);
 	}
-	LOG.debug("positionMap is "+ positionMap.toString());
+	LOG.debug("positionMap is " + positionMap.toString());
 
 	return positionMap;
     }
 
-
-
     /**
      * Method to get the termvectors for each text item.
-     * @param termWithOffsetsMap. Populated in this method with the
-     * @param page = {@code Page} containing the results of our {code
-     * @param query - The {@code String} query e.g. turnips
-     * @param termPositionsMap {@code Map} containing key = position of a term in text with value = {@code TermOffsetStart}
-     * @param offsetPositionMap {@code Map} containing key = start offset of a term in text with value = {@code String} position.
+     *
+     * @param termWithOffsetsMap.
+     *            Populated in this method with the
+     * @param page
+     *            = {@code Page} containing the results of our {code
+     * @param query
+     *            - The {@code String} query e.g. turnips
+     * @param termPositionsMap
+     *            {@code Map} containing key = position of a term in text with
+     *            value = {@code TermOffsetStart}
+     * @param offsetPositionMap
+     *            {@code Map} containing key = start offset of a term in text
+     *            with value = {@code String} position.
      */
     private void extractTermOffsetsFromPage(Map<String, List<TermWithTermOffsets>> termWithOffsetsMap,
-	    Page<TextAnnotation> page, String query, Map<String, Map<String, TermOffsetStart>> termPositionsMap, Map<String,Map <String,String>> offsetPositionMap,
-	    Map<String,String> imageCanvasMap, Map<String, PageOverlapDetails> canvasOverlapDetailMap) {
+	    Page<TextAnnotation> page, String query, Map<String, Map<String, TermOffsetStart>> termPositionsMap,
+	    Map<String, Map<String, String>> offsetPositionMap, Map<String, String> imageCanvasMap,
+	    Map<String, PageOverlapDetails> canvasOverlapDetailMap) {
 
 	MultiTermVectorsResponse response = getMultiTermVectorResponse(page, imageCanvasMap, canvasOverlapDetailMap);
 
 	if (null != response) {
 	    MultiTermVectorsItemResponse[] itemResponseArray = response.getResponses();
-
 
 	    for (MultiTermVectorsItemResponse itemReponse : itemResponseArray) {
 
@@ -544,37 +576,36 @@ public class TextSearchServiceImpl implements TextSearchService {
 
 		LOG.debug("itemResponse id is " + imageId);
 
-		    String responseString = org.elasticsearch.common.Strings.toString(itemReponse.getResponse());
-		    LOG.debug("responseString: " + responseString);
+		String responseString = org.elasticsearch.common.Strings.toString(itemReponse.getResponse());
+		LOG.debug("responseString: " + responseString);
 
-		    Map<String, TermOffsetStart> positions = findPositions(responseString);
-		    Map <String,String> startMap = new HashMap<>();
-		    for(String key: positions.keySet()){
-			TermOffsetStart termOffsetStart = positions.get(key);
+		Map<String, TermOffsetStart> positions = findPositions(responseString);
+		Map<String, String> startMap = new HashMap<>();
+		for (String key : positions.keySet()) {
+		    TermOffsetStart termOffsetStart = positions.get(key);
 
-			startMap.put(Integer.toString(termOffsetStart.getStart()), key);
+		    startMap.put(Integer.toString(termOffsetStart.getStart()), key);
+		}
+		offsetPositionMap.put(imageId, startMap);
+		termPositionsMap.put(imageId, positions);
+
+		// get offsets for all query terms
+		List<String> queryTerms = textUtils.getListFromSpaceSeparatedTerms(query);
+		for (String queryTerm : queryTerms) {
+		    TermWithTermOffsets termWithOffsets = new TermWithTermOffsets();
+		    findOffsetsForQuery(queryTerm, responseString, termWithOffsets);
+		    if (termWithOffsetsMap.containsKey(imageId)) {
+			List<TermWithTermOffsets> termList = termWithOffsetsMap.get(imageId);
+			termList.add(termWithOffsets);
+
+		    } else {
+			List<TermWithTermOffsets> termList = new ArrayList<>();
+			termList.add(termWithOffsets);
+			termWithOffsetsMap.put(imageId, termList);
 		    }
-		    offsetPositionMap.put(imageId, startMap);
-		    termPositionsMap.put(imageId, positions);
-
-		    // get offsets for all query terms
-		    List<String> queryTerms = textUtils.getListFromSpaceSeparatedTerms(query);
-		    for (String queryTerm : queryTerms) {
-			TermWithTermOffsets termWithOffsets = new TermWithTermOffsets();
-			findOffsetsForQuery(queryTerm, responseString, termWithOffsets);
-			if (termWithOffsetsMap.containsKey(imageId)) {
-			    List<TermWithTermOffsets> termList = termWithOffsetsMap.get(imageId);
-			    termList.add(termWithOffsets);
-
-			} else {
-			    List<TermWithTermOffsets> termList = new ArrayList<>();
-			    termList.add(termWithOffsets);
-			    termWithOffsetsMap.put(imageId, termList);
-			}
-		    }
+		}
 	    }
 	}
     }
-
 
 }
