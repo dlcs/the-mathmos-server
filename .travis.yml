@@ -1,0 +1,17 @@
+language: java
+
+jdk:
+  - oraclejdk8
+
+before_install:
+  - sudo apt-get update -yqq
+  - sudo apt-get install -yqq python3 python3-pip
+
+install:
+  - pip install pre-commit
+
+script:
+  - pre-commit run --allow-unstaged-config --all-files --verbose
+  - mvn deploy --settings settings.xml
+  - mvn -f the-mathmos-parent/pom.xml clean package install -U -B
+  - mvn -f the-mathmos-server/pom.xml clean test package install -U -B
