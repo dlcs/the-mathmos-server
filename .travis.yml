@@ -12,5 +12,5 @@ install:
 
 script:
   - pre-commit run --allow-unstaged-config --all-files --verbose
-  - mvn -f the-mathmos-parent/pom.xml clean package install -U -B
-  - mvn -f the-mathmos-server/pom.xml --settings settings.xml clean test package install -U -B
+  - mvn -q -f the-mathmos-parent/pom.xml clean package install -U -B
+  - mvn -q -f the-mathmos-server/pom.xml --settings settings.xml clean test package install -U -B

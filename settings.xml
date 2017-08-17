@@ -40,7 +40,7 @@
                    </snapshots>
                    <id>releases</id>
                    <name>libs-release</name>
-                   <url>http://artifactory.digirati.co.uk:8081/artifactory/libs-release</url>
+                   <url>${env.TRAVIS_ARTIFACTORY_URL}/libs-release</url>
                </repository>
                <repository>
                    <snapshots>
@@ -48,7 +48,7 @@
                    </snapshots>
                    <id>snapshots</id>
                    <name>libs-snapshot</name>
-                   <url>http://artifactory.digirati.co.uk:8081/artifactory/libs-snapshot</url>
+                   <url>${env.TRAVIS_ARTIFACTORY_URL}/libs-snapshot</url>
                </repository>
            </repositories>
            <pluginRepositories>
@@ -58,7 +58,7 @@
                    </snapshots>
                    <id>releases</id>
                    <name>plugins-release</name>
-                   <url>http://artifactory.digirati.co.uk:8081/artifactory/plugins-release</url>
+                   <url>${env.TRAVIS_ARTIFACTORY_URL}/plugins-release</url>
                </pluginRepository>
                <pluginRepository>
                    <snapshots>
@@ -66,7 +66,7 @@
                    </snapshots>
                    <id>snapshots</id>
                    <name>plugins-snapshot</name>
-                   <url>http://artifactory.digirati.co.uk:8081/artifactory/plugins-snapshot</url>
+                   <url>${env.TRAVIS_ARTIFACTORY_URL}/plugins-snapshot</url>
                </pluginRepository>
            </pluginRepositories>
            
@@ -81,7 +81,7 @@
     <mirror>
       <id>artifactory</id>
       <mirrorOf>*</mirrorOf>
-      <url>http://artifactory.digirati.co.uk:8081/artifactory/repo</url>
+      <url>${env.TRAVIS_ARTIFACTORY_URL}/repo</url>
     </mirror>
 </mirrors>
 </settings>
