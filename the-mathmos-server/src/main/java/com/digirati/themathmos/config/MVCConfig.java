@@ -15,5 +15,5 @@ public class MVCConfig extends WebMvcConfigurationSupport {
 
     public static final String WEB_PACKAGE = "com.digirati.themathmos.web.controller";
 
-    
+
 }

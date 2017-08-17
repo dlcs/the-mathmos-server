@@ -20,7 +20,7 @@ import com.digirati.themathmos.service.impl.AnnotationUtils;
 import com.digirati.themathmos.service.impl.W3CAnnotationSearchServiceImpl;
 
 public class W3CAnnotationSearchServiceImplTest {
-    
+
     private W3CAnnotationSearchServiceImpl impl;
     AnnotationUtils annotationUtils;
     ElasticsearchTemplate template;
@@ -35,7 +35,7 @@ public class W3CAnnotationSearchServiceImplTest {
 
     @Before
     public void setUp() throws Exception {
-	
+
 	annotationUtils = new AnnotationUtils();
 	searchQueryUtils = new SearchQueryUtils();
 	template = mock(ElasticsearchTemplate.class);
@@ -54,13 +54,13 @@ public class W3CAnnotationSearchServiceImplTest {
 	String user = null;
 	String queryString = "http://www.example.com/search?q=comment";
 	String page = null;
-	
+
 	long totalHits = 20;
 	searchQueryUtils.setUpBuilder(totalHits, client);
-	
+
 	Parameters params = new Parameters(query, motivation, date, user);
-	
-	
+
+
 	ServiceResponse<Map<String, Object>> response = impl.getAnnotationPage(params, queryString, page, null, null);
 	assertNotEquals(ServiceResponse.Status.NOT_FOUND,response.getStatus());
     }

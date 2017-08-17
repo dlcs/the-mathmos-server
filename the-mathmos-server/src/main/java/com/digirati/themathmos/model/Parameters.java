@@ -4,18 +4,18 @@ import java.io.Serializable;
 import java.util.Objects;
 
 public class Parameters implements Serializable{
-    
+
     /**
-     * 
+     *
      */
     private static final long serialVersionUID = 1118550633018738922L;
     private String query;
     private String motivation;
     private String date;
     private String user;
-    
+
     public Parameters(){
-	
+
     }
     public Parameters(String query, String motivation, String date, String user){
 	this.query = query;
@@ -23,7 +23,7 @@ public class Parameters implements Serializable{
 	this.date = date;
 	this.user = user;
     }
-    
+
     public String getQuery() {
 	return query;
     }
@@ -48,7 +48,7 @@ public class Parameters implements Serializable{
     public void setUser(String user) {
 	this.user = user;
     }
-    
+
     @Override
     public boolean equals(Object o) {
 
@@ -64,7 +64,7 @@ public class Parameters implements Serializable{
         	Objects.equals(parameters.date,date) &&
         	Objects.equals(parameters.user,user);
     }
-    
+
     @Override
     public int hashCode() {
         int result = 17;
@@ -74,5 +74,5 @@ public class Parameters implements Serializable{
         result = 31 * result + user.hashCode();
         return result;
     }
-    
+
 }

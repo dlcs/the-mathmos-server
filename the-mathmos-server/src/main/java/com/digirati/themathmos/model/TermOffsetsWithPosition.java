@@ -1,7 +1,7 @@
 package com.digirati.themathmos.model;
 
 public class TermOffsetsWithPosition extends TermOffsets{
-    
+
     private int position;
 
     public int getPosition() {

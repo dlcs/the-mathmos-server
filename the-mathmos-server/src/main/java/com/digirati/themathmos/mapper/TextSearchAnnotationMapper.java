@@ -30,9 +30,9 @@ import com.fasterxml.jackson.core.JsonGenerator;
  */
 public class TextSearchAnnotationMapper extends DefaultResultMapper {
 
-    
+
     private static final Logger LOG = Logger.getLogger(TextSearchAnnotationMapper.class);
-    
+
 
     @Override
     public <T> AggregatedPage<T> mapResults(SearchResponse response, Class<T> clazz, Pageable pageable) {

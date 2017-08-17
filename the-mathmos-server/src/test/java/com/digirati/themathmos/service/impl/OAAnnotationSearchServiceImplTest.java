@@ -19,7 +19,7 @@ import com.digirati.themathmos.service.impl.AnnotationUtils;
 import com.digirati.themathmos.service.impl.OAAnnotationSearchServiceImpl;
 
 public class OAAnnotationSearchServiceImplTest {
-    
+
     private OAAnnotationSearchServiceImpl impl;
     AnnotationUtils annotationUtils;
     ElasticsearchTemplate template;
@@ -46,7 +46,7 @@ public class OAAnnotationSearchServiceImplTest {
 
     @Test
     public void testGetAnnotationPage() {
-	
+
 	String query = "comment";
 	String motivation = null;
 	String date = null;
@@ -56,13 +56,13 @@ public class OAAnnotationSearchServiceImplTest {
 	when(template.getClient()).thenReturn(client);
 	long totalHits = 10;
 	searchQueryUtils.setUpBuilder(totalHits, client);
-	
+
 	Parameters params = new Parameters(query, motivation, date, user);
-	
+
 	ServiceResponse<Map<String, Object>> response = impl.getAnnotationPage(params, queryString, page, null, null);
 	assertNotEquals(ServiceResponse.Status.NOT_FOUND,response.getStatus());
-	
-	
+
+
     }
 
 }

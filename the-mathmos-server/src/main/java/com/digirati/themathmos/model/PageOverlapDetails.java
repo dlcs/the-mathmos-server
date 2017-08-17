@@ -1,20 +1,20 @@
 package com.digirati.themathmos.model;
 
 public class PageOverlapDetails {
-    
-    
+
+
     public PageOverlapDetails(){
-	
+
     }
-    
-    
-    
+
+
+
     private String canvasId;
     private String imageId;
     private String nextCanvasId;
     private String nextImageId;
     private int endPositionOfCurrentText;
-    
+
     public String getCanvasId() {
 	return canvasId;
     }
@@ -45,6 +45,6 @@ public class PageOverlapDetails {
     public void setEndPositionOfCurrentText(int endPositionOfCurrentText) {
 	this.endPositionOfCurrentText = endPositionOfCurrentText;
     }
-    
+
 
 }

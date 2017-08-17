@@ -37,22 +37,22 @@ import com.digirati.themathmos.service.impl.AnnotationUtils;
 
 
 public class AnnotationAutocompleteServiceImplTest {
-    
+
     private static final Logger LOG = Logger.getLogger(AnnotationAutocompleteServiceImplTest.class);
     AnnotationAutocompleteServiceImpl impl;
-    
+
     private ElasticsearchTemplate template;
     private AnnotationUtils annotationUtils;
     Client client;
 
-    
+
     @BeforeClass
     public static void setUpBeforeClass() throws Exception {
     }
 
     @Before
     public void setUp() throws Exception {
-	
+
 	template = mock(ElasticsearchTemplate.class);
 	annotationUtils = new AnnotationUtils();
 	client = mock(Client.class);
@@ -68,28 +68,28 @@ public class AnnotationAutocompleteServiceImplTest {
 	String user = null;
 	String min = null;
 	String queryString = "http://www.example.com/search?q=fingers";
-	
+
 	SearchResponse response = mock(SearchResponse.class);
 	SearchRequestBuilder suggestRequestBuilder = mock(SearchRequestBuilder.class);
-	
+
 	when(client.prepareSearch(anyString())).thenReturn(suggestRequestBuilder);
 	when(suggestRequestBuilder.addSuggestion(anyObject())).thenReturn(suggestRequestBuilder);
-	
+
 	ListenableActionFuture<SearchResponse> action = mock(ListenableActionFuture.class);
-	
+
 
         when(suggestRequestBuilder.execute()).thenReturn(action);
 
 	when(action.actionGet()).thenReturn(response);
-	
-	
+
+
 	List<CompletionSuggestion> suggestions = new ArrayList<>();
 	CompletionSuggestion suggestion = mock(CompletionSuggestion.class);
 	Text text = new Text(query);
-	
+
 	Entry entry = new Entry(text, 1,2);
 	Option option = new Option(text,(float)1, null);
-	
+
 	entry.addOption(option);
 	suggestion.addTerm(entry);
 
@@ -97,8 +97,8 @@ public class AnnotationAutocompleteServiceImplTest {
 	entries.add(entry);
 	when(suggestion.getEntries()).thenReturn(entries);
 	suggestions.add(suggestion);
-	
-	
+
+
 	Suggest suggest = mock(Suggest.class);
 	when(response.getSuggest()).thenReturn(suggest);
 	when(suggest.getSuggestion("annotation_suggest")).thenReturn(suggestion);
@@ -108,6 +108,6 @@ public class AnnotationAutocompleteServiceImplTest {
 	assertNotNull(serviceResponse.getObj());
     }
 */
-   
+
 
 }

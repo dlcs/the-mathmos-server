@@ -1,9 +1,9 @@
 package com.digirati.themathmos.model.annotation.page;
 
 public class PageParameters {
-    
+
     private int total;
- 
+
     private String firstPageNumber;
     private String lastPageNumber;
     private String nextPageNumber;
@@ -11,16 +11,16 @@ public class PageParameters {
     private int lastPage = 0;
     private String previousPageNumber;
     private String startIndexString;
-    
+
     private int startIndex;
-    
+
     public int getTotal() {
 	return total;
     }
     public void setTotal(int total) {
 	this.total = total;
     }
- 
+
     public String getFirstPageNumber() {
 	return firstPageNumber;
     }
@@ -69,8 +69,8 @@ public class PageParameters {
     public void setStartIndexString(String startIndexString) {
 	this.startIndexString = startIndexString;
     }
-    
-    
+
+
     @Override
     public String toString(){
 	return "total:" +this.getTotal() + " startIndex:" +this.getStartIndex() + " nextPage:" + this.getNextPage() ;

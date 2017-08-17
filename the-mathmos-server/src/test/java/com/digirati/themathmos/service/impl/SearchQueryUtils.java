@@ -16,22 +16,22 @@ import org.elasticsearch.search.SearchHits;
 import com.google.common.collect.Iterators;
 
 public class SearchQueryUtils {
-    
-    
-    
+
+
+
     public void setUpBuilder(long totalHits, Client client){
 	SearchHits searchHits = mock(SearchHits.class);
-   
+
 	when(searchHits.getTotalHits()).thenReturn(totalHits);
-	
+
 	SearchHit[] hits = new SearchHit[1];
 	SearchHit hit = mock(SearchHit.class);
 	hits[0] = hit;
 	when(searchHits.iterator()).thenReturn(Iterators.forArray(hits));
-	
+
 	when(hit.getSourceAsString()).thenReturn(null);
 
-	
+
 
 	SearchResponse response = mock(SearchResponse.class);
 	when(response.getHits()).thenReturn(searchHits);

@@ -1,16 +1,16 @@
 package com.digirati.themathmos.model;
 
 public class Positions {
-    
+
     private int startPosition;
     private int endPosition;
-    
+
     public Positions(int start, int end){
 	this.startPosition = start;
 	this.endPosition = end;
     }
-    
-    
+
+
     public int getStartPosition() {
 	return startPosition;
     }
@@ -22,13 +22,13 @@ public class Positions {
     }
     public void setEndPosition(int endPosition) {
 	this.endPosition = endPosition;
-    }	
+    }
 
     @Override
     public String toString(){
 	return "position start:end ["+ startPosition +":"+endPosition+"]";
     }
-    
-    
+
+
 }
 

@@ -29,14 +29,14 @@ import com.digirati.themathmos.service.TextSearchService;
 import com.google.common.collect.Iterators;
 
 public class W3CSearchServiceImpTest {
-    
+
     private static final Logger LOG = Logger.getLogger(W3CSearchServiceImpTest.class);
-    
+
     private W3CSearchServiceImpl impl;
-    
+
     String queryString = "http://www.example.com/search?q=finger";
     String queryStringWithPage = "http://www.example.com/search?q=finger&page=2";
-    
+
     AnnotationUtils annotationUtils;
     ElasticsearchTemplate template;
     Client client;
@@ -70,25 +70,25 @@ public class W3CSearchServiceImpTest {
     @Test
     public void testGetAnnotationPage() {
 	String query= "finger";
-	
+
 	String page =null;
 	String within = null;
 	String type = null;
 	String widthHeight=null;
-	
+
 	long totalHits = 10;
 	when(template.getClient()).thenReturn(client);
-	
+
 	SearchHits searchHits = mock(SearchHits.class);
 	when(searchHits.getTotalHits()).thenReturn(totalHits);
-	
+
 	SearchHit[] hits = new SearchHit[1];
 	SearchHit hit = mock(SearchHit.class);
 	hits[0] = hit;
 	when(searchHits.iterator()).thenReturn(Iterators.forArray(hits));
-	
+
 	when(hit.getSourceAsString()).thenReturn(null);
-	
+
 	SearchResponse response = mock(SearchResponse.class);
 	when(response.getHits()).thenReturn(searchHits);
 
@@ -103,25 +103,25 @@ public class W3CSearchServiceImpTest {
 	when(builder.execute()).thenReturn(action);
 
 	when(client.prepareSearch("w3cannotation")).thenReturn(builder);
-	
+
 	PageParameters textPagingParamters = new PageParameters();
 	when(textSearchService.getPageParameters()).thenReturn(textPagingParamters);
-	
-	
+
+
 	ServiceResponse<Map<String, Object>> serviceResponse = impl.getAnnotationPage(query, queryString, page, within, type, widthHeight);
 	assertNotNull(serviceResponse);
 	assertNotNull(serviceResponse.getObj());
-	
+
 	page = "2";
 	serviceResponse = impl.getAnnotationPage(query, queryString, page, within, type, widthHeight);
 	assertNotNull(serviceResponse);
 	assertNotNull(serviceResponse.getObj());
-	
+
 	page = "2";
 	serviceResponse = impl.getAnnotationPage(query, queryStringWithPage, page, within, type, widthHeight);
 	assertNotNull(serviceResponse);
 	assertNotNull(serviceResponse.getObj());
-	
+
     }
 
 }

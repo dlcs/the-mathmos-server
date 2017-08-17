@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.Map;
 
 public class ImageHelperObject {
-    
+
     private List<Map<String, Object>> imageJson;
     private Map <String, List<Positions>> positionsMap;
     private Map<String, Object> offsetPayloadMap;
@@ -17,12 +17,12 @@ public class ImageHelperObject {
     public void setImageJson(List<Map<String, Object>> imageJson) {
 	this.imageJson = imageJson;
     }
-    
-    
+
+
     public Map <String, List<Positions>> getPositionsMap() {
 	return positionsMap;
     }
-    
+
     public void setPositionsMap(Map <String, List<Positions>> positionsMap) {
 	this.positionsMap = positionsMap;
     }

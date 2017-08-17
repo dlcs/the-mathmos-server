@@ -72,9 +72,9 @@ import com.google.common.collect.Iterators;
 
 @RunWith(com.carrotsearch.randomizedtesting.RandomizedRunner.class)
 public class TextSearchServiceImplTest {
-    
+
     private static final Logger LOG = Logger.getLogger(TextSearchServiceImplTest.class);
-    
+
     TextSearchServiceImpl textSearchServiceImpl;
     private ElasticsearchTemplate template;
     Client client;
@@ -101,9 +101,9 @@ public class TextSearchServiceImplTest {
     }
 
     @Test
-    public void testTextSearchServiceImpl() {	
+    public void testTextSearchServiceImpl() {
 	assertNotNull(textSearchServiceImpl);
-	
+
     }
 
     @Test
@@ -118,19 +118,19 @@ public class TextSearchServiceImplTest {
 
     @Test
     public void testGetTextPositions() throws IOException {
-	
-	String query = "comment";	
+
+	String query = "comment";
 	String queryString = "http://www.example.com/search?q=comment";
 	boolean isW3c = true;
 	String page = null;
 	boolean isMixedSearch = false;
 	long totalHits = 10;
-	
-	
-	
+
+
+
 	SearchHits searchHits = mock(SearchHits.class);
 	when(searchHits.getTotalHits()).thenReturn(totalHits);
-	
+
 	SearchHit[] hits = new SearchHit[1];
 	SearchHit hit = mock(SearchHit.class);
 	hits[0] = hit;
@@ -142,7 +142,7 @@ public class TextSearchServiceImplTest {
 	hitMap.put("imageId",shf);
 	when(hit.getFields()).thenReturn(hitMap);
 	when(searchHits.iterator()).thenReturn(Iterators.forArray(hits));
-	
+
 	when(hit.getSourceAsString()).thenReturn(null);
 
 	SearchResponse response = mock(SearchResponse.class);
@@ -151,69 +151,69 @@ public class TextSearchServiceImplTest {
 	ListenableActionFuture<SearchResponse> action = mock(ListenableActionFuture.class);
 	when(action.actionGet()).thenReturn(response);
 
-	
+
 	SearchRequestBuilder builder = mock(SearchRequestBuilder.class);
-	
+
 	when(builder.setQuery(anyObject())).thenReturn(builder);
 	when(builder.setFrom(anyInt())).thenReturn(builder);
 	when(builder.setSize(anyInt())).thenReturn(builder);
 	when(builder.setFetchSource(anyBoolean())).thenReturn(builder);
 	when(builder.execute()).thenReturn(action);
-	
-	when(client.prepareSearch(anyString())).thenReturn(builder);
-	
-	
 
-	
+	when(client.prepareSearch(anyString())).thenReturn(builder);
+
+
+
+
 	TermVectorsResponse tvResponse = new TermVectorsResponse("1","2","3");
 	tvResponse.setExists(true);
 	writeStandardTermVector(tvResponse);
 	MultiTermVectorsItemResponse mtviResponse = new MultiTermVectorsItemResponse(tvResponse, null);
-	
 
-	
+
+
 	ActionFuture<MultiTermVectorsResponse> mtvAction = mock(ListenableActionFuture.class);
-	
+
 	when(client.multiTermVectors(anyObject())).thenReturn(mtvAction);
-	
-	
-	
+
+
+
 	MultiTermVectorsItemResponse[] itemResponseArray = new MultiTermVectorsItemResponse[]{mtviResponse};
-	
+
 	MultiTermVectorsResponse mtvr = new MultiTermVectorsResponse(itemResponseArray);
 	when(mtvAction.actionGet()).thenReturn(mtvr);
-	
+
 	String coordinates = getFileContents("coordinates.json");
-	
+
 	when(coordinateService.getJsonPayload(anyString(), anyString())).thenReturn(coordinates);
-	
-	
+
+
 	Cache.ValueWrapper obj = mock(Cache.ValueWrapper.class);
 	Cache mockCache = mock(Cache.class);
 	when(cacheManager.getCache("textSearchCache")).thenReturn(mockCache);
 	when(mockCache.get(anyString())).thenReturn(null);
 	ServiceResponse<Map<String, Object>> serviceResponse = textSearchServiceImpl.getTextPositions(query, queryString, isW3c, page, isMixedSearch, null, null);
 	assertEquals(serviceResponse.getStatus(), Status.OK);
-	
-	
+
+
 	when(coordinateService.getJsonPayload(anyString(), anyString())).thenReturn(null);
 	serviceResponse = textSearchServiceImpl.getTextPositions(query, queryString, isW3c, page, isMixedSearch, null, null);
 	assertEquals(serviceResponse.getStatus(), Status.NOT_FOUND);
-	
+
     }
 
     static String readFile(String path, Charset encoding) throws IOException {
 	byte[] encoded = Files.readAllBytes(Paths.get(path));
 	return new String(encoded, encoding);
     }
-    
+
     public String getFileContents(String filename) throws IOException{
 	String testmessage = "classpath:"+filename;
 	Resource resource =  resourceLoader.getResource(testmessage);
 	File resourcefile = resource.getFile();
 	return readFile(resourcefile.getPath(), StandardCharsets.UTF_8);
     }
-    
+
     private Map<String, String>  creatOffsetPositionMap(){
    	Map<String, String> offsetPositionMap = new HashMap<>();
    	offsetPositionMap.put("0", "1");
@@ -222,20 +222,20 @@ public class TextSearchServiceImplTest {
    	offsetPositionMap.put("120", "26");
    	offsetPositionMap.put("14", "4");
    	offsetPositionMap.put("100", "20");
-   	
+
    	offsetPositionMap.put("114", "23");
    	offsetPositionMap.put("124", "27");
-   	
-   	
+
+
    	offsetPositionMap.put("21", "5");
    	offsetPositionMap.put("130", "28");
-   	
+
    	offsetPositionMap.put("28", "6");
    	offsetPositionMap.put("137", "29");
-   	
+
    	return offsetPositionMap;
        }
-    
+
     private void writeStandardTermVector(TermVectorsResponse outResponse) throws IOException {
 
         Directory dir = LuceneTestCase.newDirectory();
