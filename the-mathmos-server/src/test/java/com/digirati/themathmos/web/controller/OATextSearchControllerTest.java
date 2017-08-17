@@ -30,7 +30,7 @@ import com.digirati.themathmos.web.controller.OAAnnotationSearchController;
 public class OATextSearchControllerTest {
 
     OATextSearchController controller;
-    
+
     private TextSearchService textSearchService;
     private AnnotationAutocompleteService annotationAutocompleteService;
     HttpServletRequest request;
@@ -38,38 +38,38 @@ public class OATextSearchControllerTest {
 
     HttpServletRequest withinRequest;
     HttpServletRequest withinAutocompleteRequest;
-    
+
     String within ="http://www.google.com";
-    
+
     @BeforeClass
     public static void setUpBeforeClass() throws Exception {
     }
 
     @Before
     public void setUp() throws Exception {
-	
+
 	textSearchService = mock(TextSearchService.class);
 	when(textSearchService.getTextUtils()).thenReturn(new TextUtils());
 	annotationAutocompleteService = mock(AnnotationAutocompleteService.class);
 	controller = new OATextSearchController(textSearchService,annotationAutocompleteService );
-	
+
 	within = URLEncoder.encode(within, "UTF-8");
-	
+
 	request = mock(HttpServletRequest.class);
 	withinRequest = mock(HttpServletRequest.class);
 	withinAutocompleteRequest = mock(HttpServletRequest.class);
-	
+
 	when(request.getRequestURL()).thenReturn(new StringBuffer("http://www.example.com/search/"));
 	when(request.getQueryString()).thenReturn("q=test");
-	
+
 	when(withinRequest.getRequestURL()).thenReturn(new StringBuffer("http://www.example.com/"+within+"/oa/text/search"));
 	when(withinRequest.getQueryString()).thenReturn("q=test");
-	
+
 	when(withinAutocompleteRequest.getRequestURL()).thenReturn(new StringBuffer("http://www.example.com/"+within+"/oa/text/autocomplete"));
 	when(withinAutocompleteRequest.getQueryString()).thenReturn("q=test");
-	
-	
-	
+
+
+
     }
 
     @Test
@@ -80,22 +80,22 @@ public class OATextSearchControllerTest {
 	String user = null;
 	String page = null;
 	ServiceResponse notFoundResponse = new ServiceResponse(Status.NOT_FOUND, null);
-	
+
 	when(textSearchService.getTextPositions(queryNotFound, "http://www.example.com/search/?q=test",false, page, false, null, null)).thenReturn(notFoundResponse);
 
 	ResponseEntity<Map<String, Object>> responseEntity = controller.searchTextOAGet(queryNotFound, page, null, null,request);
 	assertEquals(responseEntity.getStatusCode().NOT_FOUND, HttpStatus.NOT_FOUND);
-	
+
 	Map<String, Object> map = new HashMap<>();
-	
+
 	ServiceResponse foundResponse = new ServiceResponse(Status.OK, map);
-	
+
 	String queryFound = "found";
 	when(textSearchService.getTextPositions(queryFound, "http://www.example.com/search/?q=test",false, page, false, null, null)).thenReturn(foundResponse);
-	
+
 	responseEntity = controller.searchTextOAGet(queryFound, page,  null, null,request);
 	assertEquals(responseEntity.getStatusCode().OK, HttpStatus.OK);
-	
+
 	String queryEmpty = "";
 	try{
 	responseEntity = controller.searchTextOAGet(queryEmpty, page,  null, null,request);
@@ -103,7 +103,7 @@ public class OATextSearchControllerTest {
 	    assertNotNull(sqe);
 	}
     }
-    
+
     @Test
     public void testAutocompleteGet() throws UnsupportedEncodingException {
 	String queryNotFound = "not found";
@@ -112,23 +112,23 @@ public class OATextSearchControllerTest {
 	String user = null;
 	String min = null;
 	ServiceResponse notFoundResponse = new ServiceResponse(Status.NOT_FOUND, null);
-	
+
 	when(annotationAutocompleteService.getTerms(queryNotFound, min,"http://www.example.com/search/?q=test", false, null)).thenReturn(notFoundResponse);
 
 	ResponseEntity<Map<String, Object>> responseEntity = controller.autocompleteTextOAGet(queryNotFound,  min, request);
 	assertEquals(responseEntity.getStatusCode().NOT_FOUND, HttpStatus.NOT_FOUND);
-	
+
 	Map<String, Object> map = new HashMap<>();
-	
+
 	ServiceResponse foundResponse = new ServiceResponse(Status.OK, map);
-	
+
 	String queryFound = "found";
 	when(annotationAutocompleteService.getTerms(queryFound, min,"http://www.example.com/search/?q=test", false, null)).thenReturn(foundResponse);
-	
+
 	responseEntity = controller.autocompleteTextOAGet(queryFound,  min, request);
 	assertEquals(responseEntity.getStatusCode().OK, HttpStatus.OK);
     }
-    
+
 
     @Test
     public void testSearchWithinGet() throws UnsupportedEncodingException {
@@ -138,22 +138,22 @@ public class OATextSearchControllerTest {
 	String user = null;
 	String page = null;
 	ServiceResponse notFoundResponse = new ServiceResponse(Status.NOT_FOUND, null);
-	
+
 	when(textSearchService.getTextPositions(queryNotFound, "http://www.example.com/"+within+"/oa/text/search?q=test",false, page, false, within, null)).thenReturn(notFoundResponse);
 
 	ResponseEntity<Map<String, Object>> responseEntity = controller.searchTextWithinOAGet(within,queryNotFound, page,null, null, withinRequest);
 	assertEquals(responseEntity.getStatusCode().NOT_FOUND, HttpStatus.NOT_FOUND);
-	
+
 	Map<String, Object> map = new HashMap<>();
-	
+
 	ServiceResponse foundResponse = new ServiceResponse(Status.OK, map);
-	
+
 	String queryFound = "found";
 	when(textSearchService.getTextPositions(queryFound, "http://www.example.com/"+within+"/oa/text/search?q=test",false, page, false, within, null)).thenReturn(foundResponse);
-	
+
 	responseEntity = controller.searchTextWithinOAGet(within, queryFound, page,null, null, withinRequest);
 	assertEquals(responseEntity.getStatusCode().OK, HttpStatus.OK);
-	
+
 	String queryEmpty = "";
 	try{
 	responseEntity = controller.searchTextWithinOAGet(within, queryEmpty, page, null,null,withinRequest);
@@ -161,7 +161,7 @@ public class OATextSearchControllerTest {
 	    assertNotNull(sqe);
 	}
     }
-    
+
     @Test
     public void testAutocompleteWithinGet() throws UnsupportedEncodingException {
 	String queryNotFound = "not found";
@@ -170,21 +170,21 @@ public class OATextSearchControllerTest {
 	String user = null;
 	String min = null;
 	ServiceResponse notFoundResponse = new ServiceResponse(Status.NOT_FOUND, null);
-	
+
 	when(annotationAutocompleteService.getTerms(queryNotFound, min,"http://www.example.com/"+within+"/oa/text/autocomplete?q=test", false, within)).thenReturn(notFoundResponse);
 
 	ResponseEntity<Map<String, Object>> responseEntity = controller.autocompleteTextWithinOAGet(within,queryNotFound,  min, withinAutocompleteRequest);
 	assertEquals(responseEntity.getStatusCode().NOT_FOUND, HttpStatus.NOT_FOUND);
-	
+
 	Map<String, Object> map = new HashMap<>();
-	
+
 	ServiceResponse foundResponse = new ServiceResponse(Status.OK, map);
-	
+
 	String queryFound = "found";
 	when(annotationAutocompleteService.getTerms(queryFound, min,"http://www.example.com/"+within+"/oa/text/autocomplete?q=test", false, within)).thenReturn(foundResponse);
-	
+
 	responseEntity = controller.autocompleteTextWithinOAGet(within,queryFound,  min, withinAutocompleteRequest);
 	assertEquals(responseEntity.getStatusCode().OK, HttpStatus.OK);
     }
-    
+
 }

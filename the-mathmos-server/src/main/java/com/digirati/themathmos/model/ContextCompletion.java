@@ -32,5 +32,4 @@ public class ContextCompletion {
 	this.input = input;
     }
 
-   
 }

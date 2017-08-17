@@ -10,6 +10,6 @@ import org.springframework.context.annotation.Configuration;
 public class RepositoryConfig {
 
     public static final String REPOSITORY_PACKAGE = "com.digirati.themathmos.repository";
-   
-    
+
+
 }

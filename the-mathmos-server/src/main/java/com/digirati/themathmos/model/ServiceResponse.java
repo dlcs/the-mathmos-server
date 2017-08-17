@@ -5,7 +5,7 @@ import java.io.Serializable;
 public class ServiceResponse<T> implements Serializable{
 
     /**
-     * 
+     *
      */
     private static final long serialVersionUID = 8231671973667011469L;
 

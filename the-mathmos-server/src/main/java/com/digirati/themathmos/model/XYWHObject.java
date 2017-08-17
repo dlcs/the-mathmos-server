@@ -1,20 +1,20 @@
 package com.digirati.themathmos.model;
 
 public class XYWHObject {
-    
-    
+
+
     private int count;
     private String xywh;
-    
-    public XYWHObject(){	
+
+    public XYWHObject(){
     }
-    
+
     public XYWHObject(int count, String xywh){
 	this.count = count;
 	this.xywh = xywh;
     }
-    
-    
+
+
     public int getCount() {
 	return count;
     }
@@ -27,11 +27,11 @@ public class XYWHObject {
     public void setXywh(String xywh) {
 	this.xywh = xywh;
     }
-   
+
     @Override
     public String toString(){
-	return "count:" + this.count +   " xywh:" + this.xywh;  
+	return "count:" + this.count +   " xywh:" + this.xywh;
     }
-    
+
 
 }

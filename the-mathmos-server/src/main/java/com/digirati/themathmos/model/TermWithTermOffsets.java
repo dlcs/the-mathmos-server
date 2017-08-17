@@ -3,10 +3,10 @@ package com.digirati.themathmos.model;
 import java.util.List;
 
 public class TermWithTermOffsets {
-    
+
     private String term;
     private List<TermOffsetsWithPosition> offsets;
-    
+
     public String getTerm() {
 	return term;
     }
@@ -19,7 +19,7 @@ public class TermWithTermOffsets {
     public void setOffsets(List<TermOffsetsWithPosition> offsets) {
 	this.offsets = offsets;
     }
-    
+
     @Override
     public String toString(){
 	return "term:" + term+ " postion offsets:"+offsets.toString();

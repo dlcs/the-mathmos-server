@@ -9,7 +9,7 @@ These are:
 
 ###  Search
 
-​			
+​
 
 #### Annotations only:
 
@@ -99,14 +99,14 @@ When we indexed users we pulled data from any top level **creator** field.
 
 `/search/oa/search?date=1985-05-01T00:00:00+00:00/1986-05-01T00:00:00+00:00 1995-05-01T00:00:00+00:00/1996-05-01T00:00:00+00:00`
 
-When we indexed dates we pulled data from any top level **created** field. Dates must be in the  ISO8601 format 
+When we indexed dates we pulled data from any top level **created** field. Dates must be in the  ISO8601 format
 YYYY-MM-DDThh:mm:ssZ/YYYY-MM-DDThh:mm:ssZ.
 
-We can search on just keywords, just motivation, just user or just date, or a combination of any.  e.g. 
+We can search on just keywords, just motivation, just user or just date, or a combination of any.  e.g.
 
 `search/oa/search?q=bacon&motivation=painting&user=sarah&date=date=1985-05-01T00:00:00+00:00/1986-05-01T00:00:00+00:00`
 
-Annotations can have motivation, user, date, but Text images by definition are only motivation=painting. 
+Annotations can have motivation, user, date, but Text images by definition are only motivation=painting.
 
 #### page
 
@@ -117,7 +117,7 @@ show as non-paged annotation lists. Worth noting that paging will only handle 10
 
 #### width/height
 
-For text searches, we may need to scale our results. We can pass the width and height parameters to the coordinate service so that the resulting coordinates are scaled. Should no width/height parameters be passed then the coordinate service should deal with scaling. 
+For text searches, we may need to scale our results. We can pass the width and height parameters to the coordinate service so that the resulting coordinates are scaled. Should no width/height parameters be passed then the coordinate service should deal with scaling.
 
 When searching annotations and text together, a motivation of non-painting will limit the results to annotations only. Search parameters for text don't have motivation, user or date. Text only requests will only have query, page, width and height parameters. **All query strings must be URL encoded**.
 
@@ -203,7 +203,7 @@ Text search results create annotations on the fly. We have previously indexed te
 
 
 
-This search result illustrates what happens when we have 2 annotations for one search hit. This means that  we have gone over a line in our text document. The '**concrete**' is at the end of a line, and '**buildings**' at the start of another. 
+This search result illustrates what happens when we have 2 annotations for one search hit. This means that  we have gone over a line in our text document. The '**concrete**' is at the end of a line, and '**buildings**' at the start of another.
 
     {
       "@context": [
@@ -301,7 +301,7 @@ Autocomplete makes use of Elasticsearch [Completion](https://www.elastic.co/guid
 
 The following query parameters inline with the http://iiif.io/api/search/1.0/#query-parameters-1 have been implemented:
 
-#### keywords 
+#### keywords
 
 `/search/oa/autocomplete?q=bacon`
 
@@ -315,7 +315,7 @@ The keyword parameter is mandatory for an autocomplete, but motivation, user and
 
 
 
-The responses are in line with http://iiif.io/api/search/1.0/#response, however we have omitted the count property. We have not implemented any labels for autocomplete. We limit the number of results returned to 1000.  The only difference between an oa and w3c response is the terms url will have the path for an oa search or a w3c search. We always URL encode the terms:url field. 
+The responses are in line with http://iiif.io/api/search/1.0/#response, however we have omitted the count property. We have not implemented any labels for autocomplete. We limit the number of results returned to 1000.  The only difference between an oa and w3c response is the terms url will have the path for an oa search or a w3c search. We always URL encode the terms:url field.
 
 ### Autocomplete request:
 
@@ -446,7 +446,7 @@ https://omeka.dlcsida.org/s/ida/page/topics/virtual:gpe/samir
 minus
 
 ```
-https://omeka.dlcsida.org/s/ida/page/topics/virtual:gpe 
+https://omeka.dlcsida.org/s/ida/page/topics/virtual:gpe
 ```
 
 will give you the terms you are looking for e.g.
@@ -488,11 +488,11 @@ Then only make requests for this data. Potential to cache this higher level topi
 
 # Caching
 
-We have used ehcache to cache the search results from mathmos. This is done on the queryString in annotation only searches. Caching of text and mixed searches is done slightly differently, as we have a potential shift in the total number of results as we page through. 
+We have used ehcache to cache the search results from mathmos. This is done on the queryString in annotation only searches. Caching of text and mixed searches is done slightly differently, as we have a potential shift in the total number of results as we page through.
 
 # Within (coming soon)
 
-Within is where we want to limit the results returned to a particular collection. We will Base64 encode the within collection url and use this to call another service that allows us to filter our set of results to a subset only concerned with that collection. 
+Within is where we want to limit the results returned to a particular collection. We will Base64 encode the within collection url and use this to call another service that allows us to filter our set of results to a subset only concerned with that collection.
 
 
 

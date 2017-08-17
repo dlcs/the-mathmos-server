@@ -36,27 +36,27 @@ import org.springframework.util.Assert;
 
 
 public class ServicesConfig {
-    
+
     private static final Logger LOG = Logger.getLogger(MainConfig.class);
 
-    
+
     public static final String SERVICE_PACKAGE = "com.digirati.themathmos.service";
-    
+
     static final String COLON = ":";
     static final String COMMA = ",";
-    
+
 
     @Autowired
     private Environment environment;
 
-  
-    
+
+
     @Bean(name = "elasticsearchTemplate")
     public ElasticsearchTemplate template() throws Exception {
-	
+
 	return new ElasticsearchTemplate(createTransportClient());
     }
-    
+
     private Client createTransportClient()  {
 	    TransportClientFactoryBean factory = new TransportClientFactoryBean();
 	    factory.setClusterNodes(environment.getRequiredProperty("cluster.nodes"));
@@ -74,13 +74,13 @@ public class ServicesConfig {
 	    return null;
 	  }
 
- 
+
   /*
     private Client createTransportClient() throws Exception  {
 	    Assert.hasText(environment.getRequiredProperty("cluster.nodes"), "[Assertion failed] clusterNodes settings missing.");
-	
+
 	    Settings settings = Settings.builder().put("cluster.name", environment.getRequiredProperty("cluster.name")).build();
-	    
+
 	    TransportClient client = new PreBuiltTransportClient(settings);
 	    for (String clusterNode : split(environment.getRequiredProperty("cluster.nodes"), COMMA)) {
 		String hostName = substringBeforeLast(clusterNode, COLON);
@@ -91,18 +91,18 @@ public class ServicesConfig {
 		client.addTransportAddress(new InetSocketTransportAddress(InetAddress.getByName(hostName), Integer.valueOf(port)));
 	}
 	    try {
-		
+
 		client.addTransportAddress(new InetSocketTransportAddress(InetAddress.getByName("localhost"), 9300));
 		LOG.info("Transport Addresses: "+client.transportAddresses());
 		return client;
 	    } catch (UnknownHostException e1) {
 		LOG.error("Error getting transportclient from PreBuiltTransportClient", e1);
 		return null;
-		
+
 	    }
-	  
+
 	 }*/
-    
+
         @Bean(name = "cacheManager")
 	public CacheManager cacheManager() {
 		return new EhCacheCacheManager(ehCacheCacheManager().getObject());

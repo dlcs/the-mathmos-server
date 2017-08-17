@@ -6,7 +6,7 @@ public abstract class AbstractAnnotation {
 
     private String id;
     private Map<String, Object> jsonMap;
-   
+
     public String getId() {
         return id;
     }
@@ -23,5 +23,5 @@ public abstract class AbstractAnnotation {
         this.jsonMap = jsonMap;
     }
 
-    
+
 }

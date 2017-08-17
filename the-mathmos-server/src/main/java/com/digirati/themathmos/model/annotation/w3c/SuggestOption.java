@@ -5,13 +5,13 @@ public class SuggestOption  {
 
     private float score;
     private String text;
-    
-    
+
+
     public SuggestOption(float score, String text){
 	this.score = score;
 	this.text = text;
     }
-    
+
     public SuggestOption(String text){
 	this.text = text;
     }
@@ -27,6 +27,6 @@ public class SuggestOption  {
     public void setText(String text) {
 	this.text = text;
     }
-    
-    
+
+
 }

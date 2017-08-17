@@ -27,39 +27,39 @@ import com.digirati.themathmos.service.TextSearchService;
 
 @Service(OAAnnotationSearchServiceImpl.OA_ANNOTATION_SERVICE_NAME)
 public class OAAnnotationSearchServiceImpl extends AnnotationSearchServiceImpl implements OAAnnotationSearchService{
-    
- 
+
+
     public static final String OA_ANNOTATION_SERVICE_NAME = "oaAnnotationSearchServiceImpl";
-    
- 
-    
+
+
+
     @Autowired
     public OAAnnotationSearchServiceImpl(AnnotationUtils annotationUtils,ElasticsearchTemplate template,  TextSearchService textSearchService, CacheManager cacheManager) {
 	super(annotationUtils, template, textSearchService, cacheManager);
-   
+
     }
-    
-  
+
+
     @Override
     @Transactional(readOnly = true, isolation = Isolation.SERIALIZABLE)
     @Cacheable(value="oaAnnotationSearchPagingCache", key="#queryString" )
-    	
+
     public ServiceResponse<Map<String, Object>> getAnnotationPage(Parameters parameters, String queryString, String page, String within, String type)  {
-	
-	
+
+
 	String[] annoSearchArray  = this.getAnnotationsPage(parameters, queryString, false, page, within, type);
-	
+
 	if(annoSearchArray.length == 0){
 	    Map <String, Object> emptyMap = annotationUtils.returnEmptyResultSet(queryString,false, new PageParameters(),false);
 	    return new ServiceResponse<>(Status.OK,emptyMap);
 	}
-	
+
 	PageParameters pagingParameters = this.getPageParameters();
 
 	List<W3CAnnotation> annotationList = annotationUtils.getW3CAnnotations(annoSearchArray);
 
 	Map<String, Object> annoMap = annotationUtils.createAnnotationPage(queryString, annotationList, false, pagingParameters, (int)this.getTotalHits(), false);
-	   	
+
 	if(null != annoMap && !annoMap.isEmpty()){
 	    return new ServiceResponse<>(Status.OK, annoMap);
 	}else{
@@ -67,6 +67,6 @@ public class OAAnnotationSearchServiceImpl extends AnnotationSearchServiceImpl i
 	    return new ServiceResponse<>(Status.OK,emptyMap);
 	}
     }
-   
+
 
 }
