@@ -9,7 +9,7 @@
 	<parent>
 		<groupId>com.digirati.themathmos</groupId>
 		<artifactId>the-mathmos-parent</artifactId>
-		<version>1.0.2</version>
+		<version>1.0.3</version>
 	</parent>
 
 	<properties>

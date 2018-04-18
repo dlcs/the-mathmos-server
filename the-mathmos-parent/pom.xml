@@ -4,7 +4,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.digirati.themathmos</groupId>
 	<artifactId>the-mathmos-parent</artifactId>
-	<version>1.0.2</version>
+	<version>1.0.3</version>
 	<packaging>pom</packaging>
 	<name>The Mathmos Parent</name>
 
@@ -36,9 +36,9 @@
 		<powermock-version>1.6.5</powermock-version>
 		<rest-assured-version>3.0.1</rest-assured-version>
 		<slf4j-log4j12-version>1.7.21</slf4j-log4j12-version>
-		<spring-framework-version>5.0.0.RC3</spring-framework-version>
-		<spring-security-version>5.0.0.RC3</spring-security-version>
-		<spring-data-elasticsearch-version>3.0.0.RC2</spring-data-elasticsearch-version>
+		<spring-framework-version>5.0.0.RELEASE</spring-framework-version>
+		<spring-security-version>5.0.0.RELEASE</spring-security-version>
+		<spring-data-elasticsearch-version>3.0.0.RELEASE</spring-data-elasticsearch-version>
 	</properties>
 
 	<build>
