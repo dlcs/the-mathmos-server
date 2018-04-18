@@ -160,7 +160,12 @@ public class AnnotationAutocompleteServiceImpl implements AnnotationAutocomplete
 
 	SearchResponse searchResponse = searchRequestBuilder.execute().actionGet();
 
-	CompletionSuggestion compSuggestion = searchResponse.getSuggest().getSuggestion("annotation_suggest");
+	CompletionSuggestion compSuggestion = null;
+	try{
+	    compSuggestion = searchResponse.getSuggest().getSuggestion("annotation_suggest");
+	}catch (Exception e){
+	    compSuggestion = null;
+	}
 
 	List<SuggestOption> options = new ArrayList<>();
 	Set<String> suggestOptionSet = new TreeSet<>();
