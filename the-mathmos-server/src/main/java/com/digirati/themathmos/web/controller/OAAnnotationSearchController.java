@@ -25,177 +25,178 @@ import com.digirati.themathmos.service.AnnotationAutocompleteService;
 import com.digirati.themathmos.service.OAAnnotationSearchService;
 import com.digirati.themathmos.service.impl.AnnotationUtils;
 
-
-
-
 @RestController(OAAnnotationSearchController.CONTROLLER_NAME)
 public class OAAnnotationSearchController {
 
+	public static final String CONTROLLER_NAME = "oaAnnotationSearchController";
 
-    public static final String CONTROLLER_NAME = "oaAnnotationSearchController";
+	private OAAnnotationSearchService oaAnnotationSearchService;
+	private AnnotationAutocompleteService annotationAutocompleteService;
+	private ControllerUtility controllerUtility;
+	private AnnotationUtils annotationUtils;
 
-    private OAAnnotationSearchService oaAnnotationSearchService;
-    private AnnotationAutocompleteService annotationAutocompleteService;
-    private ControllerUtility controllerUtility;
-    private AnnotationUtils annotationUtils;
-
-    @Autowired
-    public OAAnnotationSearchController(OAAnnotationSearchService oaAnnotationSearchService,AnnotationAutocompleteService annotationAutocompleteService ) {
-        this.oaAnnotationSearchService = oaAnnotationSearchService;
-        this.annotationAutocompleteService = annotationAutocompleteService;
-        this.controllerUtility = new ControllerUtility();
-        this.annotationUtils = this.annotationAutocompleteService.getAnnotationUtils();
-    }
-
-
-    //autocomplete parameter defaults to 1 if not specified
-    public static final String PARAM_MIN = "min";
-
-
-    private static final String WITHIN_OA_SEARCH_REQUEST_PATH = "/{withinId}/oa/search";
-
-    private static final String WITHIN_OA_AUTOCOMPLETE_REQUEST_PATH = "/{withinId}/oa/autocomplete";
-
-    private static final String OA_SEARCH_REQUEST_PATH = "/oa/search";
-
-    private static final String OA_AUTOCOMPLETE_REQUEST_PATH = "/oa/autocomplete";
-
-    @CrossOrigin
-    @RequestMapping(value = OA_SEARCH_REQUEST_PATH, method = RequestMethod.GET)
-    public ResponseEntity<Map<String, Object>> searchOAGet(
-	    @RequestParam(value = AnnotationSearchConstants.PARAM_FIELD_QUERY, required = false) String query,
-	    @RequestParam(value = AnnotationSearchConstants.PARAM_FIELD_MOTIVATION, required = false) String motivation,
-	    @RequestParam(value = AnnotationSearchConstants.PARAM_FIELD_DATE, required = false) String date,
-	    @RequestParam(value = AnnotationSearchConstants.PARAM_FIELD_USER, required = false) String user,
-	    @RequestParam(value = AnnotationSearchConstants.PARAM_FIELD_PAGE, required = false) String page,
-	    HttpServletRequest request) {
-
-	String queryString = controllerUtility.createQueryString(request);
-	String type = null;
-
-	if(!controllerUtility.validateParameters(query, motivation, date, user)){
-	    throw new SearchQueryException(AnnotationSearchConstants.EMPTY_QUERY_MESSAGE);
+	@Autowired
+	public OAAnnotationSearchController(OAAnnotationSearchService oaAnnotationSearchService,
+			AnnotationAutocompleteService annotationAutocompleteService) {
+		this.oaAnnotationSearchService = oaAnnotationSearchService;
+		this.annotationAutocompleteService = annotationAutocompleteService;
+		this.controllerUtility = new ControllerUtility();
+		this.annotationUtils = this.annotationAutocompleteService.getAnnotationUtils();
 	}
 
-	ServiceResponse<Map<String, Object>> serviceResponse = oaAnnotationSearchService.getAnnotationPage(new Parameters(query, motivation, date, user), queryString, page, null, type);
-	Status serviceResponseStatus = serviceResponse.getStatus();
+	// autocomplete parameter defaults to 1 if not specified
+	public static final String PARAM_MIN = "min";
 
-	if (serviceResponseStatus.equals(Status.OK)) {
-	    return new ResponseEntity<Map<String,Object>>(serviceResponse.getObj(), controllerUtility.getResponseHeaders(),  HttpStatus.OK);
+	private static final String WITHIN_OA_SEARCH_REQUEST_PATH = "/{withinId}/oa/search";
+
+	private static final String WITHIN_OA_AUTOCOMPLETE_REQUEST_PATH = "/{withinId}/oa/autocomplete";
+
+	private static final String OA_SEARCH_REQUEST_PATH = "/oa/search";
+
+	private static final String OA_AUTOCOMPLETE_REQUEST_PATH = "/oa/autocomplete";
+
+	@RequestMapping(value = OA_SEARCH_REQUEST_PATH, method = RequestMethod.GET)
+	public ResponseEntity<Map<String, Object>> searchOAGet(
+			@RequestParam(value = AnnotationSearchConstants.PARAM_FIELD_QUERY, required = false) String query,
+			@RequestParam(value = AnnotationSearchConstants.PARAM_FIELD_MOTIVATION, required = false) String motivation,
+			@RequestParam(value = AnnotationSearchConstants.PARAM_FIELD_DATE, required = false) String date,
+			@RequestParam(value = AnnotationSearchConstants.PARAM_FIELD_USER, required = false) String user,
+			@RequestParam(value = AnnotationSearchConstants.PARAM_FIELD_PAGE, required = false) String page,
+			HttpServletRequest request) {
+
+		String queryString = controllerUtility.createQueryString(request);
+		String type = null;
+
+		if (!controllerUtility.validateParameters(query, motivation, date, user)) {
+			throw new SearchQueryException(AnnotationSearchConstants.EMPTY_QUERY_MESSAGE);
+		}
+
+		ServiceResponse<Map<String, Object>> serviceResponse = oaAnnotationSearchService
+				.getAnnotationPage(new Parameters(query, motivation, date, user), queryString, page, null, type);
+		Status serviceResponseStatus = serviceResponse.getStatus();
+
+		if (serviceResponseStatus.equals(Status.OK)) {
+			return new ResponseEntity<Map<String, Object>>(serviceResponse.getObj(),
+					controllerUtility.getResponseHeaders(), HttpStatus.OK);
+		}
+
+		if (serviceResponseStatus.equals(Status.NOT_FOUND)) {
+			Map<String, Object> emptyMap = annotationUtils.returnEmptyResultSet(queryString, false,
+					new PageParameters(), false);
+			return new ResponseEntity<Map<String, Object>>(emptyMap, controllerUtility.getResponseHeaders(),
+					HttpStatus.OK);
+		}
+
+		throw new SearchException(String.format("Unexpected service response status [%s]", serviceResponseStatus));
 	}
 
-	if (serviceResponseStatus.equals(Status.NOT_FOUND)) {
-	    Map <String, Object> emptyMap = annotationUtils.returnEmptyResultSet(queryString,false, new PageParameters(),false);
-	    return new ResponseEntity<Map<String,Object>>(emptyMap, controllerUtility.getResponseHeaders(),  HttpStatus.OK);
+	@RequestMapping(value = WITHIN_OA_SEARCH_REQUEST_PATH, method = RequestMethod.GET)
+	public ResponseEntity<Map<String, Object>> searchWithinOAGet(@PathVariable String withinId,
+			@RequestParam(value = AnnotationSearchConstants.PARAM_FIELD_QUERY, required = false) String query,
+			@RequestParam(value = AnnotationSearchConstants.PARAM_FIELD_MOTIVATION, required = false) String motivation,
+			@RequestParam(value = AnnotationSearchConstants.PARAM_FIELD_DATE, required = false) String date,
+			@RequestParam(value = AnnotationSearchConstants.PARAM_FIELD_USER, required = false) String user,
+			@RequestParam(value = AnnotationSearchConstants.PARAM_FIELD_PAGE, required = false) String page,
+			HttpServletRequest request) {
+
+		String queryString = controllerUtility.createQueryString(request);
+
+		String within = withinId;
+		String type = null;
+
+		if (!controllerUtility.validateParameters(query, motivation, date, user)) {
+			throw new SearchQueryException(AnnotationSearchConstants.EMPTY_QUERY_MESSAGE);
+		}
+		ServiceResponse<Map<String, Object>> serviceResponse = oaAnnotationSearchService
+				.getAnnotationPage(new Parameters(query, motivation, date, user), queryString, page, within, type);
+
+		Status serviceResponseStatus = serviceResponse.getStatus();
+
+		if (serviceResponseStatus.equals(Status.OK)) {
+			return new ResponseEntity<Map<String, Object>>(serviceResponse.getObj(),
+					controllerUtility.getResponseHeaders(), HttpStatus.OK);
+		}
+
+		if (serviceResponseStatus.equals(Status.NOT_FOUND)) {
+			Map<String, Object> emptyMap = annotationUtils.returnEmptyResultSet(queryString, false,
+					new PageParameters(), false);
+			return new ResponseEntity<Map<String, Object>>(emptyMap, controllerUtility.getResponseHeaders(),
+					HttpStatus.OK);
+		}
+
+		throw new SearchException(String.format("Unexpected service response status [%s]", serviceResponseStatus));
 	}
 
-	throw new SearchException(String.format("Unexpected service response status [%s]", serviceResponseStatus));
-    }
+	@RequestMapping(value = OA_AUTOCOMPLETE_REQUEST_PATH, method = RequestMethod.GET)
+	public ResponseEntity<Map<String, Object>> autocompleteGet(
+			@RequestParam(value = AnnotationSearchConstants.PARAM_FIELD_QUERY, required = true) String query,
+			@RequestParam(value = AnnotationSearchConstants.PARAM_FIELD_MOTIVATION, required = false) String motivation,
+			@RequestParam(value = AnnotationSearchConstants.PARAM_FIELD_DATE, required = false) String date,
+			@RequestParam(value = AnnotationSearchConstants.PARAM_FIELD_USER, required = false) String user,
+			@RequestParam(value = PARAM_MIN, required = false) String min, HttpServletRequest request) {
 
-    @CrossOrigin
-    @RequestMapping(value = WITHIN_OA_SEARCH_REQUEST_PATH, method = RequestMethod.GET)
-    public ResponseEntity<Map<String, Object>> searchWithinOAGet(
-	    @PathVariable String withinId,
-	    @RequestParam(value = AnnotationSearchConstants.PARAM_FIELD_QUERY, required = false) String query,
-	    @RequestParam(value = AnnotationSearchConstants.PARAM_FIELD_MOTIVATION, required = false) String motivation,
-	    @RequestParam(value = AnnotationSearchConstants.PARAM_FIELD_DATE, required = false) String date,
-	    @RequestParam(value = AnnotationSearchConstants.PARAM_FIELD_USER, required = false) String user,
-	    @RequestParam(value = AnnotationSearchConstants.PARAM_FIELD_PAGE, required = false) String page,
-	    HttpServletRequest request) {
+		String queryString = controllerUtility.createQueryString(request);
 
-	String queryString = controllerUtility.createQueryString(request);
+		if (!controllerUtility.validateQueryParameter(query)) {
+			throw new SearchQueryException(AnnotationSearchConstants.EMPTY_AUTOCOMPLETE_QUERY_MESSAGE);
+		}
 
-	String within = withinId;
-	String type = null;
+		ServiceResponse<Map<String, Object>> serviceResponse = annotationAutocompleteService.getTerms(query, motivation,
+				date, user, min, queryString, false, null);
 
-	if(!controllerUtility.validateParameters(query, motivation, date, user)){
-	    throw new SearchQueryException(AnnotationSearchConstants.EMPTY_QUERY_MESSAGE);
-	}
-	ServiceResponse<Map<String, Object>> serviceResponse = oaAnnotationSearchService.getAnnotationPage(new Parameters(query, motivation, date, user), queryString, page, within, type);
+		Status serviceResponseStatus = serviceResponse.getStatus();
 
-	Status serviceResponseStatus = serviceResponse.getStatus();
+		if (serviceResponseStatus.equals(Status.OK)) {
+			return new ResponseEntity<Map<String, Object>>(serviceResponse.getObj(),
+					controllerUtility.getResponseHeaders(), HttpStatus.OK);
+		}
 
-	if (serviceResponseStatus.equals(Status.OK)) {
-	    return new ResponseEntity<Map<String,Object>>(serviceResponse.getObj(), controllerUtility.getResponseHeaders(),  HttpStatus.OK);
-	}
+		if (serviceResponseStatus.equals(Status.NOT_FOUND)) {
+			Map<String, Object> emptyMap = annotationUtils.returnEmptyAutocompleteResultSet(queryString, motivation,
+					date, user);
+			return new ResponseEntity<Map<String, Object>>(emptyMap, controllerUtility.getResponseHeaders(),
+					HttpStatus.OK);
+		}
 
-	if (serviceResponseStatus.equals(Status.NOT_FOUND)) {
-	    Map <String, Object> emptyMap = annotationUtils.returnEmptyResultSet(queryString,false, new PageParameters(),false);
-	    return new ResponseEntity<Map<String,Object>>(emptyMap, controllerUtility.getResponseHeaders(),  HttpStatus.OK);
-	}
+		throw new SearchException(String.format("Unexpected service response status [%s]", serviceResponseStatus));
 
-	throw new SearchException(String.format("Unexpected service response status [%s]", serviceResponseStatus));
-    }
-
-    @RequestMapping(value = OA_AUTOCOMPLETE_REQUEST_PATH, method = RequestMethod.GET)
-    public ResponseEntity<Map<String, Object>> autocompleteGet(
-	    @RequestParam(value = AnnotationSearchConstants.PARAM_FIELD_QUERY, required = true) String query,
-	    @RequestParam(value = AnnotationSearchConstants.PARAM_FIELD_MOTIVATION, required = false) String motivation,
-	    @RequestParam(value = AnnotationSearchConstants.PARAM_FIELD_DATE, required = false) String date,
-	    @RequestParam(value = AnnotationSearchConstants.PARAM_FIELD_USER, required = false) String user,
-	    @RequestParam(value = PARAM_MIN, required = false) String min,
-	    HttpServletRequest request) {
-
-	String queryString = controllerUtility.createQueryString(request);
-
-	if(!controllerUtility.validateQueryParameter(query)){
-	    throw new SearchQueryException(AnnotationSearchConstants.EMPTY_AUTOCOMPLETE_QUERY_MESSAGE);
 	}
 
-	ServiceResponse<Map<String, Object>> serviceResponse = annotationAutocompleteService.getTerms(query, motivation, date, user, min, queryString, false, null);
+	@RequestMapping(value = WITHIN_OA_AUTOCOMPLETE_REQUEST_PATH, method = RequestMethod.GET)
+	public ResponseEntity<Map<String, Object>> autocompleteWithinGet(@PathVariable String withinId,
+			@RequestParam(value = AnnotationSearchConstants.PARAM_FIELD_QUERY, required = true) String query,
+			@RequestParam(value = AnnotationSearchConstants.PARAM_FIELD_MOTIVATION, required = false) String motivation,
+			@RequestParam(value = AnnotationSearchConstants.PARAM_FIELD_DATE, required = false) String date,
+			@RequestParam(value = AnnotationSearchConstants.PARAM_FIELD_USER, required = false) String user,
+			@RequestParam(value = PARAM_MIN, required = false) String min, HttpServletRequest request) {
 
+		String queryString = controllerUtility.createQueryString(request);
 
-	Status serviceResponseStatus = serviceResponse.getStatus();
+		String within = withinId;
 
-	if (serviceResponseStatus.equals(Status.OK)) {
-	    return new ResponseEntity<Map<String,Object>>(serviceResponse.getObj(), controllerUtility.getResponseHeaders(),  HttpStatus.OK);
+		if (!controllerUtility.validateQueryParameter(query)) {
+			throw new SearchQueryException(AnnotationSearchConstants.EMPTY_AUTOCOMPLETE_QUERY_MESSAGE);
+		}
+
+		ServiceResponse<Map<String, Object>> serviceResponse = annotationAutocompleteService.getTerms(query, motivation,
+				date, user, min, queryString, false, within);
+
+		Status serviceResponseStatus = serviceResponse.getStatus();
+
+		if (serviceResponseStatus.equals(Status.OK)) {
+			return new ResponseEntity<Map<String, Object>>(serviceResponse.getObj(),
+					controllerUtility.getResponseHeaders(), HttpStatus.OK);
+		}
+
+		if (serviceResponseStatus.equals(Status.NOT_FOUND)) {
+			Map<String, Object> emptyMap = annotationUtils.returnEmptyAutocompleteResultSet(queryString, motivation,
+					date, user);
+			return new ResponseEntity<Map<String, Object>>(emptyMap, controllerUtility.getResponseHeaders(),
+					HttpStatus.OK);
+		}
+
+		throw new SearchException(String.format("Unexpected service response status [%s]", serviceResponseStatus));
+
 	}
-
-	if (serviceResponseStatus.equals(Status.NOT_FOUND)) {
-	    Map <String, Object> emptyMap = annotationUtils.returnEmptyAutocompleteResultSet(queryString,motivation,date,user);
-	    return new ResponseEntity<Map<String,Object>>(emptyMap, controllerUtility.getResponseHeaders(),  HttpStatus.OK);
-	}
-
-	throw new SearchException(String.format("Unexpected service response status [%s]", serviceResponseStatus));
-
-    }
-
-
-    @RequestMapping(value = WITHIN_OA_AUTOCOMPLETE_REQUEST_PATH, method = RequestMethod.GET)
-    public ResponseEntity<Map<String, Object>> autocompleteWithinGet(
-	    @PathVariable String withinId,
-	    @RequestParam(value = AnnotationSearchConstants.PARAM_FIELD_QUERY, required = true) String query,
-	    @RequestParam(value = AnnotationSearchConstants.PARAM_FIELD_MOTIVATION, required = false) String motivation,
-	    @RequestParam(value = AnnotationSearchConstants.PARAM_FIELD_DATE, required = false) String date,
-	    @RequestParam(value = AnnotationSearchConstants.PARAM_FIELD_USER, required = false) String user,
-	    @RequestParam(value = PARAM_MIN, required = false) String min,
-	    HttpServletRequest request) {
-
-	String queryString = controllerUtility.createQueryString(request);
-
-	String within = withinId;
-
-	if(!controllerUtility.validateQueryParameter(query)){
-	    throw new SearchQueryException(AnnotationSearchConstants.EMPTY_AUTOCOMPLETE_QUERY_MESSAGE);
-	}
-
-	ServiceResponse<Map<String, Object>> serviceResponse = annotationAutocompleteService.getTerms(query, motivation, date, user, min, queryString, false, within);
-
-
-	Status serviceResponseStatus = serviceResponse.getStatus();
-
-	if (serviceResponseStatus.equals(Status.OK)) {
-	    return new ResponseEntity<Map<String,Object>>(serviceResponse.getObj(), controllerUtility.getResponseHeaders(),  HttpStatus.OK);
-	}
-
-	if (serviceResponseStatus.equals(Status.NOT_FOUND)) {
-	    Map <String, Object> emptyMap = annotationUtils.returnEmptyAutocompleteResultSet(queryString,motivation,date,user);
-	    return new ResponseEntity<Map<String,Object>>(emptyMap, controllerUtility.getResponseHeaders(),  HttpStatus.OK);
-	}
-
-	throw new SearchException(String.format("Unexpected service response status [%s]", serviceResponseStatus));
-
-    }
-
 
 }
