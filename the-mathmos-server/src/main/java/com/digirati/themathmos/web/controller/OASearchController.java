@@ -63,6 +63,7 @@ public class OASearchController {
 	private static final String WITHIN_OA_MIXED_SEARCH_REQUEST_PATH = "/{withinId}/search/oa";
 	private static final String WITHIN_OA_MIXED_AUTOCOMPLETE_REQUEST_PATH = "/{withinId}/autocomplete/oa";
 
+	@CrossOrigin
 	@RequestMapping(value = OA_MIXED_SEARCH_REQUEST_PATH, method = RequestMethod.GET)
 	public ResponseEntity<Map<String, Object>> searchOAMixedGet(
 			@RequestParam(value = AnnotationSearchConstants.PARAM_FIELD_QUERY, required = false) String query,
@@ -119,6 +120,7 @@ public class OASearchController {
 		throw new SearchException(String.format("Unexpected service response status [%s]", serviceResponseStatus));
 	}
 
+	@CrossOrigin
 	@RequestMapping(value = WITHIN_OA_MIXED_SEARCH_REQUEST_PATH, method = RequestMethod.GET)
 	public ResponseEntity<Map<String, Object>> searchOAWithinMixedGet(@PathVariable String withinId,
 			@RequestParam(value = AnnotationSearchConstants.PARAM_FIELD_QUERY, required = false) String query,
@@ -178,6 +180,7 @@ public class OASearchController {
 		throw new SearchException(String.format("Unexpected service response status [%s]", serviceResponseStatus));
 	}
 
+	@CrossOrigin
 	@RequestMapping(value = OA_MIXED_AUTOCOMPLETE_REQUEST_PATH, method = RequestMethod.GET)
 	public ResponseEntity<Map<String, Object>> autocompleteOAMixedGet(
 			@RequestParam(value = AnnotationSearchConstants.PARAM_FIELD_QUERY, required = true) String query,
@@ -222,6 +225,7 @@ public class OASearchController {
 
 	}
 
+	@CrossOrigin
 	@RequestMapping(value = WITHIN_OA_MIXED_AUTOCOMPLETE_REQUEST_PATH, method = RequestMethod.GET)
 	public ResponseEntity<Map<String, Object>> autocompleteOAWithinMixedGet(@PathVariable String withinId,
 			@RequestParam(value = AnnotationSearchConstants.PARAM_FIELD_QUERY, required = true) String query,

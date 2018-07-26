@@ -63,6 +63,7 @@ public class W3CSearchController {
 	private static final String WITHIN_W3C_MIXED_SEARCH_REQUEST_PATH = "/{withinId}/search/w3c";
 	private static final String WITHIN_W3C_MIXED_AUTOCOMPLETE_REQUEST_PATH = "/{withinId}/autocomplete/w3c";
 
+	@CrossOrigin
 	@RequestMapping(value = W3C_MIXED_SEARCH_REQUEST_PATH, method = RequestMethod.GET)
 	public ResponseEntity<Map<String, Object>> searchW3CGet(
 			@RequestParam(value = AnnotationSearchConstants.PARAM_FIELD_QUERY, required = false) String query,
@@ -118,6 +119,7 @@ public class W3CSearchController {
 		throw new SearchException(String.format("Unexpected service response status [%s]", serviceResponseStatus));
 	}
 
+	@CrossOrigin
 	@RequestMapping(value = WITHIN_W3C_MIXED_SEARCH_REQUEST_PATH, method = RequestMethod.GET)
 	public ResponseEntity<Map<String, Object>> searchW3CWithinGet(@PathVariable String withinId,
 			@RequestParam(value = AnnotationSearchConstants.PARAM_FIELD_QUERY, required = false) String query,
@@ -174,6 +176,7 @@ public class W3CSearchController {
 		throw new SearchException(String.format("Unexpected service response status [%s]", serviceResponseStatus));
 	}
 
+	@CrossOrigin
 	@RequestMapping(value = W3C_MIXED_AUTOCOMPLETE_REQUEST_PATH, method = RequestMethod.GET)
 	public ResponseEntity<Map<String, Object>> autocompleteW3CMixedGet(
 			@RequestParam(value = AnnotationSearchConstants.PARAM_FIELD_QUERY, required = true) String query,
@@ -218,6 +221,7 @@ public class W3CSearchController {
 
 	}
 
+	@CrossOrigin
 	@RequestMapping(value = WITHIN_W3C_MIXED_AUTOCOMPLETE_REQUEST_PATH, method = RequestMethod.GET)
 	public ResponseEntity<Map<String, Object>> autocompleteW3CWithinMixedGet(@PathVariable String withinId,
 			@RequestParam(value = AnnotationSearchConstants.PARAM_FIELD_QUERY, required = true) String query,

@@ -55,6 +55,7 @@ public class OAAnnotationSearchController {
 
 	private static final String OA_AUTOCOMPLETE_REQUEST_PATH = "/oa/autocomplete";
 
+	@CrossOrigin
 	@RequestMapping(value = OA_SEARCH_REQUEST_PATH, method = RequestMethod.GET)
 	public ResponseEntity<Map<String, Object>> searchOAGet(
 			@RequestParam(value = AnnotationSearchConstants.PARAM_FIELD_QUERY, required = false) String query,
@@ -90,6 +91,7 @@ public class OAAnnotationSearchController {
 		throw new SearchException(String.format("Unexpected service response status [%s]", serviceResponseStatus));
 	}
 
+	@CrossOrigin
 	@RequestMapping(value = WITHIN_OA_SEARCH_REQUEST_PATH, method = RequestMethod.GET)
 	public ResponseEntity<Map<String, Object>> searchWithinOAGet(@PathVariable String withinId,
 			@RequestParam(value = AnnotationSearchConstants.PARAM_FIELD_QUERY, required = false) String query,
@@ -127,6 +129,7 @@ public class OAAnnotationSearchController {
 		throw new SearchException(String.format("Unexpected service response status [%s]", serviceResponseStatus));
 	}
 
+	@CrossOrigin
 	@RequestMapping(value = OA_AUTOCOMPLETE_REQUEST_PATH, method = RequestMethod.GET)
 	public ResponseEntity<Map<String, Object>> autocompleteGet(
 			@RequestParam(value = AnnotationSearchConstants.PARAM_FIELD_QUERY, required = true) String query,
@@ -162,6 +165,7 @@ public class OAAnnotationSearchController {
 
 	}
 
+	@CrossOrigin
 	@RequestMapping(value = WITHIN_OA_AUTOCOMPLETE_REQUEST_PATH, method = RequestMethod.GET)
 	public ResponseEntity<Map<String, Object>> autocompleteWithinGet(@PathVariable String withinId,
 			@RequestParam(value = AnnotationSearchConstants.PARAM_FIELD_QUERY, required = true) String query,

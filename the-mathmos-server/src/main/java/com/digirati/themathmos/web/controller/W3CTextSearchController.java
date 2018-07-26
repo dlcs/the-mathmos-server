@@ -53,6 +53,7 @@ public class W3CTextSearchController {
 	private static final String WITHIN_TEXT_SEARCH_REQUEST_PATH = "/{withinId}/w3c/text/search";
 	private static final String WITHIN_W3C_TEXT_AUTOCOMPLETE_REQUEST_PATH = "/{withinId}/w3c/text/autocomplete";
 
+	@CrossOrigin
 	@RequestMapping(value = TEXT_SEARCH_REQUEST_PATH, method = RequestMethod.GET)
 	public ResponseEntity<Map<String, Object>> searchTextGet(
 			@RequestParam(value = AnnotationSearchConstants.PARAM_FIELD_QUERY, required = true) String query,
@@ -89,6 +90,7 @@ public class W3CTextSearchController {
 		throw new SearchException(String.format("Unexpected service response status [%s]", serviceResponseStatus));
 	}
 
+	@CrossOrigin
 	@RequestMapping(value = WITHIN_TEXT_SEARCH_REQUEST_PATH, method = RequestMethod.GET)
 	public ResponseEntity<Map<String, Object>> searchTextWithinGet(@PathVariable String withinId,
 			@RequestParam(value = AnnotationSearchConstants.PARAM_FIELD_QUERY, required = true) String query,
@@ -127,6 +129,7 @@ public class W3CTextSearchController {
 		throw new SearchException(String.format("Unexpected service response status [%s]", serviceResponseStatus));
 	}
 
+	@CrossOrigin
 	@RequestMapping(value = W3C_TEXT_AUTOCOMPLETE_REQUEST_PATH, method = RequestMethod.GET)
 	public ResponseEntity<Map<String, Object>> autocompleteTextW3CGet(
 			@RequestParam(value = AnnotationSearchConstants.PARAM_FIELD_QUERY, required = true) String query,
@@ -154,6 +157,7 @@ public class W3CTextSearchController {
 
 	}
 
+	@CrossOrigin
 	@RequestMapping(value = WITHIN_W3C_TEXT_AUTOCOMPLETE_REQUEST_PATH, method = RequestMethod.GET)
 	public ResponseEntity<Map<String, Object>> autocompleteTextWithinW3CGet(@PathVariable String withinId,
 			@RequestParam(value = AnnotationSearchConstants.PARAM_FIELD_QUERY, required = true) String query,

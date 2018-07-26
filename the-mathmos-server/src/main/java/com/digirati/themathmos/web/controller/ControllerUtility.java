@@ -13,7 +13,8 @@ public class ControllerUtility {
 
     public  ControllerUtility(){
 	this.responseHeaders = new HttpHeaders();
-	this.responseHeaders.setAccessControlAllowOrigin("*");
+	//removing this and adding @crossOrigin to all response methods in controller
+	//this.responseHeaders.setAccessControlAllowOrigin("*");
     }
 
 
