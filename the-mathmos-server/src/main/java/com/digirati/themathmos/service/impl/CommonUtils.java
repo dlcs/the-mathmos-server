@@ -462,7 +462,7 @@ public class CommonUtils {
 	}
 	int existingStartIndex = 0;
 	if (isW3c) {
-	    existingStartIndex = (Integer) root.get(W3C_STARTINDEX);
+	    existingStartIndex = (Integer) root.getOrDefault(W3C_STARTINDEX, 0);
 	    root.put(W3C_STARTINDEX, startIndex);
 	} else {
 	    existingStartIndex = (Integer) root.get(OA_STARTINDEX);
